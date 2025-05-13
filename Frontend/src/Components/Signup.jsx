@@ -1,6 +1,56 @@
 import { Link } from "react-router-dom";
-
+import {useState} from 'react';
+import { useNavigate } from "react-router-dom";
 export default function Signup() {
+
+  const [formData,setFormData]=useState({
+    name:"",
+    email:"",
+    password:"",
+    confirmPassword:"",
+    type:"user"
+
+  })
+
+  const navigate=useNavigate();
+  const [error,setError]=useState(null);
+
+  const handleSubmit=async(e)=>{
+    e.preventDefault();
+
+    console.log("Form Data:", formData);
+
+    const {name,email,password,confirmPassword}=formData;
+
+    if(password!==confirmPassword){
+      setError("Passwords do not match");
+      return;
+    }
+
+    try{
+      fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/signup`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+        .then(async (res) => {
+          const data = await res.json();
+          console.log("Response:", data);
+          if (res.status !== 200) {
+            setError(data.message);
+          } else {
+            navigate("/login");
+          }
+        });
+    }
+    catch(err){
+      console.log("Error:",err);
+      setError("An error occurred during signup. Please try again.");
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
@@ -18,6 +68,7 @@ export default function Signup() {
             <input
               type="text"
               id="name"
+              onChange={((e)=>setFormData({...formData,name:e.target.value}))}
               placeholder="Enter your full name"
               className="mt-1 block w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
             />
@@ -32,6 +83,7 @@ export default function Signup() {
             <input
               type="email"
               id="email"
+              onChange={((e)=>setFormData({...formData,email:e.target.value}))}
               placeholder="Enter your email"
               className="mt-1 block w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
             />
@@ -46,6 +98,7 @@ export default function Signup() {
             <input
               type="password"
               id="password"
+              onChange={((e)=>setFormData({...formData,password:e.target.value}))}
               placeholder="Enter your password"
               className="mt-1 block w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
             />
@@ -60,12 +113,17 @@ export default function Signup() {
             <input
               type="password"
               id="confirm-password"
+              onChange={((e)=>setFormData({...formData,confirmPassword:e.target.value}))}
               placeholder="Confirm your password"
               className="mt-1 block w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+          <div>
+            {error&&<p className="text-red-500 text-sm">{error}</p>}
+          </div>
           <button
             type="submit"
+            onClick={handleSubmit}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md transition"
           >
             Sign Up
