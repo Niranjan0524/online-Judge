@@ -1,6 +1,8 @@
 const User = require("../models/user");
 const expressValidator = require("express-validator");  
 const bcrypt = require("bcryptjs");
+const jwt=require("jsonwebtoken");
+
 
 const namevalidator=expressValidator
   .check("name")
@@ -100,3 +102,43 @@ exports.signup = (req, res) => {
     });
 };
   
+
+exports.login=async(req,res)=>{
+  console.log("inside login controller");
+
+  const {email,password}=req.body;
+
+    const user =await  User.findOne({ email: email });
+    console.log(user,"user");
+    if(!user){
+      return res.status(422).json({
+        message:"User does not exist"
+      })
+    }
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+    console.log(user.password,"user password");
+    const isMatch=await bcrypt.compare(password,user.password);
+
+    if(!isMatch){
+      return res.status(422).json({
+        message:"Invalid Password"
+      })
+    }
+
+    const token=jwt.sign({email,id:user._id},process.env.JWT_SECRET,{
+      expiresIn:"10d"
+    });
+
+    res.json({
+      message:"User Logged in successfully",
+      token:token,
+      user:{
+        name:user.name,
+        email:user.email,
+        type:user.type
+      }
+    }); 
+  
+}

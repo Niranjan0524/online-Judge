@@ -1,12 +1,63 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const [formData,setFormData]=useState({
+    email:"",
+    password:""
+  })
+  const [error,setError]=useState(null);
+  const navigate=useNavigate();
+  const handleLogin=async(e)=>{
+    console.log("Login button clicked");  
+    e.preventDefault();
+  
+    const {email,password}=formData;
+
+    if(email==="" || password===""){
+
+      setError("Please fill in all fields");
+      return;
+    }
+
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
+      method:"POST",
+      headers:{
+        'content-type':'application/json',
+      },
+      body:JSON.stringify(formData)
+    })
+    .then(async(res)=>{
+      const data=await res.json();
+      console.log("Response from the backend:",data);
+
+      if(res.status!==200){
+        setError(data.message);
+      }
+      else{
+        console.log("Login successful");
+        navigate("/");
+      }
+    })
+    .catch((err)=>{
+      console.log("Error:",err);
+      setError("An error occurred during login. Please try again.");
+    })
+    
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-semibold text-gray-800 dark:text-white text-center">
           Login
         </h2>
+        <div className="mt-4">
+          {error !== null ? (
+            <p className="text-red-500 text-sm text-center">{error}</p>
+          ) : null}
+        </div>
         <form className="mt-6 space-y-4">
           <div>
             <label
@@ -18,8 +69,11 @@ export default function Login() {
             <input
               type="email"
               id="email"
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
               placeholder="Enter your email"
-              className="mt-1 block w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-4 py-2 border-b border-t-0 border-l-0 border-r-0 focus:outline-none bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div>
@@ -30,21 +84,25 @@ export default function Login() {
               Password
             </label>
             <input
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
               type="password"
               id="password"
               placeholder="Enter your password"
-              className="mt-1 block w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-4 py-2 border-b border-t-0 border-l-0 border-r-0 focus:outline-none bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <button
             type="submit"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md transition"
+            onClick={handleLogin}
           >
             Login
           </button>
         </form>
         <div className="mt-4 flex justify-between items-center">
-          <button className="w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 rounded-md flex items-center justify-center gap-2">
+          <button className="w-[180px] bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 rounded-md flex items-center justify-center gap-2">
             <img
               src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
               alt="Google"
@@ -52,9 +110,7 @@ export default function Login() {
             />
             Login with Google
           </button>
-        </div>
-        <div className="mt-4 flex justify-between items-center">
-          <button className="w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 rounded-md flex items-center justify-center gap-2">
+          <button className="w-[180px] bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 rounded-md flex items-center justify-center gap-2">
             <img
               src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
               alt="GitHub"
@@ -63,6 +119,7 @@ export default function Login() {
             Login with GitHub
           </button>
         </div>
+        <div className="mt-4 flex justify-between items-center"></div>
         <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
           Don't have an account?{" "}
           <Link

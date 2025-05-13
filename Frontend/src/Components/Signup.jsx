@@ -39,7 +39,7 @@ export default function Signup() {
           const data = await res.json();
           console.log("Response:", data);
           if (res.status !== 200) {
-            setError(data.message);
+            setError(data.errors);
           } else {
             navigate("/login");
           }
@@ -68,9 +68,11 @@ export default function Signup() {
             <input
               type="text"
               id="name"
-              onChange={((e)=>setFormData({...formData,name:e.target.value}))}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               placeholder="Enter your full name"
-              className="mt-1 block w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-4 py-2 border-b border-t-0 border-l-0 border-r-0 focus:outline-none bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div>
@@ -83,9 +85,11 @@ export default function Signup() {
             <input
               type="email"
               id="email"
-              onChange={((e)=>setFormData({...formData,email:e.target.value}))}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
               placeholder="Enter your email"
-              className="mt-1 block w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-4 py-2 border-b border-t-0 border-l-0 border-r-0 focus:outline-none bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div>
@@ -98,9 +102,11 @@ export default function Signup() {
             <input
               type="password"
               id="password"
-              onChange={((e)=>setFormData({...formData,password:e.target.value}))}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
               placeholder="Enter your password"
-              className="mt-1 block w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-4 py-2 border-b border-t-0 border-l-0 border-r-0 focus:outline-none bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div>
@@ -113,13 +119,21 @@ export default function Signup() {
             <input
               type="password"
               id="confirm-password"
-              onChange={((e)=>setFormData({...formData,confirmPassword:e.target.value}))}
+              onChange={(e) =>
+                setFormData({ ...formData, confirmPassword: e.target.value })
+              }
               placeholder="Confirm your password"
-              className="mt-1 block w-full px-4 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-4 py-2 border-b border-t-0 border-l-0 border-r-0 focus:outline-none bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div>
-            {error&&<p className="text-red-500 text-sm">{error}</p>}
+            {error !== null
+              ? error.map((err, idx) => (
+                  <li key={idx} className="text-red-500 text-sm">
+                    {err}
+                  </li>
+                ))
+              : null}
           </div>
           <button
             type="submit"
