@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../store/AuthContext";
 
 export default function Login() {
   const [formData,setFormData]=useState({
@@ -9,8 +10,11 @@ export default function Login() {
   })
   const [error,setError]=useState(null);
   const navigate=useNavigate();
+  const {login}=useAuth();
+
+
   const handleLogin=async(e)=>{
-    console.log("Login button clicked");  
+ 
     e.preventDefault();
   
     const {email,password}=formData;
@@ -30,12 +34,16 @@ export default function Login() {
     })
     .then(async(res)=>{
       const data=await res.json();
-      console.log("Response from the backend:",data);
+
 
       if(res.status!==200){
+        setIsLoggedIn(false);
+        setUser(null);
+        setToken(null);
         setError(data.message);
       }
       else{
+        login(data);
         console.log("Login successful");
         navigate("/");
       }

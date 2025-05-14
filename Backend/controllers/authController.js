@@ -142,3 +142,43 @@ exports.login=async(req,res)=>{
     }); 
   
 }
+
+
+exports.getUser=async(req,res)=>{
+ 
+  const authHeader = req.headers.authorization;
+  if(!authHeader){
+    return res.status(401).json({
+      message:"Authorization header is missing"
+    })
+  }
+
+  const token=authHeader.split(" ")[1];
+  if(!token){
+    return res.status(401).json({
+      message:"Token is missing"
+    })
+  }
+
+  console.log("valid token");
+
+  const {id}=jwt.verify(token,process.env.JWT_SECRET);
+
+  const user=await User.findById(id);
+
+  if(!user){
+    return res.status(401).json({
+      message:"User not found"
+    })
+  }
+
+  res.status(200).json({
+    message:"User fetched Successfully",
+    user:{
+      name:user.name,
+      email:user.email,
+      type:user.type
+    },
+    token:token
+  })
+}
