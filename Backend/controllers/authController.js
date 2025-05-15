@@ -123,7 +123,7 @@ exports.login=async(req,res)=>{
 
     if(!isMatch){
       return res.status(422).json({
-        message:"Invalid Password"
+        message:"Invalid email or password"
       })
     }
 

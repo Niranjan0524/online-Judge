@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../store/AuthContext";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const [formData,setFormData]=useState({
@@ -10,20 +11,22 @@ export default function Login() {
   })
   const [error,setError]=useState(null);
   const navigate=useNavigate();
-  const {login}=useAuth();
+  const {login,s}=useAuth();
 
 
   const handleLogin=async(e)=>{
- 
+    
     e.preventDefault();
   
     const {email,password}=formData;
 
     if(email==="" || password===""){
 
-      setError("Please fill in all fields");
+      toast.error("Please fill in all fields");
       return;
     }
+
+    const toastId=toast.loading("Logging in...");
 
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
       method:"POST",
@@ -37,20 +40,21 @@ export default function Login() {
 
 
       if(res.status!==200){
-        setIsLoggedIn(false);
-        setUser(null);
-        setToken(null);
-        setError(data.message);
+        toast.dismiss(toastId);  
+        toast.error(data.message);      
       }
       else{
         login(data);
         console.log("Login successful");
         navigate("/");
+        toast.dismiss(toastId);
+        toast.success("Login successful");
       }
     })
     .catch((err)=>{
       console.log("Error:",err);
-      setError("An error occurred during login. Please try again.");
+      toast.dismiss(toastId);
+      toast.error(err.message);
     })
     
   }

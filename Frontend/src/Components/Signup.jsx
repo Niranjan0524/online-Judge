@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import {useState} from 'react';
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 export default function Signup() {
 
   const [formData,setFormData]=useState({
@@ -28,6 +30,8 @@ export default function Signup() {
     }
 
     try{
+      const toastId=toast.loading("Signing up...");
+
       fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/signup`, {
         method: "POST",
         headers: {
@@ -40,14 +44,18 @@ export default function Signup() {
           console.log("Response:", data);
           if (res.status !== 200) {
             setError(data.errors);
+            toast.dismiss(toastId);
+            toast.error("Signup failed");
           } else {
             navigate("/login");
+            toast.dismiss(toastId);
+            toast.success("Signup successful");
           }
         });
     }
     catch(err){
       console.log("Error:",err);
-      setError("An error occurred during signup. Please try again.");
+      toast.error("An error occurred during signup. Please try again.");
     }
   }
 
