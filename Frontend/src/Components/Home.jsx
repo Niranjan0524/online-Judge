@@ -2,6 +2,7 @@ import AnimatedHeadline from "./AnimatedHeadline";
 import { useAuth } from "../store/AuthContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import BackToTopButton from "./BackToTop";
 
 import { useState } from "react";
 
@@ -143,11 +144,12 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white">
       {/* Navbar */}
+
       <nav className="flex justify-between items-center px-8 py-6">
         <div className="text-2xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400">
           CodeVibe
         </div>
-      
+
         <div className="space-x-6 text-lg flex items-center">
           <a href="#" className="hover:text-cyan-400 transition">
             Home
@@ -192,7 +194,6 @@ const Home = () => {
           </button>
         </div>
       </section>
-
 
       {/* Problems List Section */}
       <section
@@ -255,6 +256,7 @@ const Home = () => {
           ))}
         </div>
       </section>
+      <BackToTopButton />
       {/* Features Section */}
       <section id="features" className="max-w-6xl mx-auto px-6 py-16 ">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 border-t border-gray-700 pt-8 ">
