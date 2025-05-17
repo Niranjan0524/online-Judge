@@ -171,7 +171,7 @@ exports.getUser=async(req,res)=>{
       message:"User not found"
     })
   }
-
+  console.log("user in backend",user); 
   res.status(200).json({
     message:"User fetched Successfully",
     user:{

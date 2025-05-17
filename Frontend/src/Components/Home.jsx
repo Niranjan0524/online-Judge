@@ -121,6 +121,7 @@ const Home = () => {
         logout();
         navigate("/login");
         toast.dismiss(toastId);
+        toast.success("Logged out successfully");
       }, 2000);
     } else {
       toast.dismiss(toastId);

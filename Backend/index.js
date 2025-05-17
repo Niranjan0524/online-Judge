@@ -13,6 +13,19 @@ app.use(cors()); // Enable CORS
 const mongoose = require("mongoose");
 const authRouter = require("./routers/authRouter");
 
+// Add this before passport initialization
+const session = require("express-session");
+app.use(session({
+  secret: process.env.JWT_SECRET || "secret",
+  resave: false,
+  saveUninitialized: false,
+}));
+const passport = require("passport");
+require("./passport-config");
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 const url = `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@xdb.mjwzy.mongodb.net/${process.env.MONGO_DB_DATABASE}`;
 
 app.use(express.json());

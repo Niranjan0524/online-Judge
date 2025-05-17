@@ -1,17 +1,23 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../store/AuthContext";
 import toast from "react-hot-toast";
 
 export default function Login() {
+
+  const loginWithGoogle = () => {
+    console.log("Login with Google");
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`;
+
+  };
   const [formData,setFormData]=useState({
     email:"",
     password:""
   })
   const [error,setError]=useState(null);
   const navigate=useNavigate();
-  const {login,s}=useAuth();
+  const {login}=useAuth();
 
 
   const handleLogin=async(e)=>{
@@ -58,6 +64,33 @@ export default function Login() {
     })
     
   }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/getUser`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then(async (res) => {
+        const data = await res.json();
+        if (res.status === 200) {
+          login(data); // Save token and user info in context/localStorage
+         
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
+          toast.success("Login successful");
+          navigate("/");
+        }
+      });
+    }
+   
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
@@ -114,7 +147,10 @@ export default function Login() {
           </button>
         </form>
         <div className="mt-4 flex justify-between items-center">
-          <button className="w-[180px] bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 rounded-md flex items-center justify-center gap-2">
+          <button
+            className="w-[180px] bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 rounded-md flex items-center justify-center gap-2"
+            onClick={loginWithGoogle}
+          >
             <img
               src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
               alt="Google"
