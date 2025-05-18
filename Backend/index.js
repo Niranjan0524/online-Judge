@@ -12,6 +12,7 @@ const app = express();
 app.use(cors()); // Enable CORS
 const mongoose = require("mongoose");
 const authRouter = require("./routers/authRouter");
+const problemRouter=require("./routers/problemRouter");
 
 // Add this before passport initialization
 const session = require("express-session");
@@ -38,6 +39,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/problem",problemRouter);
 
 const port = process.env.PORT || 4000;
 mongoose
