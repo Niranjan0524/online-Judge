@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useProblems } from "../store/ProblemsContext";
-
+import { useNavigate } from "react-router-dom";
 const Problems=()=>{
   const { problems } = useProblems();
   
@@ -19,6 +19,12 @@ const Problems=()=>{
     return 0;
   });
 
+  const navigate=useNavigate();
+
+  const handleProblemClick=(problemId)=>{
+    console.log("Problem clicked", problemId);
+    navigate(`/problem/solve/${problemId}`);
+  }
   return (
     <>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
@@ -69,7 +75,8 @@ const Problems=()=>{
             </div>
             <div className="flex items-center gap-4 mt-3 md:mt-0">
               
-              <button className="bg-blue-200 text-black font-bold px-4 py-1 rounded hover:scale-105 transition">
+              <button className="bg-blue-200 text-black font-bold px-4 py-1 rounded hover:scale-105 transition"
+                onClick={()=>handleProblemClick(problem._id)}>
                 Solve
               </button>
             </div>

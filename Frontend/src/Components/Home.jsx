@@ -4,9 +4,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import BackToTopButton from "./BackToTop";
 import Footer from "./Footer";
-import Header from "./Header";
 import Explore from "./Explore";
-import { useState } from "react";
 import Features from "./Features";
 import Problems from "./Problems";
 
@@ -40,7 +38,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white">
       {/* Navbar */}
-      <Header />
+      
 
       {/* Hero Section */}
       <section className="flex flex-col md:flex-row items-center justify-between px-8 py-16 md:py-24">

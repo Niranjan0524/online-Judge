@@ -2,8 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../store/authContext";
 import toast from "react-hot-toast";
-import { useEffect } from "react";
-
+import { Outlet } from "react-router-dom";
 
 const Header=()=>{
 
@@ -28,22 +27,25 @@ const Header=()=>{
   };
   return (
     <>
-      <nav className="flex justify-between items-center px-8 py-6">
+      <nav
+        className="relative flex justify-between items-center px-8 py-6 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white
+  before:content-[''] before:absolute before:left-0 before:bottom-0 before:w-full before:h-[3px] before:bg-gradient-to-r before:from-red-400 before:via-gray-400 before:to-yellow-400"
+      >
         <div className="text-2xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400">
           CodeVibe
         </div>
 
         <div className="space-x-6 text-lg flex items-center">
-          <a href="#" className="hover:text-cyan-400 transition">
+          <a href="/#" className="hover:text-cyan-400 transition">
             Home
           </a>
-          <a href="#problems" className="hover:text-red-400 transition">
+          <a href="/#problems" className="hover:text-red-400 transition">
             Problems
           </a>
-          <a href="#features" className="hover:text-pink-400 transition">
+          <a href="/#features" className="hover:text-pink-400 transition">
             Features
           </a>
-          <a href="#about" className="hover:text-yellow-400 transition">
+          <a href="/#about" className="hover:text-yellow-400 transition">
             About
           </a>
           {isLoggedIn ? (
@@ -63,6 +65,9 @@ const Header=()=>{
           )}
         </div>
       </nav>
+      <main className="bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] min-h-screen">
+        <Outlet />
+      </main>
     </>
   );
 }
