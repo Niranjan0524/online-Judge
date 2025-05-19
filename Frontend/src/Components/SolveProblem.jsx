@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useAuth } from "../store/authContext";
+import toast from "react-hot-toast";
+
 
 const TABS = ["Description", "Reviews", "Discussions", "Hints"];
 
@@ -13,9 +16,45 @@ const SolveProblem = () => {
     description:
       "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
   };
+  const {token}=useAuth();
+  const [lang,setLang]=useState("cpp");
 
-  const handleRun = () => {
-    setOutput("Output will be shown here (mock).");
+  const handleRun = async() => {
+    const data={
+      lang,code
+    }
+    if(!token){
+      toast.error("Unauthorized, Please login.");
+      return;
+    }
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/run`, {
+      method:"POST",
+      headers:{
+        "Content-Type": "application/json",
+        authorization:`Bearer ${token}`
+      },
+      body:JSON.stringify(data)
+    }).then(async(res)=>{
+      const data=await res.json();
+
+      if(!res.ok){
+        if(res.status===401){
+          toast.error("Unauthorized. Please login again.");
+          return;
+        }
+        else if(res.status===400){
+          setOutput(data.message || "Error in running code");
+          toast.error(data.message || "Error in running code");
+          return;
+        }
+        toast.error(data.message || "Failed to run code");
+        return;
+      }
+   
+      
+      setOutput(data.output || "No output");
+      toast.success("Code ran successfully");
+    })
   };
 
   const handleSubmit = () => {
@@ -68,23 +107,38 @@ const SolveProblem = () => {
       <div className="md:w-3/5 w-full flex flex-col gap-4">
         {/* Code Editor Card */}
         <div className="bg-gray-900/80 rounded-2xl shadow-lg p-4 flex flex-col">
-          <label className="text-lg font-semibold text-blue-300 mb-2">
-            Code Editor
-          </label>
-          <textarea
-            className="w-full h-56 md:h-72 bg-gray-800 text-gray-100 rounded-lg p-3 font-mono text-sm resize-y border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-          />
+          {/* Label and Language Selector in one row */}
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-lg font-semibold text-blue-300">
+              Code Editor
+            </label>
+            <select
+              className="bg-gray-800 text-gray-100 rounded-lg p-2 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-[120px]"
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+            >
+              <option value="cpp">C++</option>
+              <option value="java">Java</option>
+              <option value="py">Python</option>
+              <option value="js">JavaScript</option>
+            </select>
+          </div>
+          <div className="flex flex-row items-start">
+            <textarea
+              className="w-full h-56 md:h-72 bg-gray-800 text-gray-100 rounded-lg p-3 font-mono text-sm resize-y border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
+          </div>
           <div className="flex gap-4 mt-4">
             <button
-              className="bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
+              className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
               onClick={handleRun}
             >
               Run
             </button>
             <button
-              className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
+              className="bg-gradient-to-r from-green-400 to-green-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
               onClick={handleSubmit}
             >
               Submit
