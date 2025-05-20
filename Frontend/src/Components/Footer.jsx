@@ -1,7 +1,7 @@
 const Footer=()=>{
   return (
     <>
-      <footer className="mt-10 py-10 px-4 bg-gradient-to-r from-[#1e293b] via-[#0f172a] to-[#1e293b] rounded-t-3xl shadow-2xl">
+      <footer id="about" className="mt-10 py-10 px-4 bg-gradient-to-r from-[#1e293b] via-[#0f172a] to-[#1e293b] rounded-t-3xl shadow-2xl">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:justify-between md:items-center gap-8">
         
           <div className="flex flex-col gap-2">

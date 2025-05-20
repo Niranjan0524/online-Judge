@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../store/authContext";
 import toast from "react-hot-toast";
+import { Circles } from "react-loader-spinner";
+import { v4 as uuidv4 } from "uuid";
 
 
 const TABS = ["Description", "Reviews", "Discussions", "Hints"];
@@ -10,6 +12,8 @@ const SolveProblem = () => {
   const [code, setCode] = useState("// Write your code here...");
   const [output, setOutput] = useState("");
   const [testcase, setTestcase] = useState("");
+  const [running ,setRunning]=useState(false);
+  const [className,setClassName]=useState("");
   // Placeholder problem data
   const problem = {
     title: "Two Sum",
@@ -19,14 +23,45 @@ const SolveProblem = () => {
   const {token}=useAuth();
   const [lang,setLang]=useState("cpp");
 
-  const handleRun = async() => {
-    const data={
-      lang,code
+  const handleLangChange = (value) => {
+    setLang(value);
+    let className;
+    if (value === "java") {
+      className = uuidv4();
+      
+      className = "N" + className.replace(/-/g, "_");
+      setClassName(className);
+      setCode(`public class ${className} {
+                  public static void main(String[] args) {
+
+                  }
+              }`);
+    } else {
+      setCode("// Write your code here...");
     }
+    
+  }
+  const handleRun = async() => {
+    let data={}
+   if(lang==="java"){
+      data = {
+      lang,
+      code,
+      className
+    };
+   }
+   else{
+    data = {
+      lang,
+      code,
+    };
+   }
+
     if(!token){
       toast.error("Unauthorized, Please login.");
       return;
     }
+    setRunning(true);
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/run`, {
       method:"POST",
       headers:{
@@ -36,8 +71,9 @@ const SolveProblem = () => {
       body:JSON.stringify(data)
     }).then(async(res)=>{
       const data=await res.json();
-
+      setRunning(false);
       if(!res.ok){
+
         if(res.status===401){
           toast.error("Unauthorized. Please login again.");
           return;
@@ -50,8 +86,7 @@ const SolveProblem = () => {
         toast.error(data.message || "Failed to run code");
         return;
       }
-   
-      
+
       setOutput(data.output || "No output");
       toast.success("Code ran successfully");
     })
@@ -115,12 +150,12 @@ const SolveProblem = () => {
             <select
               className="bg-gray-800 text-gray-100 rounded-lg p-2 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-[120px]"
               value={lang}
-              onChange={(e) => setLang(e.target.value)}
+              onChange={(e) => handleLangChange(e.target.value)}
             >
-              <option value="cpp">C++</option>
-              <option value="java">Java</option>
-              <option value="py">Python</option>
-              <option value="js">JavaScript</option>
+              <option value="cpp">c++</option>
+              <option value="java">java</option>
+              <option value="py">python</option>
+              <option value="js">javascript</option>
             </select>
           </div>
           <div className="flex flex-row items-start">
@@ -131,12 +166,26 @@ const SolveProblem = () => {
             />
           </div>
           <div className="flex gap-4 mt-4">
-            <button
-              className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
-              onClick={handleRun}
-            >
-              Run
-            </button>
+            {running ? (
+              <button className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition">
+                <Circles
+                  height="24"
+                  width="24"
+                  color="#fff"
+                  ariaLabel="loading"
+                  wrapperStyle={{}}
+                  wrapperClass=""
+                  visible={true}
+                />
+              </button>
+            ) : (
+              <button
+                className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
+                onClick={handleRun}
+              >
+                Run
+              </button>
+            )}
             <button
               className="bg-gradient-to-r from-green-400 to-green-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
               onClick={handleSubmit}

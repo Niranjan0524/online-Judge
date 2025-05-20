@@ -8,8 +8,15 @@ if(!fs.existsSync(dirCodes)){
   fs.mkdirSync(dirCodes,{recursive:true});
 }
 
-const generateFile=(code,lang)=>{
-  const jobId=uuid();
+const generateFile=(code,lang,className=NULL)=>{
+  let jobId;
+  if(lang==="java"){
+    jobId=className;
+  }
+  else{
+    jobId=uuid();
+  }
+  
   const fileName=`${jobId}.${lang}`;
   const filePath=path.join(dirCodes,fileName);
   fs.writeFile(filePath,code,(err)=>{

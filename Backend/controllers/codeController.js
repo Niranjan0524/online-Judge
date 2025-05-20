@@ -1,6 +1,13 @@
 const jwt = require("jsonwebtoken");
 const { generateFile } = require("./generateFile");
 const { executeCpp } = require("./executecpp");
+const { executePython } = require("./executePython");
+const { executeJavaScript } = require("./executeJavaScript");
+const { executeJava } = require("./executeJava");
+const fs = require("fs");
+const path = require("path");
+
+
 
 exports.runCode=async(req,res)=>{
 
@@ -29,10 +36,31 @@ exports.runCode=async(req,res)=>{
   }
 
   try{
-    const filePath=generateFile(code,lang);
-    
-    const output=await executeCpp(filePath);
-   
+    let filePath;
+    if(lang==="java"){
+      const {className}=req.body;
+      if(!className){
+        res.json({message:"Class name is required"});
+        return;
+      }
+       filePath=generateFile(code,lang,className);
+    }
+    else{
+      filePath=generateFile(code,lang);
+    }
+    let output;
+    if(lang==="cpp"){
+       output=await executeCpp(filePath);
+    }
+    else if(lang=="py"){
+      output=await executePython(filePath); 
+    }
+    else if(lang=="java"){
+      output=await executeJava(filePath);
+    }
+    else if(lang=="js"){
+      output=await executeJavaScript(filePath);
+    }
     if(output.error){
       res.status(400).json({message:output.error});
       return;
