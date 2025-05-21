@@ -3,27 +3,35 @@ import { useAuth } from "../store/authContext";
 import toast from "react-hot-toast";
 import { Circles } from "react-loader-spinner";
 import { v4 as uuidv4 } from "uuid";
+import { useParams } from "react-router-dom";
+import { useProblems } from "../store/ProblemsContext";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import Editor from "@monaco-editor/react";
 
 
 const TABS = ["Description", "Reviews", "Discussions", "Hints"];
 
 const SolveProblem = () => {
   const [activeTab, setActiveTab] = useState("Description");
-  const [code, setCode] = useState("// Write your code here...");
+  const [code, setCode] = useState("");
   const [output, setOutput] = useState("");
   const [testcase, setTestcase] = useState("");
   const [running ,setRunning]=useState(false);
   const [className,setClassName]=useState("");
-  // Placeholder problem data
-  const problem = {
-    title: "Two Sum",
-    description:
-      "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-  };
+
+  
+  const {problems}=useProblems();
+  const navigate=useNavigate();
+  const { id: problemId } = useParams();
+  const problem=problems.find((p)=> p._id===problemId);
+
+
   const {token}=useAuth();
   const [lang,setLang]=useState("cpp");
 
   const handleLangChange = (value) => {
+    console.log(value);
     setLang(value);
     let className;
     if (value === "java") {
@@ -51,10 +59,25 @@ const SolveProblem = () => {
     };
    }
    else{
-    data = {
-      lang,
-      code,
-    };
+    if(lang==="javascript"){
+      data = {
+        lang:"js",
+        code,
+      };
+    }
+    else if(lang==="python"){
+      data = {
+        lang:"py",
+        code,
+      };
+    }
+    else{
+      data = {
+        lang,
+        code,
+      };
+    }
+    
    }
 
     if(!token){
@@ -96,12 +119,21 @@ const SolveProblem = () => {
     setOutput("Submission result will be shown here (mock).");
   };
 
+
+  useEffect(()=>{
+    if (problems.length>0 && !problem) {
+      toast.error("Problem not found");
+      navigate("/");
+    }
+  },[problems,problem,navigate]);
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white flex flex-col md:flex-row gap-6 px-4 py-8 md:px-12">
       {/* Left: Problem Details */}
-      <div className="md:w-2/5 w-full bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col">
-        <h2 className="text-2xl font-bold text-yellow-400 mb-2">
-          {problem.title}
+      <div className="md:w-2/5  w-full bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col">
+        <h2 className="text-2xl  font-bold text-yellow-400 mb-2">
+          {problem && problem.title}
         </h2>
         {/* Tabs */}
         <div className="flex gap-2 mb-4 border-b border-gray-700">
@@ -120,10 +152,10 @@ const SolveProblem = () => {
           ))}
         </div>
         {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 h-auto overflow-y-auto">
           {activeTab === "Description" && (
             <div>
-              <p className="text-gray-200">{problem.description}</p>
+              <p className="text-gray-200">{problem && problem.description}</p>
             </div>
           )}
           {activeTab === "Reviews" && (
@@ -154,15 +186,20 @@ const SolveProblem = () => {
             >
               <option value="cpp">c++</option>
               <option value="java">java</option>
-              <option value="py">python</option>
-              <option value="js">javascript</option>
+              <option value="python">python</option>
+              <option value="javascript">javascript</option>
             </select>
           </div>
-          <div className="flex flex-row items-start">
-            <textarea
-              className="w-full h-56 md:h-72 bg-gray-800 text-gray-100 rounded-lg p-3 font-mono text-sm resize-y border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          <div
+            style={{ height: "60vh", width: "100%" }}
+            className="flex flex-row items-start"
+          >
+            <Editor
+              height="100%"
+              defaultLanguage={lang}
+              theme="vs-dark"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(value) => setCode(value)}
             />
           </div>
           <div className="flex gap-4 mt-4">

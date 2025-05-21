@@ -8,7 +8,7 @@ if(!fs.existsSync(dirCodes)){
   fs.mkdirSync(dirCodes,{recursive:true});
 }
 
-const generateFile=(code,lang,className=NULL)=>{
+const generateFile=(code,lang,className=null)=>{
   let jobId;
   if(lang==="java"){
     jobId=className;

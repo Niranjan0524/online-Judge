@@ -34,7 +34,7 @@ exports.runCode=async(req,res)=>{
     res.status(401).json({message:"Unauthorized"});
     return;
   }
-
+  let output;
   try{
     let filePath;
     if(lang==="java"){
@@ -48,7 +48,7 @@ exports.runCode=async(req,res)=>{
     else{
       filePath=generateFile(code,lang);
     }
-    let output;
+  
     if(lang==="cpp"){
        output=await executeCpp(filePath);
     }
@@ -61,8 +61,8 @@ exports.runCode=async(req,res)=>{
     else if(lang=="js"){
       output=await executeJavaScript(filePath);
     }
-    if(output.error){
-      res.status(400).json({message:output.error});
+    if(output && output.error){
+      res.status(200).json({output:output.error||output.stderr});
       return;
     }
     res.json({
@@ -72,7 +72,7 @@ exports.runCode=async(req,res)=>{
   }
   catch(err){
     console.log(err);
-    res.status(500).json({message:"Internal server error"});
+    res.status(500).json({ message:"Internal server error"});
     return;
   }
 
