@@ -1,5 +1,9 @@
+import { useAuth } from "../store/authContext";
+
+
 const Explore=()=>{
 
+  const {user} =useAuth();
 
   return (
     <>
@@ -41,7 +45,8 @@ const Explore=()=>{
                   </svg>
                   Host a Contest
                 </a>
-                <a
+                {user &&user.type==="user" &&
+                  <a
                   href="/participate-contest"
                   className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-black font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-orange-400 hover:to-yellow-400 hover:shadow-xl animate-slide-in"
                   style={{ animationDelay: "0.2s" }}
@@ -57,7 +62,7 @@ const Explore=()=>{
                     <circle cx="12" cy="7" r="4"></circle>
                   </svg>
                   Participate in Contest
-                </a>
+                </a>}
                 <a
                   href="/blog"
                   className="flex items-center justify-center gap-2 bg-gradient-to-r from-lime-400 to-green-400 text-black font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-green-400 hover:to-lime-400 hover:shadow-xl animate-slide-in"

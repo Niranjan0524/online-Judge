@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useProblems } from "../store/ProblemsContext";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../store/AuthContext";
+
 const Problems=()=>{
   const { problems } = useProblems();
-  
+  const { user } = useAuth();
   const difficultyColors = {
     easy: "text-green-400 border-green-400",
     medium: "text-yellow-400 border-yellow-400",
@@ -12,7 +14,6 @@ const Problems=()=>{
   const [sortBy, setSortBy] = useState("name");
 
   const sortedProblems = [...problems].sort((a, b) => {
-    console.log("Problems in sort fun", problems);
     if (sortBy === "title") return a.title.localeCompare(b.title);
     if (sortBy === "difficulty") return a.difficulty.localeCompare(b.difficulty);
   
@@ -25,21 +26,38 @@ const Problems=()=>{
     console.log("Problem clicked", problemId);
     navigate(`/problem/solve/${problemId}`);
   }
+
+  const handleAddProblem=()=>{
+    console.log("Add Problem clicked");
+    // navigate("/problem/add");
+  }
+  const handleEditProblem=()=>{
+    console.log("Edit Problem clicked");
+  }
   return (
     <>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <h2 className="text-2xl font-bold text-gray-100">Problems</h2>
-        <div className="flex items-center gap-2">
-          <span className="text-gray-400">Sort by:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-gray-200 focus:outline-none"
-          >
-            <option value="name">Name</option>
-            <option value="difficulty">Difficulty</option>
-          
-          </select>
+      <div className="flex md:flex-row md:items-center md:justify-between mb-6 gap-4">
+        {user && user.type === "admin" && (
+          <h2 className="text-2xl font-bold text-gray-100">Your Problems</h2>
+        )}
+        {user && user.type === "user" && (
+          <h2 className="text-2xl font-bold text-gray-100"> Problems</h2>
+        )}
+        <div className="flex items-center justify-between w-full md:w-auto gap-4">
+          {user && user.type==="admin" && <div>
+            <button onClick={handleAddProblem} className="bg-red-400 text-black font-bold px-4 py-1 rounded hover:scale-105 transition">Add Problem</button>
+          </div>}
+          <div className="flex items-center gap-2">
+            <span className="text-gray-400">Sort by:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-gray-200 focus:outline-none"
+            >
+              <option value="name">Name</option>
+              <option value="difficulty">Difficulty</option>
+            </select>
+          </div>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-6 ">
@@ -74,11 +92,21 @@ const Problems=()=>{
               </div>
             </div>
             <div className="flex items-center gap-4 mt-3 md:mt-0">
-              
-              <button className="bg-blue-200 text-black font-bold px-4 py-1 rounded hover:scale-105 transition"
-                onClick={()=>handleProblemClick(problem._id)}>
-                Solve
-              </button>
+              {user?.type === "user" ? (
+                <button
+                  className="bg-blue-200 text-black font-bold px-4 py-1 rounded hover:scale-105 transition"
+                  onClick={() => handleProblemClick(problem._id)}
+                >
+                  Solve
+                </button>
+              ) : (
+                <button
+                  className="bg-blue-200 text-black font-bold px-4 py-1 rounded hover:scale-105 transition"
+                  onClick={() => handleEditProblem(problem._id)}
+                >
+                  Edit
+                </button>
+              )}
             </div>
           </div>
         ))}

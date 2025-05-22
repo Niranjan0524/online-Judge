@@ -48,7 +48,7 @@ const Home = () => {
             Solve coding challenges, get instant feedback, and climb the
             leaderboard—all in a sleek, glassy interface.
           </p>
-          <button className="bg-gradient-to-r from-red-400 via-gray-400 to-yellow-700 text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 transition">
+          <button className="bg-gradient-to-r from-red-800  text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 transition ml-20">
             Get Started
           </button>
         </div>

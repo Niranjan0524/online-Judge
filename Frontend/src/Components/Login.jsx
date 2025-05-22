@@ -93,21 +93,21 @@ export default function Login() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-semibold text-gray-800 dark:text-white text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a]">
+      <div className="w-full max-w-md bg-gray-900/80 rounded-2xl shadow-lg p-8">
+        <h2 className="text-2xl font-bold text-yellow-400 text-center">
           Login
         </h2>
         <div className="mt-4">
           {error !== null ? (
-            <p className="text-red-500 text-sm text-center">{error}</p>
+            <p className="text-red-400 text-sm text-center">{error}</p>
           ) : null}
         </div>
         <form className="mt-6 space-y-4">
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-sm font-medium text-blue-200"
             >
               Email
             </label>
@@ -118,13 +118,13 @@ export default function Login() {
                 setFormData({ ...formData, email: e.target.value })
               }
               placeholder="Enter your email"
-              className="mt-1 block w-full px-4 py-2 border-b border-t-0 border-l-0 border-r-0 focus:outline-none bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-4 py-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="block text-sm font-medium text-blue-200"
             >
               Password
             </label>
@@ -135,45 +135,45 @@ export default function Login() {
               type="password"
               id="password"
               placeholder="Enter your password"
-              className="mt-1 block w-full px-4 py-2 border-b border-t-0 border-l-0 border-r-0 focus:outline-none bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-4 py-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md transition"
+            className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-black font-bold py-2 rounded-lg shadow hover:scale-105 transition"
             onClick={handleLogin}
           >
             Login
           </button>
         </form>
-        <div className="mt-4 flex justify-between items-center">
-          <button
-            className="w-[180px] bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 rounded-md flex items-center justify-center gap-2"
-            onClick={loginWithGoogle}
-          >
-            <img
-              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
-              alt="Google"
-              className="w-5 h-5"
-            />
-            Login with Google
-          </button>
-          <button className="w-[180px] bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 rounded-md flex items-center justify-center gap-2">
-            <img
-              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
-              alt="GitHub"
-              className="w-5 h-5"
-            />
-            Login with GitHub
-          </button>
+        <div className="mt-4 flex  gap-4">
+          <div className="w-1/2">
+            <button
+              className="w-full bg-gray-800 hover:bg-gray-700 text-gray-100 py-2 rounded-lg flex items-center justify-center gap-2 border border-gray-700 transition"
+              onClick={loginWithGoogle}
+            >
+              <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
+                alt="Google"
+                className="w-5 h-5"
+              />
+               Google
+            </button>
+          </div>
+          <div className="w-1/2">
+            <button className="w-full bg-gray-800 hover:bg-gray-700 text-gray-100 py-2 rounded-lg flex items-center justify-center gap-2 border border-gray-700 transition">
+              <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+                alt="GitHub"
+                className="w-5 h-5"
+              />
+               GitHub
+            </button>
+          </div>
         </div>
-        <div className="mt-4 flex justify-between items-center"></div>
-        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-4 text-center text-sm text-gray-400">
           Don't have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-blue-500 hover:underline dark:text-blue-400"
-          >
+          <Link to="/signup" className="text-yellow-400 hover:underline">
             Sign up
           </Link>
         </p>

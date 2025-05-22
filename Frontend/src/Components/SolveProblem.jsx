@@ -42,8 +42,8 @@ const SolveProblem = () => {
       setCode(`public class ${className} {
                   public static void main(String[] args) {
 
-                  }
-              }`);
+    }
+}`);
     } else {
       setCode("// Write your code here...");
     }
@@ -121,6 +121,7 @@ const SolveProblem = () => {
 
 
   useEffect(()=>{
+    window.scrollTo(0,0);
     if (problems.length>0 && !problem) {
       toast.error("Problem not found");
       navigate("/");

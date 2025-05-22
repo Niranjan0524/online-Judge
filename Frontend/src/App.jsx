@@ -7,7 +7,7 @@ import { Toaster } from "react-hot-toast";
 import { ProblemsProvider } from "./store/ProblemsContext";
 import SolveProblem from "./components/SolveProblem";
 import Header from "./components/Header";
-
+import Profile from "./components/Profile";
 
 function App() {
 
@@ -23,6 +23,7 @@ function App() {
           <Route path="/" element={<Header />}>
             <Route index element={<Home />} />
             <Route path="problem/solve/:id" element={<SolveProblem />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>
       </ProblemsProvider>

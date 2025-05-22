@@ -23,6 +23,7 @@ export const AuthProvider=({children})=>{
   const [token,setToken]=useState(localStorage.getItem('token')||null);
   const [isLoading,setLoading]=useState(false);
   const [isLoggedIn,setIsLoggedIn]=useState(false);
+  const [useType,setUserType]=useState(null);
 
   useEffect(()=>{
     setLoading(true);
@@ -52,6 +53,7 @@ export const AuthProvider=({children})=>{
         } else {
           setIsLoggedIn(true);
           setUser(data.user);
+          setUserType(data.user.type);
         }
       })
       .catch((err) => {
@@ -71,6 +73,7 @@ export const AuthProvider=({children})=>{
     setUser(data.user);
     setToken(data.token);
     setIsLoggedIn(true);
+    setUserType(data.user.type);
     localStorage.setItem('token',data.token);
     console.log("User logged in successfully");
     console.log("isLoggedIn",isLoggedIn);
@@ -82,6 +85,7 @@ export const AuthProvider=({children})=>{
     setIsLoggedIn(false);
     setUser(null);
     setToken(null);
+    setUserType(null);
     localStorage.removeItem('token');
     console.log("User Logged out Successfully");
   }
