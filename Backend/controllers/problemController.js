@@ -45,3 +45,31 @@ exports.addTestCases=async(req,res)=>{
   }
   
 }
+
+
+exports.getTestCases=async(req,res)=>{
+
+
+
+  const testCases=await TestCase.find();
+  if(!testCases){
+    res.status(402).json({
+      messages:"No test cases found"
+    })
+  }
+
+  res.status(200).json({
+    message:"Test cases fetched successfully",
+    testCases:testCases
+  })
+}
+
+
+exports.removeTestCase=async(req,res)=>{
+
+  await TestCase.deleteMany({ problemId: req.params.id });
+
+  res.status(200).json({
+    message:"Test case deleted successfully"
+  })
+}

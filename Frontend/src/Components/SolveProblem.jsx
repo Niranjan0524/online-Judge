@@ -8,7 +8,7 @@ import { useProblems } from "../store/ProblemsContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import Editor from "@monaco-editor/react";
-
+import { useTestCases } from "../store/TestCases";
 
 const TABS = ["Description", "Reviews", "Discussions", "Hints"];
 
@@ -19,13 +19,14 @@ const SolveProblem = () => {
   const [testcase, setTestcase] = useState("");
   const [running ,setRunning]=useState(false);
   const [className,setClassName]=useState("");
-
+  const {testCases}=useTestCases();
   
   const {problems}=useProblems();
   const navigate=useNavigate();
   const { id: problemId } = useParams();
   const problem=problems.find((p)=> p._id===problemId);
-
+  const currTestCases=testCases.filter(tc=> tc.problemId===problemId);
+  console.log("Current Test Cases:",currTestCases);
 
   const {token}=useAuth();
   const [lang,setLang]=useState("cpp");
@@ -55,7 +56,8 @@ const SolveProblem = () => {
       data = {
       lang,
       code,
-      className
+      className,
+      problemId
     };
    }
    else{
@@ -63,18 +65,21 @@ const SolveProblem = () => {
       data = {
         lang:"js",
         code,
+        problemId,
       };
     }
     else if(lang==="python"){
       data = {
         lang:"py",
         code,
+        problemId
       };
     }
     else{
       data = {
         lang,
         code,
+        problemId
       };
     }
     
@@ -156,7 +161,37 @@ const SolveProblem = () => {
         <div className="flex-1 h-auto overflow-y-auto">
           {activeTab === "Description" && (
             <div>
-              <p className="text-gray-200">{problem && problem.description}</p>
+              <p className="text-gray-200 font-mono text-lg">{problem && problem.description}</p>
+              <div>
+                {currTestCases &&
+                  currTestCases.map((tc) => (
+                    <div key={tc._id} className="font-mono  glass-card mt-2 p-2 rounded bg-gray-800 border border-gray-300 mb-4 ">
+                      <div className="text-blue-300 font-semibold">Input:</div>
+                      {tc.input && typeof tc.input === "object" ? (
+                        Object.entries(tc.input).map(([key, value]) => (
+                          <div key={key} className="ml-2">
+                            <span className="text-gray-300">{key}:</span>{" "}
+                            <span className="text-gray-100">
+                              {Array.isArray(value)
+                                ? JSON.stringify(value)
+                                : String(value)}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="ml-2 text-gray-100">
+                          {String(tc.input)}
+                        </div>
+                      )}
+                      <div className="text-green-300 font-semibold mt-1">
+                        Expected Output:
+                      </div>
+                      <div className="ml-2 text-gray-100">
+                        {String(tc.output)}
+                      </div>
+                    </div>
+                  ))}
+              </div>
             </div>
           )}
           {activeTab === "Reviews" && (

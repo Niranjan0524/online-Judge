@@ -6,12 +6,16 @@ const { executeJavaScript } = require("./executeJavaScript");
 const { executeJava } = require("./executeJava");
 const fs = require("fs");
 const path = require("path");
-
+const TestCase = require("../models/testCases");
 
 
 exports.runCode=async(req,res)=>{
 
-  const { code, lang="c++" } = req.body;
+  const { code, lang="c++" ,problemId} = req.body;
+  const testCases=await TestCase.find({problemId:problemId});
+  if(!testCases){
+    testCases=[];
+  }
   if(!code ){
     res.status(400).json({message:"Code is required"});
     return;
@@ -50,16 +54,16 @@ exports.runCode=async(req,res)=>{
     }
   
     if(lang==="cpp"){
-       output=await executeCpp(filePath);
+       output=await executeCpp(filePath ,testCases);
     }
     else if(lang=="py"){
-      output=await executePython(filePath); 
+      output=await executePython(filePath,  testCases); 
     }
     else if(lang=="java"){
-      output=await executeJava(filePath);
+      output=await executeJava(filePath,  testCases);
     }
     else if(lang=="js"){
-      output=await executeJavaScript(filePath);
+      output=await executeJavaScript(filePath,  testCases);
     }
     if(output && output.error){
       res.status(200).json({output:output.error||output.stderr});
