@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useTestCases } from "../store/TestCases";
 import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
-
+import { BsLightningCharge } from "react-icons/bs";
 
 const TABS = ["Description","Result", "Reviews", "Discussions", "Hints"];
 
@@ -27,7 +27,7 @@ const SolveProblem = () => {
   const [correctness, setCorrectness] = useState({correct:0,total:0}); 
   const [lang, setLang] = useState("cpp");
   const [status, setStatus] = useState(null);
-
+  const [aiReview, setAiReview] = useState(null);
 
   const {problems}=useProblems();
   const navigate=useNavigate();
@@ -227,6 +227,45 @@ const SolveProblem = () => {
   };
 
 
+  const handleAIReview=()=>{
+
+    if(!token){
+      toast.error("Unauthorized,Please Login");
+      return ;
+    }
+
+    if(!code || code.trim() === ""){
+      toast(
+        " please write some code to get AI review.",
+        {
+          duration: 6000,
+        }
+      );
+    }
+    else{
+    
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/ai-review`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ code, problemId }),
+    }).then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.message || "Error in AI Review");
+        return;
+      }
+      toast.success("AI Review generated successfully");
+    })
+    .catch((err) => {
+      console.error("Error in AI Review:", err);
+      toast.error("Error in AI Review");
+    });
+  };
+};
+
   useEffect(()=>{
     window.scrollTo(0,0);
     if (problems.length>0 && !problem) {
@@ -245,7 +284,6 @@ const SolveProblem = () => {
             {problem && problem.title}
           </h2>
           <div className="ml-4">
-         
             <span
               className={`px-3 py-1 rounded-lg text-sm font-semibold shadow
       ${
@@ -256,7 +294,7 @@ const SolveProblem = () => {
           : "bg-green-800 text-green-300 border border-green-400"
       }`}
             >
-             {status ? status : problem?.difficulty}
+              {status ? status : problem?.difficulty}
             </span>
           </div>
         </div>
@@ -268,8 +306,8 @@ const SolveProblem = () => {
               key={tab}
               className={`px-3 py-1 text-sm font-semibold rounded-t ${
                 activeTab === tab
-                  ? "bg-gray-800 text-yellow-400 border-b-2 border-yellow-400"
-                  : "text-gray-300 hover:text-yellow-300"
+                  ? "bg-gray-800 text-red-400 border-b-2 border-red-400"
+                  : "text-blue-200 hover:text-red-300"
               }`}
               onClick={() => setActiveTab(tab)}
             >
@@ -417,52 +455,65 @@ const SolveProblem = () => {
               onChange={(value) => setCode(value)}
             />
           </div>
-          <div className="flex gap-4 mt-4">
-            {running ? (
-              <button className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition">
-                <Circles
-                  height="24"
-                  width="24"
-                  color="#fff"
-                  ariaLabel="loading"
-                  wrapperStyle={{}}
-                  wrapperClass=""
-                  visible={true}
-                />
-              </button>
-            ) : (
+          <div className="flex gap-4 mt-4 justify-between items-center">
+            <div className="flex gap-4">
+              {running ? (
+                <button className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition">
+                  <Circles
+                    height="24"
+                    width="24"
+                    color="#fff"
+                    ariaLabel="loading"
+                    wrapperStyle={{}}
+                    wrapperClass=""
+                    visible={true}
+                  />
+                </button>
+              ) : (
+                <button
+                  className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
+                  onClick={handleRun}
+                >
+                  Run
+                </button>
+              )}
+              {submitting ? (
+                <button className="bg-gradient-to-r from-green-400 to-green-600 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition">
+                  <Circles
+                    height="24"
+                    width="24"
+                    color="#fff"
+                    ariaLabel="loading"
+                    wrapperStyle={{}}
+                    wrapperClass=""
+                    visible={true}
+                  />
+                </button>
+              ) : (
+                <button
+                  className="bg-gradient-to-r from-green-400 to-green-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </button>
+              )}
+            </div>
+            <div>
               <button
-                className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
-                onClick={handleRun}
+                className="bg-gray-900/80 border border-red-300 px-6 py-2 rounded-lg shadow hover:scale-105 transition font-bold"
+                onClick={handleAIReview}
               >
-                Run
+                
+                <span className="bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 bg-clip-text text-transparent text-lg flex items-center gap-2">
+                  AI Review
+                </span>
               </button>
-            )}
-            {submitting ? (
-              <button className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition">
-                <Circles
-                  height="24"
-                  width="24"
-                  color="#fff"
-                  ariaLabel="loading"
-                  wrapperStyle={{}}
-                  wrapperClass=""
-                  visible={true}
-                />
-              </button>
-            ) : (
-              <button
-                className="bg-gradient-to-r from-green-400 to-green-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
-                onClick={handleSubmit}
-              >
-                Submit
-              </button>
-            )}
+            </div>
           </div>
         </div>
         {/* Output Area */}
         <div className="bg-gray-900/80 rounded-2xl shadow-lg p-4">
-          <label className="text-lg font-semibold  text-red-900 mb-2">
+          <label className="text-lg font-semibold  text-red-300 mb-2">
             Input
           </label>
           <div className="bg-gray-800 text-gray-100 rounded-lg p-3 min-h-[48px] font-mono text-sm">
