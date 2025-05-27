@@ -9,18 +9,26 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useTestCases } from "../store/TestCases";
+import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
 
-const TABS = ["Description", "Reviews", "Discussions", "Hints"];
+
+const TABS = ["Description","Result", "Reviews", "Discussions", "Hints"];
 
 const SolveProblem = () => {
   const [activeTab, setActiveTab] = useState("Description");
   const [code, setCode] = useState("");
   const [output, setOutput] = useState("");
+  const [input, setInput] = useState("");
   const [testcase, setTestcase] = useState("");
   const [running ,setRunning]=useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [className,setClassName]=useState("");
   const {testCases}=useTestCases();
-  
+  const [correctness, setCorrectness] = useState({correct:0,total:0}); 
+  const [lang, setLang] = useState("cpp");
+  const [status, setStatus] = useState(null);
+
+
   const {problems}=useProblems();
   const navigate=useNavigate();
   const { id: problemId } = useParams();
@@ -29,7 +37,7 @@ const SolveProblem = () => {
   console.log("Current Test Cases:",currTestCases);
 
   const {token}=useAuth();
-  const [lang,setLang]=useState("cpp");
+  
 
   const handleLangChange = (value) => {
     console.log(value);
@@ -57,7 +65,8 @@ const SolveProblem = () => {
       lang,
       code,
       className,
-      problemId
+      problemId,
+      input:input
     };
    }
    else{
@@ -66,23 +75,26 @@ const SolveProblem = () => {
         lang:"js",
         code,
         problemId,
+        input:input
       };
     }
     else if(lang==="python"){
       data = {
         lang:"py",
         code,
-        problemId
+        problemId,
+        input:input
       };
     }
     else{
       data = {
         lang,
         code,
-        problemId
+        problemId,
+        input:input
       };
     }
-    
+
    }
 
     if(!token){
@@ -90,6 +102,7 @@ const SolveProblem = () => {
       return;
     }
     setRunning(true);
+    console.log("input:", input);
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/run`, {
       method:"POST",
       headers:{
@@ -114,14 +127,103 @@ const SolveProblem = () => {
         toast.error(data.message || "Failed to run code");
         return;
       }
-
+      setStatus("Attempted");
       setOutput(data.output || "No output");
       toast.success("Code ran successfully");
     })
   };
 
   const handleSubmit = () => {
-    setOutput("Submission result will be shown here (mock).");
+ 
+    console.log("token in submit:",token);
+    if(!token){
+      toast.error("Unauthorized,Please Login");
+      return ;
+    }
+
+    let data = {};
+    if (lang === "java") {
+      data = {
+        lang,
+        code,
+        className,
+        problemId,
+        
+      };
+    } else {
+      if (lang === "javascript") {
+        data = {
+          lang: "js",
+          code,
+          problemId
+        };
+      } else if (lang === "python") {
+        data = {
+          lang: "py",
+          code,
+          problemId
+        };
+      } else {
+        data = {
+          lang,
+          code,
+          problemId
+        };
+      }
+    }
+
+    setSubmitting(true);
+
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/submit`, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }).then(async (res) => {
+      const data = await res.json();
+      setSubmitting(false);
+      console.log(" submit Response Data:", data);
+      if (!res.ok) {
+        if (res.status === 401) {
+          toast.error("Unauthorized. Please login again.");
+          return;
+        } else if (res.status === 400) {
+          toast.error(data.message || "Error in submission");
+          return;
+        } else if (res.status === 406) {
+          toast.error("Wrong code . please check your code");
+          setCorrectness(false);
+          return;
+        }
+        toast.error(data.message || "Failed to submit code");
+        
+        return;
+      }
+      setActiveTab("Result");
+      setCorrectness(true);
+      setStatus("Accepted");
+      let c=0,t=0;
+      for (const opStatus of data.output) {
+        t++;
+        if (opStatus.correct === false) {
+          setCorrectness(false);
+          setStatus("Wrong Answer");
+          toast.error("Wrong Answer");
+          break;
+        }
+        else{
+          c++;
+        }
+
+      }
+      setCorrectness({correct:c,total:t});
+
+      toast.success("Code submitted Successfully");
+      
+    });
+ 
   };
 
 
@@ -138,9 +240,27 @@ const SolveProblem = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white flex flex-col md:flex-row gap-6 px-4 py-8 md:px-12">
       {/* Left: Problem Details */}
       <div className="md:w-2/5  w-full bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col">
-        <h2 className="text-2xl  font-bold text-yellow-400 mb-2">
-          {problem && problem.title}
-        </h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-2xl font-bold text-yellow-400">
+            {problem && problem.title}
+          </h2>
+          <div className="ml-4">
+         
+            <span
+              className={`px-3 py-1 rounded-lg text-sm font-semibold shadow
+      ${
+        problem?.difficulty === "Hard"
+          ? "bg-red-800 text-red-300 border border-red-400"
+          : problem?.difficulty === "Medium"
+          ? "bg-yellow-800 text-yellow-300 border border-yellow-400"
+          : "bg-green-800 text-green-300 border border-green-400"
+      }`}
+            >
+             {status ? status : problem?.difficulty}
+            </span>
+          </div>
+        </div>
+
         {/* Tabs */}
         <div className="flex gap-2 mb-4 border-b border-gray-700">
           {TABS.map((tab) => (
@@ -161,11 +281,16 @@ const SolveProblem = () => {
         <div className="flex-1 h-auto overflow-y-auto">
           {activeTab === "Description" && (
             <div>
-              <p className="text-gray-200 font-mono text-lg">{problem && problem.description}</p>
+              <p className="text-gray-200 font-mono text-lg">
+                {problem && problem.description}
+              </p>
               <div>
                 {currTestCases &&
                   currTestCases.map((tc) => (
-                    <div key={tc._id} className="font-mono  glass-card mt-2 p-2 rounded bg-gray-800 border border-gray-300 mb-4 ">
+                    <div
+                      key={tc._id}
+                      className="font-mono  glass-card mt-2 p-2 rounded bg-gray-800 border border-gray-300 mb-4 "
+                    >
                       <div className="text-blue-300 font-semibold">Input:</div>
                       {tc.input && typeof tc.input === "object" ? (
                         Object.entries(tc.input).map(([key, value]) => (
@@ -196,6 +321,60 @@ const SolveProblem = () => {
           )}
           {activeTab === "Reviews" && (
             <div className="text-gray-400 italic">No reviews yet.</div>
+          )}
+          {activeTab === "Result" && (
+            <div className="flex flex-col items-center justify-center my-6">
+              {status === "Accepted" ? (
+                <div className="bg-green-900/80 border border-green-400 rounded-xl px-6 py-4 flex flex-col items-center shadow">
+                  <span className="text-green-300 text-2xl font-bold flex items-center gap-2">
+                    <svg
+                      className="w-6 h-6 inline-block"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Submission Accepted
+                  </span>
+                  <span className="mt-2 text-lg text-gray-100">
+                    Correctness:{" "}
+                    <span className="font-semibold text-yellow-300">
+                      {correctness.correct}
+                    </span>
+                    <span className="text-gray-400"> / </span>
+                    <span className="font-semibold text-yellow-300">
+                      {correctness.total}
+                    </span>{" "}
+                    test cases passed
+                  </span>
+                </div>
+              ) : (
+                <div className="bg-gray-800/80 border border-yellow-400 rounded-xl px-6 py-4 flex flex-col items-center shadow">
+                  <span className="text-yellow-400 text-lg font-semibold flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 inline-block"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
+                      />
+                    </svg>
+                    Please submit to view result
+                  </span>
+                </div>
+              )}
+            </div>
           )}
           {activeTab === "Discussions" && (
             <div className="text-gray-400 italic">No discussions yet.</div>
@@ -259,15 +438,43 @@ const SolveProblem = () => {
                 Run
               </button>
             )}
-            <button
-              className="bg-gradient-to-r from-green-400 to-green-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
-              onClick={handleSubmit}
-            >
-              Submit
-            </button>
+            {submitting ? (
+              <button className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition">
+                <Circles
+                  height="24"
+                  width="24"
+                  color="#fff"
+                  ariaLabel="loading"
+                  wrapperStyle={{}}
+                  wrapperClass=""
+                  visible={true}
+                />
+              </button>
+            ) : (
+              <button
+                className="bg-gradient-to-r from-green-400 to-green-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
+                onClick={handleSubmit}
+              >
+                Submit
+              </button>
+            )}
           </div>
         </div>
         {/* Output Area */}
+        <div className="bg-gray-900/80 rounded-2xl shadow-lg p-4">
+          <label className="text-lg font-semibold  text-red-900 mb-2">
+            Input
+          </label>
+          <div className="bg-gray-800 text-gray-100 rounded-lg p-3 min-h-[48px] font-mono text-sm">
+            <textarea
+              className="w-full h-full bg-transparent text-gray-100 font-mono text-sm outline-none resize-none"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Enter input here..."
+              rows={2}
+            />
+          </div>
+        </div>
         <div className="bg-gray-900/80 rounded-2xl shadow-lg p-4">
           <label className="text-lg font-semibold text-green-300 mb-2">
             Output
