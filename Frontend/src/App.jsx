@@ -9,6 +9,7 @@ import SolveProblem from "./components/SolveProblem";
 import Header from "./components/Header";
 import Profile from "./components/Profile";
 import { TestCaseProvider } from "./store/TestCases";
+import  {SolutionContextProvider}  from "./store/SolutionContext";
 
 function App() {
 
@@ -18,7 +19,8 @@ function App() {
       <Toaster />
       <ProblemsProvider>
         <TestCaseProvider>
-          <Routes>
+          <SolutionContextProvider>
+            <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
 
@@ -28,10 +30,11 @@ function App() {
               <Route path="profile" element={<Profile />} />
             </Route>
           </Routes>
-        </TestCaseProvider>
-      </ProblemsProvider>
-    </AuthProvider>
-  );
+        </SolutionContextProvider>
+      </TestCaseProvider>
+    </ProblemsProvider>
+  </AuthProvider>
+);
 }
 
 export default App;

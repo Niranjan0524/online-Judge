@@ -10,8 +10,10 @@ import { useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useTestCases } from "../store/TestCases";
 import ReactMarkdown from "react-markdown";
-import CodeBlock from "./CodeBlock"; 
-const TABS = ["Description","Result", "Reviews", "Discussions", "Hints"];
+import CodeBlock from "./CodeBlock";
+import { useSolutions } from "../store/SolutionContext";
+
+const TABS = ["Description","Result", "Submissions", "Discussions", "Hints"];
 
 const SolveProblem = () => {
   const [activeTab, setActiveTab] = useState("Description");
@@ -28,17 +30,17 @@ const SolveProblem = () => {
   const [status, setStatus] = useState(null);
   const [aiReview, setAiReview] = useState(null);
   const [reviewing, setReviewing] = useState(false);
+  const [currSolution, setCurrSolution] = useState();
+  const { solutions } = useSolutions();
 
-
-  const {problems}=useProblems();
-  const navigate=useNavigate();
+  const { problems } = useProblems();
+  const navigate = useNavigate();
   const { id: problemId } = useParams();
-  const problem=problems.find((p)=> p._id===problemId);
-  const currTestCases=testCases.filter(tc=> tc.problemId===problemId);
-  console.log("Current Test Cases:",currTestCases);
+  const problem = problems.find((p) => p._id === problemId);
+  const currTestCases = testCases.filter((tc) => tc.problemId === problemId);
+  console.log("Current Test Cases:", currTestCases);
 
-  const {token}=useAuth();
-  
+  const { token } = useAuth();
 
   const handleLangChange = (value) => {
     console.log(value);
@@ -278,7 +280,17 @@ const SolveProblem = () => {
       toast.error("Problem not found");
       navigate("/");
     }
-  },[problems,problem,navigate]);
+    const problemId = problem?._id;
+    const solutionExists = solutions?.find(
+      (sol) => sol.problemId === problemId
+    );
+    if (solutionExists) {
+      setCurrSolution(solutionExists.code);
+    } else {
+      setCurrSolution(null);
+    }
+
+  }, [problems, problem, navigate]);
 
 
   return (
@@ -363,8 +375,12 @@ const SolveProblem = () => {
               </div>
             </div>
           )}
-          {activeTab === "Reviews" && (
-            <div className="text-gray-400 italic">No reviews yet.</div>
+          {activeTab === "Submissions" && (
+            <div className="flex flex-col gap-2">
+            {currSolution?<div><CodeBlock code={currSolution} language={lang}/> </div>:<div className="text-gray-400 italic">No submissions yet.</div>
+              
+            }
+            </div>
           )}
           {activeTab === "Result" && (
             <div className="flex flex-col items-center justify-center my-6">
