@@ -11,7 +11,7 @@ const { generateInputFile } = require("./generateInputFiles");
 const {generateInput}= require("./generateInput");
 const { AI_Service } = require("../service/AI_Service");
 const Problem= require("../models/problems");
-
+const Solution = require("../models/solution");
 
 exports.runCode = async (req, res) => {
   const { code, lang = "c++", problemId, input } = req.body;
@@ -153,6 +153,31 @@ exports.submitCode=async(req,res)=>{
         });
 
     }
+
+    try{
+      let c=0;
+      let t=0;
+      for(const res of result){
+        if(!res.correct){
+          c++;
+        }
+        t++;
+      }
+      if(c==0){
+        const solution=  new Solution({
+          problemId:problemId,
+          userId:id,
+          code:code
+        })
+        await solution.save();
+        console.log("Solution saved successfully");
+      }
+    }
+    catch(err){
+      console.log("Error saving solution:", err);
+      res.status(500).json({message: "Internal server error , unable to save solution"});
+      return;
+    }
     res.status(200).json({
       message: "Code submitted Successfully",
       output: result
@@ -216,7 +241,5 @@ exports.aiReviewCode=async(req,res)=>{
       message: "Internal server error",
       error: err.message
     })
-  }
-
-  
+  }  
 }

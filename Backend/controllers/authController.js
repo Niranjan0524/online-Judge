@@ -182,3 +182,19 @@ exports.getUser=async(req,res)=>{
     token:token
   })
 }
+
+exports.getSolutions=async(req,res)=>{
+  const id=req.params.id;
+  console.log("id in getSolutions",id);
+  const user=await User.findById(id).populate("solutions");
+  if(!user){
+    res.status(404).json({
+      message:"User not found"
+    });
+  }
+
+  res.status(200).json({
+    message:"Solutions fetched successfully",
+    solutions:user.solutions
+  });
+}
