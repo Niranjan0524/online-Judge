@@ -9,7 +9,9 @@ const path = require("path");
 const TestCase = require("../models/testCases");
 const { generateInputFile } = require("./generateInputFiles");
 const {generateInput}= require("./generateInput");
-const { generateAIReview } = require("./generateAIReview");
+const { AI_Service } = require("../service/AI_Service");
+const Problem= require("../models/problems");
+
 
 exports.runCode = async (req, res) => {
   const { code, lang = "c++", problemId, input } = req.body;
@@ -165,7 +167,9 @@ exports.submitCode=async(req,res)=>{
 
 exports.aiReviewCode=async(req,res)=>{
 
-  const {code} = req.body;
+  const {code,problemId} = req.body;
+  console.log("code in ai review", code);
+  console.log("problemId in ai review", problemId);
   const authHeader=req.headers.authorization;
   if(!authHeader){
     res.status(401).json({message:"Unauthorized"});
@@ -183,9 +187,15 @@ exports.aiReviewCode=async(req,res)=>{
     return;
   }
 
+  const problem=await Problem.findById(problemId);
+  if(!problem){
+    res.status(404).json({message:"Problem not found"});
+    return;
+  }
+
   try{
 
-    const response=await generateAIReview(code);
+    const response = await AI_Service(code,problem);
     if(response.error){
       res.status(500).json({
         message: "Error in AI Review",
@@ -196,7 +206,7 @@ exports.aiReviewCode=async(req,res)=>{
 
     res.status(200).json({
       message: "AI Review generated successfully",
-      output: response
+      output:response
     });
     
   }

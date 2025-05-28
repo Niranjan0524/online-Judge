@@ -9,9 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useTestCases } from "../store/TestCases";
-import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
-import { BsLightningCharge } from "react-icons/bs";
-
+import ReactMarkdown from "react-markdown";
+import CodeBlock from "./CodeBlock"; 
 const TABS = ["Description","Result", "Reviews", "Discussions", "Hints"];
 
 const SolveProblem = () => {
@@ -28,6 +27,8 @@ const SolveProblem = () => {
   const [lang, setLang] = useState("cpp");
   const [status, setStatus] = useState(null);
   const [aiReview, setAiReview] = useState(null);
+  const [reviewing, setReviewing] = useState(false);
+
 
   const {problems}=useProblems();
   const navigate=useNavigate();
@@ -228,7 +229,7 @@ const SolveProblem = () => {
 
 
   const handleAIReview=()=>{
-
+    setReviewing(true);
     if(!token){
       toast.error("Unauthorized,Please Login");
       return ;
@@ -244,7 +245,7 @@ const SolveProblem = () => {
     }
     else{
     
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/ai-review`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/aiReview`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -252,14 +253,19 @@ const SolveProblem = () => {
       },
       body: JSON.stringify({ code, problemId }),
     }).then(async (res) => {
+      setReviewing(false);
       const data = await res.json();
+      console.log("AI Review Response Data:", data);
       if (!res.ok) {
         toast.error(data.message || "Error in AI Review");
         return;
       }
       toast.success("AI Review generated successfully");
+      setAiReview(data.output);
+      console.log("AI Review Data:", data.output);
     })
     .catch((err) => {
+      setReviewing(false);
       console.error("Error in AI Review:", err);
       toast.error("Error in AI Review");
     });
@@ -499,19 +505,70 @@ const SolveProblem = () => {
               )}
             </div>
             <div>
-              <button
-                className="bg-gray-900/80 border border-red-300 px-6 py-2 rounded-lg shadow hover:scale-105 transition font-bold"
-                onClick={handleAIReview}
-              >
-                
-                <span className="bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 bg-clip-text text-transparent text-lg flex items-center gap-2">
-                  AI Review
-                </span>
-              </button>
+              {reviewing ? (
+                <button className="bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition">
+                  <Circles
+                    height="24"
+                    width="24"
+                    color="#fff"
+                    ariaLabel="loading"
+                    wrapperStyle={{}}
+                    wrapperClass=""
+                    visible={true}
+                  />
+                </button>
+              ) : (
+                <button
+                  className="bg-gray-900/80 border border-red-300 px-6 py-2 rounded-lg shadow hover:scale-105 transition font-bold"
+                  onClick={handleAIReview}
+                >
+                  <span className="bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 bg-clip-text text-transparent text-lg flex items-center gap-2">
+                    AI Review
+                  </span>
+                </button>
+              )}
             </div>
           </div>
         </div>
-        {/* Output Area */}
+        {aiReview && (
+          <div
+            className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-2 border-yellow-400 rounded-2xl shadow-lg p-4 mb-4 transition-all duration-300"
+            style={{
+              minHeight: "160px",
+              maxHeight: "160px",
+              overflowY: "auto",
+              scrollbarWidth: "none",
+            }}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg font-bold bg-gradient-to-r from-yellow-400 via-red-400 to-pink-400 bg-clip-text text-transparent">
+                AI Review
+              </span>
+            </div>
+            <div
+              className="prose prose-invert max-w-none text-gray-100 text-sm"
+              style={{ scrollbarWidth: "none" }}
+            >
+              <ReactMarkdown
+                components={{
+                  code({ node, inline, className, children, ...props }) {
+                    const match = /language-(\w+)/.exec(className || "");
+                    const code = String(children).replace(/\n$/, "");
+                    return !inline && match ? (
+                      <CodeBlock code={code} language={match[1]} />
+                    ) : (
+                      <code className={className} {...props}>
+                        {children}
+                      </code>
+                    );
+                  },
+                }}
+              >
+                {aiReview}
+              </ReactMarkdown>
+            </div>
+          </div>
+        )}
         <div className="bg-gray-900/80 rounded-2xl shadow-lg p-4">
           <label className="text-lg font-semibold  text-red-300 mb-2">
             Input

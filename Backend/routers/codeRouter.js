@@ -5,6 +5,6 @@ const { runCode,submitCode ,aiReviewCode} = require("../controllers/codeControll
 
 codeRouter.post("/run",runCode);
 codeRouter.post("/submit",submitCode);
-codeRouter.post("/ai-review",aiReviewCode);
+codeRouter.post("/aiReview",aiReviewCode);
 
 module.exports=codeRouter;
