@@ -12,6 +12,8 @@ import { useTestCases } from "../store/TestCases";
 import ReactMarkdown from "react-markdown";
 import CodeBlock from "./CodeBlock";
 import { useSolutions } from "../store/SolutionContext";
+import { TbXboxX } from "react-icons/tb";
+
 
 const TABS = ["Description","Result", "Submissions", "Discussions", "Hints"];
 
@@ -27,11 +29,11 @@ const SolveProblem = () => {
   const {testCases}=useTestCases();
   const [correctness, setCorrectness] = useState({correct:0,total:0}); 
   const [lang, setLang] = useState("cpp");
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState("Not Attempted");
   const [aiReview, setAiReview] = useState(null);
   const [reviewing, setReviewing] = useState(false);
   const [currSolution, setCurrSolution] = useState();
-  const { solutions } = useSolutions();
+  const { solutions ,fetchSolutions} = useSolutions();
 
   const { problems } = useProblems();
   const navigate = useNavigate();
@@ -197,6 +199,7 @@ const SolveProblem = () => {
           return;
         } else if (res.status === 406) {
           toast.error("Wrong code . please check your code");
+          setStatus("Wrong");
           setCorrectness(false);
           return;
         }
@@ -205,14 +208,13 @@ const SolveProblem = () => {
         return;
       }
       setActiveTab("Result");
-      setCorrectness(true);
-      setStatus("Accepted");
+      
       let c=0,t=0;
       for (const opStatus of data.output) {
         t++;
         if (opStatus.correct === false) {
-          setCorrectness(false);
-          setStatus("Wrong Answer");
+          
+          setStatus("Wrong");
           toast.error("Wrong Answer");
           break;
         }
@@ -220,6 +222,10 @@ const SolveProblem = () => {
           c++;
         }
 
+      }
+      if(c==t){
+        setStatus("Accepted");
+        fetchSolutions();
       }
       setCorrectness({correct:c,total:t});
 
@@ -285,6 +291,8 @@ const SolveProblem = () => {
       (sol) => sol.problemId === problemId
     );
     if (solutionExists) {
+      setStatus("Accepted");
+      setCorrectness({correct:5,total:5});
       setCurrSolution(solutionExists.code);
     } else {
       setCurrSolution(null);
@@ -305,9 +313,9 @@ const SolveProblem = () => {
             <span
               className={`px-3 py-1 rounded-lg text-sm font-semibold shadow
       ${
-        problem?.difficulty === "Hard"
-          ? "bg-red-800 text-red-300 border border-red-400"
-          : problem?.difficulty === "Medium"
+        problem?.difficulty === "Hard" || status === "Wrong"
+          ? "bg-red-800 text-red-200 border border-red-400"
+          : problem?.difficulty === "Medium" || status === "Not Attempted"
           ? "bg-yellow-800 text-yellow-300 border border-yellow-400"
           : "bg-green-800 text-green-300 border border-green-400"
       }`}
@@ -377,14 +385,18 @@ const SolveProblem = () => {
           )}
           {activeTab === "Submissions" && (
             <div className="flex flex-col gap-2">
-            {currSolution?<div><CodeBlock code={currSolution} language={lang}/> </div>:<div className="text-gray-400 italic">No submissions yet.</div>
-              
-            }
+              {currSolution ? (
+                <div>
+                  <CodeBlock code={currSolution} language={lang} />{" "}
+                </div>
+              ) : (
+                <div className="text-gray-400 italic">No submissions yet.</div>
+              )}
             </div>
           )}
           {activeTab === "Result" && (
             <div className="flex flex-col items-center justify-center my-6">
-              {status === "Accepted" ? (
+              {status === "Accepted" && (
                 <div className="bg-green-900/80 border border-green-400 rounded-xl px-6 py-4 flex flex-col items-center shadow">
                   <span className="text-green-300 text-2xl font-bold flex items-center gap-2">
                     <svg
@@ -414,7 +426,18 @@ const SolveProblem = () => {
                     test cases passed
                   </span>
                 </div>
-              ) : (
+              )}
+              {status === "Wrong" && (
+                <div className="bg-gray-800/80 border border-red-400 rounded-xl px-6 py-4 flex flex-col items-center shadow">
+                  <span className="text-red-400 text-lg font-semibold flex items-center gap-2">
+                    
+                  
+                    <TbXboxX className="w-5 h-5 inline-block" />
+                    Wrong Answer
+                  </span>
+                </div>
+              )}
+              {status === "Not Attempted" && (
                 <div className="bg-gray-800/80 border border-yellow-400 rounded-xl px-6 py-4 flex flex-col items-center shadow">
                   <span className="text-yellow-400 text-lg font-semibold flex items-center gap-2">
                     <svg
@@ -430,7 +453,7 @@ const SolveProblem = () => {
                         d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
                       />
                     </svg>
-                    Please submit to view result
+                    Please attempt the problem
                   </span>
                 </div>
               )}

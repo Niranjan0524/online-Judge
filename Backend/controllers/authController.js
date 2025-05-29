@@ -2,7 +2,7 @@ const User = require("../models/user");
 const expressValidator = require("express-validator");  
 const bcrypt = require("bcryptjs");
 const jwt=require("jsonwebtoken");
-
+const Solution = require("../models/solution");
 
 const namevalidator=expressValidator
   .check("name")
@@ -184,17 +184,38 @@ exports.getUser=async(req,res)=>{
 }
 
 exports.getSolutions=async(req,res)=>{
-  const id=req.params.id;
+  const authHeader = req.headers.authorization;
+  if(!authHeader){
+    return res.status(401).json({
+      message:"Authorization header is missing"
+    })
+  }
+  const token=authHeader.split(" ")[1];
+  if(!token){
+    return res.status(401).json({
+      message:"Token is missing"
+    })
+  }
+  console.log("valid token");
+  const {id}=jwt.verify(token,process.env.JWT_SECRET);
+  if(!id){
+    return res.status(401).json({
+      message:"Invalid token"
+    })
+  }
   console.log("id in getSolutions",id);
-  const user=await User.findById(id).populate("solutions");
+  const user=await User.findById(id);
   if(!user){
     res.status(404).json({
       message:"User not found"
     });
   }
 
+  const solutions=await Solution.find({userId:id});
+
+  console.log("solutions in getSolutions", solutions);
   res.status(200).json({
     message:"Solutions fetched successfully",
-    solutions:user.solutions
+    solutions:solutions
   });
 }

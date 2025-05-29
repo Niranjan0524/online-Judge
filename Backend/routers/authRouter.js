@@ -7,7 +7,7 @@ const {preSignup,signup,login,getUser,getSolutions}=require('../controllers/auth
 authRouter.post('/signup',preSignup,signup);
 authRouter.post('/login',login);
 authRouter.get('/getuser',getUser);
-authRouter.get('/getSolutions/:id',getSolutions);
+authRouter.get('/getSolutions',getSolutions);
 
 authRouter.get("/profile", ensureAuthenticated, (req, res) => {
   res.send("This is your profile page.");
