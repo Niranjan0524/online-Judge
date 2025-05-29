@@ -6,7 +6,8 @@ require("dotenv").config({
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
 app.use(cors()); // Enable CORS
@@ -43,6 +44,42 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRouter);
 app.use("/api/problem",problemRouter);
 app.use("/api/code",codeRouter);
+
+function deleteInputsFolder() {
+  const inputsPath = path.join(__dirname, "inputs");
+  if (fs.existsSync(inputsPath)) {
+    fs.rm(inputsPath, { recursive: true, force: true }, (err) => {
+      if (err) {
+        console.error("Error deleting inputs folder:", err);
+      } else {
+        console.log("Inputs folder deleted successfully.");
+      }
+    });
+  }
+  const codesPath = path.join(__dirname, "codes");
+  if (fs.existsSync(codesPath)) {
+    fs.rm(codesPath, { recursive: true, force: true }, (err) => {
+      if (err) {
+        console.error("Error deleting codes folder:", err);
+      } else {
+        console.log("Codes folder deleted successfully.");
+      }
+    });
+  }
+  const outputsPath = path.join(__dirname, "outputs");
+  if (fs.existsSync(outputsPath)) {
+    fs.rm(outputsPath, { recursive: true, force: true }, (err) => {
+      if (err) {
+        console.error("Error deleting outputs folder:", err);
+      } else {
+        console.log("Outputs folder deleted successfully.");
+      }
+    });
+  }
+}
+
+// Run every 1 hour (3600000 ms)
+setInterval(deleteInputsFolder, 3600000);
 
 const port = process.env.PORT || 4000;
 mongoose
