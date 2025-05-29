@@ -79,6 +79,12 @@ const Header=()=>{
               >
                 Settings
               </a>
+              <a
+                href="/dashboard"
+                className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition"
+              >
+                DashBoard
+              </a>
               {isLoggedIn ? (
                 <button
                   className="w-full text-left px-4 py-2 text-red-400 hover:bg-gray-800 hover:text-red-300 transition rounded-b-lg"

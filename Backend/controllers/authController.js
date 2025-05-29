@@ -213,7 +213,7 @@ exports.getSolutions=async(req,res)=>{
 
   const solutions=await Solution.find({userId:id});
 
-  console.log("solutions in getSolutions", solutions);
+
   res.status(200).json({
     message:"Solutions fetched successfully",
     solutions:solutions
