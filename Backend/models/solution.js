@@ -11,10 +11,16 @@ const solutionSchema=new mongoose.Schema({
     ref:'User',
     required:true
   },
+  titleName:{
+    type:String,
+    required:true
+  },
   code:{
     type:String,
     required:true
-  }
+  },
+  status:{type:String,required:true,enum:['Accepted','Wrong Answer','Time Limit Exceeded','Error']},
+  submittedAt:{type:Date,default:Date.now},
 });
 
 

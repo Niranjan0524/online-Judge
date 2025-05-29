@@ -43,7 +43,7 @@ export const SolutionContextProvider=({children})=>{
       }
 
       fetchSolutions();
-      console.log("Solutions fetched successfully" ,solutions);
+      
     },[token,isLoggedIn]);
     return (
         <SolutionContext.Provider value={{solutions,setSolutions,fetchSolutions}}>

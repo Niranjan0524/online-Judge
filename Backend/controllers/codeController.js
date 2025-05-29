@@ -163,14 +163,34 @@ exports.submitCode=async(req,res)=>{
         }
         t++;
       }
+      const problem=await Problem.findById(problemId);
+      if(!problem){
+        res.status(404).json({message:"Problem not found"});
+        return;
+      }
       if(c==0){
         const solution=  new Solution({
           problemId:problemId,
           userId:id,
-          code:code
+          code:code,
+          titleName:problem.title,
+          status:"Accepted",
+          submittedAt: new Date()
         })
         await solution.save();
         console.log("Solution saved successfully");
+      }
+      else{
+        const solution=  new Solution({
+          problemId:problemId,
+          userId:id,
+          code:code,
+          titleName:problem.title,
+          status:"Wrong Answer",
+          submittedAt: new Date()
+        })
+        await solution.save();
+        console.log("Solution saved with wrong answer");
       }
     }
     catch(err){

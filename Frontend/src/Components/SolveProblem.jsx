@@ -13,6 +13,9 @@ import ReactMarkdown from "react-markdown";
 import CodeBlock from "./CodeBlock";
 import { useSolutions } from "../store/SolutionContext";
 import { TbXboxX } from "react-icons/tb";
+import { RxCrossCircled } from "react-icons/rx";
+
+
 
 
 const TABS = ["Description","Result", "Submissions", "Discussions", "Hints"];
@@ -33,19 +36,21 @@ const SolveProblem = () => {
   const [aiReview, setAiReview] = useState(null);
   const [reviewing, setReviewing] = useState(false);
   const [currSolution, setCurrSolution] = useState();
-  const { solutions ,fetchSolutions} = useSolutions();
+  const [viewSubmission, setViewSubmission] = useState(false);  
+  const [currSubmission, setCurrSubmission] = useState(null);
 
+  const { solutions, fetchSolutions } = useSolutions();
   const { problems } = useProblems();
   const navigate = useNavigate();
   const { id: problemId } = useParams();
   const problem = problems.find((p) => p._id === problemId);
   const currTestCases = testCases.filter((tc) => tc.problemId === problemId);
-  console.log("Current Test Cases:", currTestCases);
+  
 
   const { token } = useAuth();
 
   const handleLangChange = (value) => {
-    console.log(value);
+    
     setLang(value);
     let className;
     if (value === "java") {
@@ -107,7 +112,7 @@ const SolveProblem = () => {
       return;
     }
     setRunning(true);
-    console.log("input:", input);
+   
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/run`, {
       method:"POST",
       headers:{
@@ -140,7 +145,7 @@ const SolveProblem = () => {
 
   const handleSubmit = () => {
  
-    console.log("token in submit:",token);
+   
     if(!token){
       toast.error("Unauthorized,Please Login");
       return ;
@@ -189,7 +194,7 @@ const SolveProblem = () => {
     }).then(async (res) => {
       const data = await res.json();
       setSubmitting(false);
-      console.log(" submit Response Data:", data);
+
       if (!res.ok) {
         if (res.status === 401) {
           toast.error("Unauthorized. Please login again.");
@@ -208,7 +213,7 @@ const SolveProblem = () => {
         return;
       }
       setActiveTab("Result");
-      
+      fetchSolutions();
       let c=0,t=0;
       for (const opStatus of data.output) {
         t++;
@@ -225,7 +230,7 @@ const SolveProblem = () => {
       }
       if(c==t){
         setStatus("Accepted");
-        fetchSolutions();
+        
       }
       setCorrectness({correct:c,total:t});
 
@@ -263,14 +268,14 @@ const SolveProblem = () => {
     }).then(async (res) => {
       setReviewing(false);
       const data = await res.json();
-      console.log("AI Review Response Data:", data);
+
       if (!res.ok) {
         toast.error(data.message || "Error in AI Review");
         return;
       }
       toast.success("AI Review generated successfully");
       setAiReview(data.output);
-      console.log("AI Review Data:", data.output);
+
     })
     .catch((err) => {
       setReviewing(false);
@@ -280,25 +285,43 @@ const SolveProblem = () => {
   };
 };
 
+
+  const handleSolutionView= (solutionId) => {
+
+    setViewSubmission(true);
+    const code=solutions.find((sol) => sol._id === solutionId)?.code;
+    setCurrSolution(code);
+  }
+
+  const handleSolutionClose = () => {
+    setViewSubmission(false);
+  };
+
   useEffect(()=>{
     window.scrollTo(0,0);
     if (problems.length>0 && !problem) {
       toast.error("Problem not found");
       navigate("/");
     }
-    const problemId = problem?._id;
-    const solutionExists = solutions?.find(
-      (sol) => sol.problemId === problemId
-    );
-    if (solutionExists) {
-      setStatus("Accepted");
-      setCorrectness({correct:5,total:5});
-      setCurrSolution(solutionExists.code);
+    
+    const sub = solutions?.filter((sol)=>sol.problemId === problemId);
+    
+    if (!sub || sub.length === 0) {
+      setCurrSolution(null);
+      return;
+    }
+    setCurrSubmission(sub);
+    console.log("Solution Exists:", sub);
+    if (sub && sub.length > 0) {
+      console.log("inside useEffect");
+      setStatus(sub[0].status);
+      setCorrectness({ correct: 5, total: 5 });
+      setCurrSolution(sub[0].code);
     } else {
       setCurrSolution(null);
     }
 
-  }, [problems, problem, navigate]);
+  }, [problems, problem, problemId]);
 
 
   return (
@@ -385,12 +408,62 @@ const SolveProblem = () => {
           )}
           {activeTab === "Submissions" && (
             <div className="flex flex-col gap-2">
-              {currSolution ? (
-                <div>
+              {!viewSubmission && solutions && (
+                // ...inside the Submissions tab...
+                <div className="flex flex-col gap-3">
+                  {currSubmission && currSubmission.length > 0 ? (
+                    currSubmission.map((sol) => (
+                      <div
+                        key={sol._id}
+                        className="flex items-center justify-between bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-3 shadow hover:shadow-lg transition-all cursor-pointer hover:bg-gray-700/50 hover:text-gray-100 transition  "
+                        onClick={() => handleSolutionView(sol._id)}
+                      >
+                        <div className="flex-1">
+                          <div className="text-base font-semibold text-gray-100">
+                            {sol.titleName}
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            {sol.submittedAt
+                              ? new Date(sol.submittedAt).toLocaleString()
+                              : "Not submitted"}
+                          </div>
+                        </div>
+                        <div>
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-bold
+              ${
+                sol.status === "Accepted"
+                  ? "bg-green-900 text-green-300 border border-green-400"
+                  : sol.status === "Wrong"
+                  ? "bg-red-900 text-red-900 border border-red-400"
+                  : "bg-yellow-900 text-yellow-300 border border-yellow-400"
+              }
+            `}
+                          >
+                            {sol.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-gray-400 italic">
+                      No submissions yet.
+                    </div>
+                  )}
+                </div>
+              )}
+              {viewSubmission && currSolution && (
+                <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-3 shadow ">
+                  <button onClick={handleSolutionClose}>
+                    <RxCrossCircled size={25} />
+                  </button>
                   <CodeBlock code={currSolution} language={lang} />{" "}
                 </div>
-              ) : (
-                <div className="text-gray-400 italic">No submissions yet.</div>
+              )}
+              {!solutions&&!currSolution && (
+                <div className="text-gray-400 italic">
+                  No submissions available for this problem.
+                </div>
               )}
             </div>
           )}
@@ -430,8 +503,6 @@ const SolveProblem = () => {
               {status === "Wrong" && (
                 <div className="bg-gray-800/80 border border-red-400 rounded-xl px-6 py-4 flex flex-col items-center shadow">
                   <span className="text-red-400 text-lg font-semibold flex items-center gap-2">
-                    
-                  
                     <TbXboxX className="w-5 h-5 inline-block" />
                     Wrong Answer
                   </span>
