@@ -13,6 +13,7 @@ import  {SolutionContextProvider}  from "./store/SolutionContext";
 import Dashboard from "./components/Dashboard";
 import PageNotFound from "./components/PageNotFound";
 import "./index.css"
+import { LeaderBoardProvider } from "./store/LeaderBoardContext";
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
       <ProblemsProvider>
         <TestCaseProvider>
           <SolutionContextProvider>
+            <LeaderBoardProvider>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
@@ -35,6 +37,7 @@ function App() {
               </Route>
               <Route path="*" element={<PageNotFound />} />
             </Routes>
+            </LeaderBoardProvider>
           </SolutionContextProvider>
         </TestCaseProvider>
       </ProblemsProvider>

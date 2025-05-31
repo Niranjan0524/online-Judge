@@ -8,7 +8,8 @@ const genAI=new GoogleGenerativeAI(
 
 const AI_Service = async (code,problem) => {
   const modelName = "gemini-2.0-flash";
-  const prompt = `You are an expert code reviewer. Please review the following code and provide feedback on its quality, structure, and adherence to best practices. Provide a score out of 100 and specific feedback.
+  const prompt = `You are an expert code reviewer. Please review the following code and mention the errors if there are any, and provide feedback on its quality, structure, and adherence to best practices. Provide a score out of 100 and specific feedback.
+  And dont give the updated or corrected code, just the give above mentioned things.
   Problem Title: ${problem.title}
 
   Here is the problem statement for context:

@@ -16,8 +16,6 @@ import { TbXboxX } from "react-icons/tb";
 import { RxCrossCircled } from "react-icons/rx";
 
 
-
-
 const TABS = ["Description","Result", "Submissions", "Discussions", "Hints"];
 
 const SolveProblem = () => {
@@ -218,10 +216,7 @@ const SolveProblem = () => {
       for (const opStatus of data.output) {
         t++;
         if (opStatus.correct === false) {
-          
-          setStatus("Wrong");
-          toast.error("Wrong Answer");
-          break;
+          toast.error("Wrong Answer");          
         }
         else{
           c++;
@@ -230,8 +225,11 @@ const SolveProblem = () => {
       }
       if(c==t){
         setStatus("Accepted");
-        
       }
+      else{
+        setStatus("Wrong");
+      }
+      
       setCorrectness({correct:c,total:t});
 
       toast.success("Code submitted Successfully");
@@ -255,6 +253,7 @@ const SolveProblem = () => {
           duration: 6000,
         }
       );
+      setReviewing(false);
     }
     else{
     
@@ -327,7 +326,8 @@ const SolveProblem = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white flex flex-col md:flex-row gap-6 px-4 py-8 md:px-12">
       {/* Left: Problem Details */}
-      <div className="md:w-2/5  w-full bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col">
+      {/* <div className="md:w-2/5  w-fit h-auto bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col"> */}
+      <div className="md:w-2/5 w-fit h-auto bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-2xl font-bold text-yellow-400">
             {problem && problem.title}
@@ -373,7 +373,7 @@ const SolveProblem = () => {
               </p>
               <div>
                 {currTestCases &&
-                  currTestCases.map((tc) => (
+                  currTestCases.slice(0, 2).map((tc) => (
                     <div
                       key={tc._id}
                       className="font-mono  glass-card mt-2 p-2 rounded bg-gray-800 border border-gray-300 mb-4 "
@@ -404,6 +404,45 @@ const SolveProblem = () => {
                     </div>
                   ))}
               </div>
+              {aiReview && (
+                <div
+                  className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-2 border-yellow-400 rounded-2xl shadow-lg p-4 mb-4 transition-all duration-300"
+                  style={{
+                    minHeight: "160px",
+                    maxHeight: "160px",
+                    overflowY: "auto",
+                    scrollbarWidth: "none",
+                  }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg font-bold bg-gradient-to-r from-yellow-400 via-red-400 to-pink-400 bg-clip-text text-transparent">
+                      AI Review
+                    </span>
+                  </div>
+                  <div
+                    className="prose prose-invert max-w-none text-gray-100 text-sm"
+                    style={{ scrollbarWidth: "none" }}
+                  >
+                    <ReactMarkdown
+                      components={{
+                        code({ node, inline, className, children, ...props }) {
+                          const match = /language-(\w+)/.exec(className || "");
+                          const code = String(children).replace(/\n$/, "");
+                          return !inline && match ? (
+                            <CodeBlock code={code} language={match[1]} />
+                          ) : (
+                            <code className={className} {...props}>
+                              {children}
+                            </code>
+                          );
+                        },
+                      }}
+                    >
+                      {aiReview}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           {activeTab === "Submissions" && (
@@ -460,7 +499,7 @@ const SolveProblem = () => {
                   <CodeBlock code={currSolution} language={lang} />{" "}
                 </div>
               )}
-              {!solutions&&!currSolution && (
+              {!solutions && !currSolution && (
                 <div className="text-gray-400 italic">
                   No submissions available for this problem.
                 </div>
@@ -640,45 +679,7 @@ const SolveProblem = () => {
             </div>
           </div>
         </div>
-        {aiReview && (
-          <div
-            className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-2 border-yellow-400 rounded-2xl shadow-lg p-4 mb-4 transition-all duration-300"
-            style={{
-              minHeight: "160px",
-              maxHeight: "160px",
-              overflowY: "auto",
-              scrollbarWidth: "none",
-            }}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg font-bold bg-gradient-to-r from-yellow-400 via-red-400 to-pink-400 bg-clip-text text-transparent">
-                AI Review
-              </span>
-            </div>
-            <div
-              className="prose prose-invert max-w-none text-gray-100 text-sm"
-              style={{ scrollbarWidth: "none" }}
-            >
-              <ReactMarkdown
-                components={{
-                  code({ node, inline, className, children, ...props }) {
-                    const match = /language-(\w+)/.exec(className || "");
-                    const code = String(children).replace(/\n$/, "");
-                    return !inline && match ? (
-                      <CodeBlock code={code} language={match[1]} />
-                    ) : (
-                      <code className={className} {...props}>
-                        {children}
-                      </code>
-                    );
-                  },
-                }}
-              >
-                {aiReview}
-              </ReactMarkdown>
-            </div>
-          </div>
-        )}
+
         <div className="bg-gray-900/80 rounded-2xl shadow-lg p-4">
           <label className="text-lg font-semibold  text-red-300 mb-2">
             Input

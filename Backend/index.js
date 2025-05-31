@@ -15,7 +15,7 @@ const mongoose = require("mongoose");
 const authRouter = require("./routers/authRouter");
 const problemRouter=require("./routers/problemRouter");
 const codeRouter=require("./routers/codeRouter");
-
+const leaderboardRouter = require("./routers/leaderboardRouter");
 
 // Add this before passport initialization
 const session = require("express-session");
@@ -44,6 +44,7 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRouter);
 app.use("/api/problem",problemRouter);
 app.use("/api/code",codeRouter);
+app.use("/api/alldata", leaderboardRouter);
 
 function deleteInputsFolder() {
   const inputsPath = path.join(__dirname, "inputs");

@@ -9,7 +9,7 @@ const Explore=()=>{
     <>
     <div className="glass-card w-full md:w-[400px] p-8 flex flex-col gap-6 shadow-2xl border border-gray-700 hover:border-yellow-400 transition animate-fade-in">
               <h3 className="text-2xl font-bold text-center mb-2 text-yellow-400 tracking-wide animate-bounce">
-                Explore More
+                Up Comings
               </h3>
               <div className="flex flex-col gap-4">
                 <a

@@ -2,8 +2,8 @@ import { useAuth } from "../store/authContext";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import { useSolutions } from "../store/SolutionContext";
-import { useEffect } from "react";
 import { useProblems } from "../store/ProblemsContext";
+import Leaderboard from "./LeaderBoard";
 
 const Dashboard = () => {
   const { user } = useAuth() || {};
@@ -50,9 +50,9 @@ const Dashboard = () => {
         Your Coding Journey
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-7xl mx-auto ">
         {/* Profile Card */}
-        <div className="lg:col-span-1 bg-[#1a2233] rounded-xl shadow-lg p-6 border border-[#2a3447] hover:shadow-xl transition-shadow duration-300">
+        <div className="lg:col-span-1 bg-[#1a2233] rounded-xl shadow-lg p-6 border border-[#2a3447] hover:shadow-xl transition-shadow duration-300 ">
           <div className="flex flex-col items-center">
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-yellow-500 to-red-800 text-3xl sm:text-4xl text-white flex items-center justify-center mb-4 ring-2 ring-blue-400/30">
               {user?.name?.[0]?.toUpperCase() || "U"}
@@ -132,7 +132,7 @@ const Dashboard = () => {
           <h2 className="text-lg font-semibold text-white mb-4">
             Daily Activity Heatmap
           </h2>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto custom-scrollbar  ">
             <CalendarHeatmap
               startDate={new Date("2025-01-01")}
               endDate={new Date()}
@@ -140,7 +140,7 @@ const Dashboard = () => {
               showMonthLabels={true}
               horizontal={true}
               classForValue={(value) => {
-                if (!value) return "color-empty";
+                if (!value) return "color-scale-0";
                 return value.count >= 5
                   ? "color-scale-4"
                   : value.count >= 3
@@ -157,53 +157,73 @@ const Dashboard = () => {
       {/* Custom Styles */}
       <style>
         {`
-          .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-track {
-            background: #1a2233;
-            border-radius: 8px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #2a3447;
-            border-radius: 8px;
-          }
-          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #3b4a66;
-          }
-          .color-empty { fill: #1a2233; }
-          .color-scale-1 { fill:rgb(77, 255, 148); } /* softer green */
-          .color-scale-2 { fill:rgb(87, 203, 111); } /* softer cyan */
-          .color-scale-3 { fill:rgb(38, 253, 38); } /* softer blue */
-          .color-scale-4 { fill:rgb(0, 172, 20); } /* softer purple */
-          .react-calendar-heatmap {
-            width: 100%;
-            max-width: 600px; /* Adjusted for balanced size */
-            padding: 10px;
-            background: #141b2d; /* Subtle background for contrast */
-            border-radius: 8px;
-          }
-          .react-calendar-heatmap text {
-            fill: #d1d5db;
-            font-size: 11px; /* Balanced text size */
-            font-weight: 500;
-          }
-          .react-calendar-heatmap .react-calendar-heatmap-weekday-labels {
-            margin-top: 10px;
-          }
-          .react-calendar-heatmap rect {
-            rx: 3px; /* Smaller radius for cleaner look */
-            ry: 3px;
-            width: 12px; /* Slightly smaller squares for better fit */
-            height: 12px;
-            margin: 1.5px; /* Tighter spacing */
-          }
-          .react-calendar-heatmap .react-calendar-heatmap-month-labels text {
-            text-transform: uppercase;
-            font-weight: 600;
-          }
-        `}
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1a2233;
+    border-radius: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #2a3447;
+    border-radius: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #3b4a66;
+  }
+  /* Heatmap colors tuned for dark/coding theme */
+  .color-scale-0 { fill:rgb(28, 34, 51); } /* very dark blue-gray for empty */
+  .color-scale-1 { fill:rgb(143, 245, 158); } /* blue-500 */
+  .color-scale-2 { fill:rgb(104, 255, 119); } /* cyan-500 */
+  .color-scale-3 { fill:rgb(1, 202, 35); } /* cyan-300 */
+  .color-scale-4 { fill:rgb(0, 110, 11); } /* green-400 */
+  .react-calendar-heatmap {
+    width: 100%;
+    max-width: 600px;
+    padding: 10px;
+    background: #141b2d; /* matches your card backgrounds */
+    border-radius: 8px;
+  }
+  .react-calendar-heatmap text {
+    fill: #64748b; /* slate-400 */
+    font-size: 8px;
+    font-weight: 500;
+  }
+  .react-calendar-heatmap .react-calendar-heatmap-weekday-labels {
+    margin-top: 10px;
+  }
+  .react-calendar-heatmap rect {
+    rx: 2px;
+    ry: 2px;
+    width: 10px;
+    height: 10px;
+    margin: 3px;
+    stroke: #141b2d; /* subtle border for contrast */
+    stroke-width: 1;
+  }
+  .react-calendar-heatmap .react-calendar-heatmap-month-labels text {
+    // font-size: 10px;
+    font-weight: 600;
+    fill:rgb(91, 91, 91); /* yellow-400 for month labels */
+  }
+`}
       </style>
+
+      <Leaderboard />
+
+      <div>
+        <p className="text-center text-gray-400 mt-8">
+          Made with ❤️ by {" "}
+          <a
+            href="https://github.com/niranjan0524"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:underline"
+          >
+            Niranjan
+          </a>
+        </p>
+      </div>
     </div>
   );
 };
