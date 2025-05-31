@@ -143,7 +143,7 @@ const SolveProblem = () => {
     })
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
  
    
     if(!token){
@@ -184,7 +184,7 @@ const SolveProblem = () => {
 
     setSubmitting(true);
 
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/submit`, {
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/submit`, {
       method: "POST",
       headers: {
         authorization: `Bearer ${token}`,
@@ -213,7 +213,7 @@ const SolveProblem = () => {
         return;
       }
       setActiveTab("Result");
-      fetchSolutions();
+      await fetchSolutions();
       let c=0,t=0;
       for (const opStatus of data.output) {
         t++;
@@ -336,7 +336,7 @@ const SolveProblem = () => {
             <span
               className={`px-3 py-1 rounded-lg text-sm font-semibold shadow
       ${
-        problem?.difficulty === "Hard" || status === "Wrong"
+        problem?.difficulty === "Hard" || status === "Wrong "
           ? "bg-red-800 text-red-200 border border-red-400"
           : problem?.difficulty === "Medium" || status === "Not Attempted"
           ? "bg-yellow-800 text-yellow-300 border border-yellow-400"

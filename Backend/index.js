@@ -56,6 +56,7 @@ function deleteInputsFolder() {
       }
     });
   }
+  fs.mkdirSync(inputsPath, { recursive: true });
   const codesPath = path.join(__dirname, "codes");
   if (fs.existsSync(codesPath)) {
     fs.rm(codesPath, { recursive: true, force: true }, (err) => {
@@ -66,6 +67,7 @@ function deleteInputsFolder() {
       }
     });
   }
+  fs.mkdirSync(codesPath, { recursive: true });
   const outputsPath = path.join(__dirname, "outputs");
   if (fs.existsSync(outputsPath)) {
     fs.rm(outputsPath, { recursive: true, force: true }, (err) => {
@@ -76,6 +78,7 @@ function deleteInputsFolder() {
       }
     });
   }
+  fs.mkdirSync(outputsPath, { recursive: true });
 }
 
 // Run every 1 hour (3600000 ms)

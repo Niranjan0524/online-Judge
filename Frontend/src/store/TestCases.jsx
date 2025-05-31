@@ -20,7 +20,7 @@ export const TestCaseProvider=({children})=>{
       }
       else{
         setTestCases(data.testCases);
-        console.log(data.testCases)
+       
       }
     })
     .catch((err)=>{

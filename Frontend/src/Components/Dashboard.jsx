@@ -1,10 +1,49 @@
 import { useAuth } from "../store/authContext";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
+import { useSolutions } from "../store/SolutionContext";
+import { useEffect } from "react";
+import { useProblems } from "../store/ProblemsContext";
 
 const Dashboard = () => {
   const { user } = useAuth() || {};
+  const { solutions } = useSolutions();
+  const { problems } = useProblems();
+  const dateCountMap = {};
+  const dateMap = Array.isArray(solutions)
+    ? solutions.map((item) => {
+        const date = new Date(item.submittedAt);
+        dateCountMap[date.toISOString().split("T")[0]] = (dateCountMap[date.toISOString().split("T")[0]] || 0) + 1;
+      })
 
+    : [];
+    
+    const dateObj = Object.entries(dateCountMap).map(([date, count]) => ({
+      date,
+      count,
+    }));
+
+    const tagCountMap = {};
+
+    if (Array.isArray(solutions)) {
+      solutions?.forEach((item) => {
+
+        if(item.status==="Accepted" ){
+          const problem=problems?.find((p)=> p._id===item.problemId);
+          if(!problem || !problem.tags) return;
+          problem.tags.forEach((tag)=>{
+            tagCountMap[tag] = (tagCountMap[tag] || 0) + 1;
+          });
+        }
+      });
+    }
+
+    const tagMap = Object.entries(tagCountMap).map(([tag, count]) => ({
+      tag,
+      count,
+    }));
+
+    console.log("Tag Map:", tagMap);
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a1020] to-[#1e293b] px-4 sm:px-8 py-12 text-white font-sans">
       <h1 className="text-3xl sm:text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-red-800 mb-10 tracking-wide">
@@ -44,14 +83,7 @@ const Dashboard = () => {
             Problem Tags Solved
           </h2>
           <div className="flex flex-wrap gap-3">
-            {[
-              { tag: "Arrays", count: 12 },
-              { tag: "Strings", count: 8 },
-              { tag: "Dynamic Programming", count: 5 },
-              { tag: "Graphs", count: 3 },
-              { tag: "Trees", count: 6 },
-              { tag: "Hashing", count: 4 },
-            ].map((t) => (
+            {tagMap?.map((t) => (
               <span
                 key={t.tag}
                 className="bg-[#2a3447] text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-sm hover:bg-blue-500/20 transition-colors duration-200"
@@ -68,43 +100,28 @@ const Dashboard = () => {
             Recent Submissions
           </h2>
           <div className="space-y-4 max-h-64 overflow-y-auto custom-scrollbar">
-            {[
-              {
-                name: "Two Sum",
-                status: "Accepted",
-                days: "2 days ago",
-                color: "text-green-400",
-              },
-              {
-                name: "Palindrome Check",
-                status: "Wrong Answer",
-                days: "3 days ago",
-                color: "text-red-400",
-              },
-              {
-                name: "Binary Search",
-                status: "Accepted",
-                days: "5 days ago",
-                color: "text-green-400",
-              },
-              {
-                name: "Linked List Cycle",
-                status: "Time Limit Exceeded",
-                days: "6 days ago",
-                color: "text-yellow-400",
-              },
-            ].map((item) => (
+            {solutions?.map((item) => (
               <div
-                key={item.name}
+                key={item._id}
                 className="flex justify-between items-center border-b border-[#2a3447] pb-3 last:border-b-0"
               >
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-white">{item.name}</p>
-                  <p className={`text-xs font-semibold ${item.color}`}>
+                  <p className="text-sm font-medium text-white">
+                    {item.titleName}
+                  </p>
+                  <p
+                    className={`text-xs font-semibold ${
+                      item.status === "Accepted"
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
                     {item.status}
                   </p>
                 </div>
-                <p className="text-xs text-gray-400">{item.days}</p>
+                <p className="text-xs text-gray-400">
+                  {new Date(item.submittedAt).toLocaleDateString()}
+                </p>
               </div>
             ))}
           </div>
@@ -119,18 +136,7 @@ const Dashboard = () => {
             <CalendarHeatmap
               startDate={new Date("2025-01-01")}
               endDate={new Date()}
-              values={[
-                { date: "2025-01-01", count: 2 },
-                { date: "2025-01-15", count: 4 },
-                { date: "2025-02-01", count: 1 },
-                { date: "2025-02-10", count: 3 },
-                { date: "2025-03-05", count: 5 },
-                { date: "2025-03-20", count: 2 },
-                { date: "2025-04-01", count: 4 },
-                { date: "2025-04-15", count: 3 },
-                { date: "2025-05-01", count: 2 },
-                { date: "2025-05-15", count: 4 },
-              ]}
+              values={dateObj}
               showMonthLabels={true}
               horizontal={true}
               classForValue={(value) => {
