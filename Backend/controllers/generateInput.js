@@ -5,6 +5,7 @@ const { v4: uuid } = require("uuid");
 const dirInputs = path.join(__dirname, "../", "inputs");
 
 if (!fs.existsSync(dirInputs)) {
+  console.log("Creating inputs directory...");
   fs.mkdirSync(dirInputs, { recursive: true });
 }
 

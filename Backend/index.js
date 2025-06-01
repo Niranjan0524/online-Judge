@@ -49,41 +49,28 @@ app.use("/api/alldata", leaderboardRouter);
 function deleteInputsFolder() {
   const inputsPath = path.join(__dirname, "inputs");
   if (fs.existsSync(inputsPath)) {
-    fs.rm(inputsPath, { recursive: true, force: true }, (err) => {
-      if (err) {
-        console.error("Error deleting inputs folder:", err);
-      } else {
-        console.log("Inputs folder deleted successfully.");
-      }
-    });
+    fs.rmSync(inputsPath, { recursive: true, force: true });
+    console.log("Inputs folder deleted successfully.");
   }
   fs.mkdirSync(inputsPath, { recursive: true });
+
   const codesPath = path.join(__dirname, "codes");
   if (fs.existsSync(codesPath)) {
-    fs.rm(codesPath, { recursive: true, force: true }, (err) => {
-      if (err) {
-        console.error("Error deleting codes folder:", err);
-      } else {
-        console.log("Codes folder deleted successfully.");
-      }
-    });
+    fs.rmSync(codesPath, { recursive: true, force: true });
+    console.log("Codes folder deleted successfully.");
   }
   fs.mkdirSync(codesPath, { recursive: true });
+
   const outputsPath = path.join(__dirname, "outputs");
   if (fs.existsSync(outputsPath)) {
-    fs.rm(outputsPath, { recursive: true, force: true }, (err) => {
-      if (err) {
-        console.error("Error deleting outputs folder:", err);
-      } else {
-        console.log("Outputs folder deleted successfully.");
-      }
-    });
+    fs.rmSync(outputsPath, { recursive: true, force: true });
+    console.log("Outputs folder deleted successfully.");
   }
   fs.mkdirSync(outputsPath, { recursive: true });
 }
 
-// Run every 1 hour (3600000 ms)
-setInterval(deleteInputsFolder, 3600000);
+// Run every 10 minutes (600000 ms)
+setInterval(deleteInputsFolder, 600000);
 
 const port = process.env.PORT || 4000;
 mongoose

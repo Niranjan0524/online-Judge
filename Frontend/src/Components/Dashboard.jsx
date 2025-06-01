@@ -89,6 +89,7 @@ const Dashboard = () => {
                 Rank: <span className="text-blue-300">{rank}</span>
               </p>
             </div>
+            
           </div>
         </div>
 
