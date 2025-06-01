@@ -4,11 +4,13 @@ import "react-calendar-heatmap/dist/styles.css";
 import { useSolutions } from "../store/SolutionContext";
 import { useProblems } from "../store/ProblemsContext";
 import Leaderboard from "./LeaderBoard";
-
+import { useLeaderBoard } from "../store/LeaderBoardContext";
 const Dashboard = () => {
   const { user } = useAuth() || {};
   const { solutions } = useSolutions();
   const { problems } = useProblems();
+  const { leaderBoardData } = useLeaderBoard();
+
   const dateCountMap = {};
   const dateMap = Array.isArray(solutions)
     ? solutions.map((item) => {
@@ -42,6 +44,18 @@ const Dashboard = () => {
       tag,
       count,
     }));
+    const noOfProblemsSolved =
+      leaderBoardData?.find((u) => u.userId === user?._id)
+        ?.noOfProblemsSolved || 0;
+    
+    let count=0;
+    for(let i=0;i<leaderBoardData?.length;i++){
+      if(leaderBoardData[i].userId===user?._id){
+        count=i+1;
+        break;
+      }
+    }
+    const rank= count > 0 ? count : "N/A";
 
     console.log("Tag Map:", tagMap);
   return (
@@ -68,10 +82,11 @@ const Dashboard = () => {
             </span>
             <div className="mt-4 text-sm text-gray-400">
               <p>
-                Problems Solved: <span className="text-blue-300">42</span>
+                Problems Solved:{" "}
+                <span className="text-blue-300">{noOfProblemsSolved}</span>
               </p>
               <p>
-                Rank: <span className="text-blue-300">Top 10%</span>
+                Rank: <span className="text-blue-300">{rank}</span>
               </p>
             </div>
           </div>
@@ -213,7 +228,7 @@ const Dashboard = () => {
 
       <div>
         <p className="text-center text-gray-400 mt-8">
-          Made with ❤️ by {" "}
+          Made with ❤️ by{" "}
           <a
             href="https://github.com/niranjan0524"
             target="_blank"

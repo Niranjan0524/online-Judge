@@ -135,6 +135,7 @@ exports.login=async(req,res)=>{
       message:"User Logged in successfully",
       token:token,
       user:{
+        _id:user._id,
         name:user.name,
         email:user.email,
         type:user.type
@@ -175,6 +176,7 @@ exports.getUser=async(req,res)=>{
   res.status(200).json({
     message:"User fetched Successfully",
     user:{
+      _id:user._id,
       name:user.name,
       email:user.email,
       type:user.type
