@@ -109,9 +109,10 @@ const SolveProblem = () => {
       toast.error("Unauthorized, Please login.");
       return;
     }
+    
+  
     setRunning(true);
-   
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/run`, {
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/run`, {
       method:"POST",
       headers:{
         "Content-Type": "application/json",
@@ -139,7 +140,13 @@ const SolveProblem = () => {
       setOutput(data.output || "No output");
       toast.success("Code ran successfully");
     })
-  };
+    .catch((err) => {
+      setRunning(false);
+      console.error("Error in running code:", err);
+      toast.error("Error in running code");
+    });
+ 
+};
 
   const handleSubmit = async () => {
  
@@ -181,7 +188,7 @@ const SolveProblem = () => {
     }
 
     setSubmitting(true);
-
+    
     await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/submit`, {
       method: "POST",
       headers: {
@@ -206,6 +213,12 @@ const SolveProblem = () => {
           setCorrectness(false);
           return;
         }
+        else if(res.status===504){
+          toast.error("Server Timeout ,Time Limit Exceeded");
+          setStatus("Wrong");
+          setCorrectness(false);
+          return;
+        }
         toast.error(data.message || "Failed to submit code");
         
         return;
@@ -216,9 +229,8 @@ const SolveProblem = () => {
       for (const opStatus of data.output) {
         t++;
         if (opStatus.correct === false) {
-          toast.error("Wrong Answer");          
-        }
-        else{
+          toast.error("Wrong Answer");
+        } else {
           c++;
         }
 
@@ -234,13 +246,18 @@ const SolveProblem = () => {
 
       toast.success("Code submitted Successfully");
       
+    })
+    .catch((err) => {
+      setSubmitting(false);
+      console.error("Error in submission:", err);
+      toast.error("Error in submission");
     });
  
   };
 
 
   const handleAIReview=()=>{
-    setReviewing(true);
+    
     if(!token){
       toast.error("Unauthorized,Please Login");
       return ;
@@ -253,10 +270,10 @@ const SolveProblem = () => {
           duration: 6000,
         }
       );
-      setReviewing(false);
+      return;
     }
     else{
-    
+      setReviewing(true);
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/aiReview`, {
       method: "POST",
       headers: {

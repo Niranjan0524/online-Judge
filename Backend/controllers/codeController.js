@@ -137,13 +137,14 @@ exports.submitCode=async(req,res)=>{
       const inputFilePath = generateInput(tc.input);
 
       if (lang === "cpp") {
-        output = await executeCpp(filePath, inputFilePath);
+
+        output = await  withTimeout(executeCpp(filePath, inputFilePath),5000, "Execution timed out");
       } else if (lang == "py") {
-        output = await executePython(filePath, inputFilePath);
+        output = await withTimeout(executePython(filePath, inputFilePath),5000, "Execution timed out");
       } else if (lang == "java") {
-        output = await executeJava(filePath, inputFilePath);
+        output = await withTimeout(executeJava(filePath, inputFilePath),5000, "Execution timed out");
       } else if (lang == "js") {
-        output = await executeJavaScript(filePath, inputFilePath);
+        output = await withTimeout(executeJavaScript(filePath, inputFilePath),5000, "Execution timed out");
       }
      
         result.push({
@@ -204,6 +205,10 @@ exports.submitCode=async(req,res)=>{
     })
   }
   catch(err){
+    if (err.message === "Execution timed out") {
+      res.status(504).json({ message: "Execution timed out" });
+      return;
+    }
     console.log(err);
     res.status(500).json({message: "Internal server error"});
   }
@@ -240,7 +245,11 @@ exports.aiReviewCode=async(req,res)=>{
 
   try{
     
-    const response = await AI_Service(code,problem);
+    const response = await withTimeout(
+      AI_Service(code, problem),
+      10000,
+      "AI review timed out"
+    );
     if(response.error){
       res.status(500).json({
         message: "Error in AI Review",
@@ -256,10 +265,14 @@ exports.aiReviewCode=async(req,res)=>{
     
   }
   catch(err){
-    console.log(err);
-    res.status(500).json({
-      message: "Internal server error",
-      error: err.message
-    })
+    console.error("Error in AI review:", err);
+    if (err.message === "AI review timed out") {
+      res.status(504).json({ message: "AI review timed out" });
+    } else {
+      res.status(500).json({
+        message: "Internal server error",
+        error: err.message,
+      });
+    }
   }  
 }

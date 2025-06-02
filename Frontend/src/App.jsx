@@ -14,6 +14,7 @@ import Dashboard from "./components/Dashboard";
 import PageNotFound from "./components/PageNotFound";
 import "./index.css"
 import { LeaderBoardProvider } from "./store/LeaderBoardContext";
+import ResumeReviewer from "./components/ResumeReviewer";
 
 function App() {
 
@@ -34,8 +35,10 @@ function App() {
                 <Route path="problem/solve/:id" element={<SolveProblem />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path="resume-reviewer" element={<ResumeReviewer />} />
               </Route>
               <Route path="*" element={<PageNotFound />} />
+
             </Routes>
             </LeaderBoardProvider>
           </SolutionContextProvider>
