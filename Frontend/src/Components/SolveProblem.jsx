@@ -14,7 +14,7 @@ import CodeBlock from "./CodeBlock";
 import { useSolutions } from "../store/SolutionContext";
 import { TbXboxX } from "react-icons/tb";
 import { RxCrossCircled } from "react-icons/rx";
-
+import Discussion from "./Discussion";
 
 const TABS = ["Description","Result", "Submissions", "Discussions", "Hints"];
 
@@ -209,13 +209,13 @@ const SolveProblem = () => {
           return;
         } else if (res.status === 406) {
           toast.error("Wrong code . please check your code");
-          setStatus("Wrong");
+          setStatus("Wrong Answer");
           setCorrectness(false);
           return;
         }
         else if(res.status===504){
           toast.error("Server Timeout ,Time Limit Exceeded");
-          setStatus("Wrong");
+          setStatus("Wrong Answer");
           setCorrectness(false);
           return;
         }
@@ -239,7 +239,7 @@ const SolveProblem = () => {
         setStatus("Accepted");
       }
       else{
-        setStatus("Wrong");
+        setStatus("Wrong Answer");
       }
       
       setCorrectness({correct:c,total:t});
@@ -351,16 +351,29 @@ const SolveProblem = () => {
           </h2>
           <div className="ml-4">
             <span
-              className={`px-3 py-1 rounded-lg text-sm font-semibold shadow
+              className={`px-3 py-1 rounded-lg text-sm font-semibold shadow mr-2
       ${
-        problem?.difficulty === "Hard" || status === "Wrong "
+        problem?.difficulty === "hard" 
           ? "bg-red-800 text-red-200 border border-red-400"
-          : problem?.difficulty === "Medium" || status === "Not Attempted"
+          : problem?.difficulty === "medium" 
           ? "bg-yellow-800 text-yellow-300 border border-yellow-400"
           : "bg-green-800 text-green-300 border border-green-400"
       }`}
             >
-              {status ? status : problem?.difficulty}
+              {problem?.difficulty}
+            </span>
+
+            <span
+              className={`px-3 py-1 rounded-lg text-sm font-semibold shadow
+      ${
+         status === "Wrong Answer"
+          ? "bg-red-800 text-red-200 border border-red-400"
+          :  status === "Not Attempted"
+          ? "bg-yellow-800 text-yellow-300 border border-yellow-400"
+          : "bg-green-800 text-green-300 border border-green-400"
+      }`}
+            >
+              {status}
             </span>
           </div>
         </div>
@@ -490,8 +503,8 @@ const SolveProblem = () => {
               ${
                 sol.status === "Accepted"
                   ? "bg-green-900 text-green-300 border border-green-400"
-                  : sol.status === "Wrong"
-                  ? "bg-red-900 text-red-900 border border-red-400"
+                  : sol.status === "Wrong Answer"
+                  ? "bg-red-900 text-red-200 border border-red-400"
                   : "bg-yellow-900 text-yellow-300 border border-yellow-400"
               }
             `}
@@ -556,7 +569,7 @@ const SolveProblem = () => {
                   </span>
                 </div>
               )}
-              {status === "Wrong" && (
+              {status === "Wrong Answer" && (
                 <div className="bg-gray-800/80 border border-red-400 rounded-xl px-6 py-4 flex flex-col items-center shadow">
                   <span className="text-red-400 text-lg font-semibold flex items-center gap-2">
                     <TbXboxX className="w-5 h-5 inline-block" />
@@ -587,7 +600,7 @@ const SolveProblem = () => {
             </div>
           )}
           {activeTab === "Discussions" && (
-            <div className="text-gray-400 italic">No discussions yet.</div>
+            <Discussion problemId={problemId} />
           )}
           {activeTab === "Hints" && (
             <div className="text-gray-400 italic">No hints available.</div>

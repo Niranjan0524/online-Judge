@@ -17,6 +17,8 @@ const problemRouter=require("./routers/problemRouter");
 const codeRouter=require("./routers/codeRouter");
 const leaderboardRouter = require("./routers/leaderboardRouter");
 const resumeRouter = require("./routers/resumeRouter");
+const discussionRouter = require("./routers/discussionRouter");
+
 
 // Add this before passport initialization
 const session = require("express-session");
@@ -47,6 +49,7 @@ app.use("/api/problem",problemRouter);
 app.use("/api/code",codeRouter);
 app.use("/api/alldata", leaderboardRouter);
 app.use("/api/resume", resumeRouter);
+app.use("/api/discussion", discussionRouter);
 
 function deleteInputsFolder() {
   const inputsPath = path.join(__dirname, "inputs");
