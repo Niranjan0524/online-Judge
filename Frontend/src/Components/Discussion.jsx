@@ -3,291 +3,269 @@ import { useAuth } from "../store/authContext";
 import { toast } from "react-hot-toast";
 
 const Discussion = ({ problemId }) => {
-  const { token } = useAuth();
-  const [threads, setThreads] = useState([]);
-  const [selectedThread, setSelectedThread] = useState(null);
+  const { token} = useAuth();
+  const [discussions, setDiscussions] = useState([]);
+  const [selectedDiscussion, setSelectedDiscussion] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [loadingThreads, setLoadingThreads] = useState(true);
-  const [loadingMessages, setLoadingMessages] = useState(false);
-  const [newThreadTitle, setNewThreadTitle] = useState("");
-  const [newThreadLoading, setNewThreadLoading] = useState(false);
+  const [newDiscussionTitle, setNewDiscussionTitle] = useState("");
   const [newMessage, setNewMessage] = useState("");
-  const [postingMessage, setPostingMessage] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [msgLoading, setMsgLoading] = useState(false);
 
-  useEffect(() => {
-    setLoadingThreads(true);
-    fetch(
-      `${
-        import.meta.env.VITE_BACKEND_URL
-      }/api/discussion/getAllDiscussions/${problemId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`,
-        },
-      }
-    )
+  // Fetch all discussions for this problem
+  const fetchDiscussions = async () => {
+    // TODO: Implement API call to fetch discussions
+
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/getAllDiscussions/${problemId}`,{
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
-        setThreads(data.discussions || []);
-        setLoadingThreads(false);
+        if (data.message === "No discussions found for this problem") {
+          setDiscussions([]);
+        } else {
+          setDiscussions(data.discussions);
+        }
       })
-      .catch(() => setLoadingThreads(false));
-  }, [problemId, token]);
+      .catch((err) => {
+        setDiscussions([]);
+        console.error("Error fetching discussions:", err);
+        toast.error("Failed to fetch discussions");
+      });
+  };
 
-  useEffect(() => {
-    if (!selectedThread) return;
-    setLoadingMessages(true);
-    fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/message/getAllMessages/${
-        selectedThread._id
-      }`
-    )
+  // Fetch all messages for a discussion
+  const fetchMessages = async (discussionId) => {
+    // TODO: Implement API call to fetch messages
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/getAllMessages/${discussionId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
         setMessages(data.messages || []);
-        setLoadingMessages(false);
       })
-      .catch(() => setLoadingMessages(false));
-  }, [selectedThread]);
-
-  const handleCreateThread = async () => {
-    console.log("Creating thread with title:", newThreadTitle);
-    if (!newThreadTitle.trim()) return;
-
-    setNewThreadLoading(true);
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/discussion/newDiscussion`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ problemId, title: newThreadTitle }),
-        }
-      );
-      const data = await res.json();
-      if (res.ok) {
-        setThreads([data.discussion, ...threads]);
-        setSelectedThread(data.discussion); // Select the new thread automatically
-        setNewThreadTitle("");
-        toast.success("Thread created successfully!");
-      } else {
-        toast.error(data.message || "Failed to create thread.");
-      }
-    } catch (error) {
-      toast.error("Network error. Please try again.");
-    } finally {
-      setNewThreadLoading(false);
-    }
+      .catch((err) => {
+        setMessages([]);
+        console.error("Error fetching messages:", err);
+        toast.error("Failed to fetch messages");
+      });
   };
 
+  useEffect(() => {
+    fetchDiscussions();
+    setSelectedDiscussion(null);
+    setMessages([]);
+  }, [problemId]);
 
-  const handlePostMessage = async () => {
-    console.log("Posting message:", newMessage);
-    if (!newMessage.trim() || !selectedThread) return;
-    setPostingMessage(true);
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/message/newMessage`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            discussionId: selectedThread._id,
-            message: newMessage,
-          }),
-        }
-      );
-      const data = await res.json();
-      if (res.ok) {
-        setMessages([...messages, data.message]);
-        setNewMessage("");
-        toast.success("Message posted!");
-      } else {
-        toast.error(data.message || "Failed to send message.");
-      }
-    } catch (error) {
-      toast.error("Failed to post message. Please try again.");
-    } finally {
-      setPostingMessage(false);
+  useEffect(() => {
+    if (selectedDiscussion) {
+      fetchMessages(selectedDiscussion._id);
+    } else {
+      setMessages([]);
     }
+  }, [selectedDiscussion]);
+
+  // Handle new discussion creation
+  const handleCreateDiscussion = async (e) => {
+    e.preventDefault();
+    if (!newDiscussionTitle.trim()) {
+      toast.error("Title cannot be empty");
+      return;
+    }
+    setLoading(true);
+    // TODO: Implement API call to create discussion
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/newDiscussion`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        title: newDiscussionTitle,
+        problemId,
+      }),
+    })
+      .then(async (res)=>{
+        const data= await res.json();
+
+        if( res.status !== 201) {
+          toast.error(data.message || "Failed to create discussion");
+          console.error("Error creating discussion:", data.message || "Failed to create discussion");
+          return;
+        }
+        setDiscussions([...discussions, data.discussion]);
+        setSelectedDiscussion(data.discussion);
+      })
+      .catch((err) => {
+        setLoading(false);
+        setNewDiscussionTitle("");
+        console.error("Error creating discussion:", err);
+        toast.error("Failed to create discussion");
+      })
+      .finally(() => {
+        setNewDiscussionTitle("");
+        setLoading(false);
+      });
+   
   };
 
- 
+  // Handle new message creation
+  const handleAddMessage = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim()) {
+      toast.error("Message cannot be empty");
+      return;
+    }
+    setMsgLoading(true);
+    // TODO: Implement API call to add message
+
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/newMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        message: newMessage,
+        discussionId: selectedDiscussion._id,
+      }),
+    })
+    .then(async(res)=>{
+      const data = await res.json();
+      if (res.status !== 201) {
+        console.error("Error adding message:", data.message || "Failed to add message");
+        toast.error(data.message || "Failed to add message");
+        return;
+      }
+      // Assuming the API returns the new message
+      setMessages([...messages, data.newMessage]);
+    })
+    .catch((err) => {
+      setMessages([]);
+      console.error("Error adding message:", err);
+      toast.error("Failed to add message");
+    })
+    .finally(() => {
+      setNewMessage("");
+      setMsgLoading(false);
+    });
+  };
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 bg-gradient-to-br from-[#181f2e] to-[#232b3e] rounded-2xl shadow-2xl p-8 border border-[#2a3447] min-h-[500px]">
-      {/* Thread List */}
-      <div className="md:w-1/3 w-full">
-        <h2 className="text-2xl font-bold text-yellow-400 mb-4 tracking-tight">
-          Discussions
-        </h2>
-        <div className="flex gap-2 mb-6">
+    <div className="bg-zinc-900/90 text-zinc-100 rounded-2xl p-8 max-w-3xl mx-auto shadow-xl min-h-[500px] border border-zinc-800">
+      <h2 className="text-2xl font-bold mb-6 tracking-wide text-indigo-400">
+        Discussions
+      </h2>
+
+      {/* New Discussion */}
+      <form
+        className="mb-8 bg-zinc-800/80 rounded-xl p-4 border border-zinc-700 shadow"
+        onSubmit={handleCreateDiscussion}
+      >
+        <label className="block mb-2 font-semibold text-indigo-300">
+          Start a new discussion
+        </label>
+        <div className="flex gap-2">
           <input
-            className="flex-1 bg-gray-900 text-gray-100 rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
-            placeholder="Start a new thread..."
-            value={newThreadTitle}
-            onChange={(e) => setNewThreadTitle(e.target.value)}
-            maxLength={80}
+            className="flex-1 px-3 py-2 rounded-md bg-zinc-900 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            type="text"
+            placeholder="Discussion title..."
+            value={newDiscussionTitle}
+            onChange={(e) => setNewDiscussionTitle(e.target.value)}
+            disabled={loading}
           />
           <button
-            className={`px-4 py-2 rounded-lg font-semibold shadow transition-all duration-150 min-w-[80px] flex items-center justify-center
-          ${
-            newThreadLoading
-              ? "bg-yellow-300 text-gray-700 opacity-70 cursor-not-allowed"
-              : !newThreadTitle.trim()
-              ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-yellow-500 to-red-700 text-white hover:scale-105 hover:shadow-lg"
-          }`}
-            onClick={handleCreateThread}
-            disabled={newThreadLoading || !newThreadTitle.trim()}
+            type="submit"
+            className="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white px-4 py-2 rounded-md font-semibold transition"
+            disabled={loading}
           >
-            {newThreadLoading ? "Creating..." : "Create"}
+            {loading ? "Posting..." : "Post"}
           </button>
         </div>
-        <div className="max-h-[420px] overflow-y-auto custom-scrollbar pr-1">
-          {loadingThreads ? (
-            <div className="flex justify-center py-8 text-gray-400">
-              Loading threads...
-            </div>
-          ) : threads.length === 0 ? (
-            <div className="text-gray-400 italic text-center">
-              No threads yet.
-              <br />
-              Be the first to start a discussion!
-            </div>
-          ) : (
-            threads.map((thread) => (
+      </form>
+
+      {/* Discussions List */}
+      <div className="mb-8">
+        <div className="mb-2 text-lg font-semibold text-indigo-300">
+          All Discussions
+        </div>
+        {discussions.length === 0 ? (
+          <div className="text-zinc-400 italic">No discussions yet.</div>
+        ) : (
+          <div className="space-y-2">
+            {discussions.map((d) => (
               <div
-                key={thread._id}
-                className={`p-4 rounded-xl mb-3 cursor-pointer border-2 transition-all shadow-sm group
-              ${
-                selectedThread?._id === thread._id
-                  ? "bg-yellow-900/90 border-yellow-400 text-yellow-100 scale-[1.03]"
-                  : "bg-gray-900 border-gray-700 text-gray-100 hover:bg-yellow-900/60 hover:border-yellow-400"
-              }`}
-                onClick={() => setSelectedThread(thread)}
+                key={d._id}
+                className={`cursor-pointer bg-zinc-800/80 rounded-lg px-4 py-3 border transition shadow ${
+                  selectedDiscussion && selectedDiscussion._id === d._id
+                    ? "border-indigo-500 bg-zinc-900/80"
+                    : "border-zinc-700 hover:bg-zinc-700/80"
+                }`}
+                onClick={() => setSelectedDiscussion(d)}
               >
-                <div className="font-semibold text-lg truncate flex items-center gap-2">
-                  <span>{thread.title}</span>
-                  {selectedThread?._id === thread._id && (
-                    <span className="ml-1 text-yellow-400 text-xs font-bold">
-                      ●
-                    </span>
-                  )}
-                </div>
-                <div className="text-xs text-gray-400 mt-1">
-                  By {thread.createdBy?.name || "User"} •{" "}
-                  {thread.messageCount || 0} messages
+                <div className="font-medium text-zinc-100">{d.title}</div>
+                <div className="text-xs text-zinc-400">
+                  {new Date(d.createdAt).toLocaleString()}
                 </div>
               </div>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* Messages in Selected Thread */}
-      <div className="md:w-2/3 w-full flex flex-col">
-        {selectedThread ? (
-          <>
-            <div className="flex items-center gap-2 mb-4">
-              <h3 className="text-xl font-bold text-blue-300 truncate max-w-[70%]">
-                {selectedThread.title}
-              </h3>
-              <span className="text-xs text-gray-400 truncate">
-                Started by {selectedThread.createdBy?.name || "User"}
-              </span>
-            </div>
-            <div className="flex-1 bg-gray-900/95 rounded-2xl border border-gray-700 p-6 mb-3 overflow-y-auto max-h-[350px] custom-scrollbar">
-              {loadingMessages ? (
-                <div className="flex justify-center py-8 text-gray-400">
-                  Loading messages...
-                </div>
-              ) : messages.length === 0 ? (
-                <div className="text-gray-400 italic text-center">
-                  No messages yet.
-                  <br />
-                  Start the conversation!
-                </div>
-              ) : (
-                messages.map((msg) => (
-                  <div key={msg._id} className="mb-6">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-yellow-300">
-                        {msg.user?.name || "User"}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        {new Date(msg.createdAt).toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg px-4 py-2 text-gray-100 font-mono shadow">
-                      {msg.message}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            {/* Message input */}
-            <div className="flex gap-2 mt-2">
-              <input
-                className="flex-1 bg-gray-800 text-gray-100 rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                placeholder="Type your message..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                maxLength={500}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey && newMessage.trim()) {
-                    e.preventDefault();
-                    handlePostMessage();
-                  }
-                }}
-              />
-              <button
-                className={`px-4 py-2 rounded-lg font-semibold shadow transition-all duration-150 min-w-[80px] flex items-center justify-center
-              ${
-                postingMessage
-                  ? "bg-blue-300 text-gray-700 opacity-70 cursor-not-allowed"
-                  : !newMessage.trim()
-                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-400 to-blue-700 text-white hover:scale-105 hover:shadow-lg"
-              }`}
-                onClick={handlePostMessage}
-                disabled={postingMessage || !newMessage.trim()}
-              >
-                {postingMessage ? "Sending..." : "Send"}
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full text-gray-400 italic text-lg">
-            <span className="mb-2">Select a thread to view messages.</span>
-            <span className="text-3xl">💬</span>
+            ))}
           </div>
         )}
       </div>
-      <style>
-        {`
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 8px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #2a3447;
-      border-radius: 8px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #1a2233;
-      border-radius: 8px;
-    }
-    `}
-      </style>
 
+      {/* Messages Section */}
+      {selectedDiscussion && (
+        <div className="bg-zinc-800/80 rounded-xl p-4 border border-zinc-700 mt-4 shadow">
+          <div className="mb-2 font-semibold text-lg text-indigo-300">
+            {selectedDiscussion.title}
+          </div>
+          <div className="mb-4 text-sm text-zinc-400">Messages</div>
+          <div className="space-y-3 max-h-64 overflow-y-auto mb-4 pr-1">
+            {messages.length === 0 ? (
+              <div className="text-zinc-400 italic">No messages yet.</div>
+            ) : (
+              messages.map((msg) => (
+                <div
+                  key={msg._id}
+                  className="bg-zinc-900/80 rounded-md px-3 py-2 border border-zinc-700"
+                >
+                  <div className="text-zinc-200">{msg.message}</div>
+                  <div className="text-xs text-zinc-500 mt-1 flex justify-between">
+                    <span>{msg.userId?.username || "User"}</span>
+                    <span>{new Date(msg.createdAt).toLocaleString()}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          {/* New Message */}
+          <form className="flex gap-2" onSubmit={handleAddMessage}>
+            <input
+              className="flex-1 px-3 py-2 rounded-md bg-zinc-900 border border-zinc-700 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              type="text"
+              placeholder="Type your message..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              disabled={msgLoading}
+            />
+            <button
+              type="submit"
+              className="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white px-4 py-2 rounded-md font-semibold transition"
+              disabled={msgLoading}
+            >
+              {msgLoading ? "Sending..." : "Send"}
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 };

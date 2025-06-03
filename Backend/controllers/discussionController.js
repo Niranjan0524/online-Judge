@@ -72,7 +72,7 @@ exports.addNewMessage=async(req,res)=>{
 
     res.status(201).json({
       message: "Message added successfully",
-      message: newMessage,
+      newMessage: newMessage,
     }); 
   }
   catch(err){
