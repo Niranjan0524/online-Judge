@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Circles } from "react-loader-spinner";
+import ReactMarkdown from "react-markdown";
 
 const ResumeReviewer = () => {
   const [resumeFile, setResumeFile] = useState(null);
@@ -16,20 +17,19 @@ const ResumeReviewer = () => {
     if (!resumeFile) return;
     setLoading(true);
     setReview("");
-    const data = { resume: "hellow this is resume" };
-    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/resume/resumeReview`, {
+    const formData=new FormData();
+    formData.append("resume",resumeFile);
+
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/resume/getReview`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+      body: formData,
     })
       .then((res) => {
         return res.json();
       })
       .then((data) => {
         setLoading(false);
-        setReview(data.message);
+        setReview(data.review);
       })
       .catch((error) => {
         setLoading(false);
@@ -82,11 +82,13 @@ const ResumeReviewer = () => {
       </div>
       <div className="w-full mt-8">
         <h3 className="text-xl font-semibold text-pink-300 mb-2">AI Review</h3>
-        <div className="bg-gray-900/80 border border-yellow-400 rounded-xl p-4 min-h-[80px] text-gray-100 font-mono shadow transition-all duration-300">
+        <div className="bg-gray-900/80 border border-yellow-400 rounded-xl p-4 min-h-[80px] text-gray-100 font-mono shadow transition-all duration-300 scrollbar-thin scrollbar-thumb-yellow-500/50 scrollbar-track-gray-800/50">
           {loading ? (
             <span className="text-yellow-400">Analyzing your resume...</span>
           ) : review ? (
-            review
+            <ReactMarkdown>
+              {review}
+            </ReactMarkdown>
           ) : (
             <span className="text-gray-500">
               Your review will appear here after uploading.

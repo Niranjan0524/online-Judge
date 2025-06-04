@@ -337,7 +337,7 @@ const SolveProblem = () => {
       setCurrSolution(null);
     }
 
-  }, [problems, problem, problemId]);
+  }, [problems, problem, problemId,solutions]);
 
 
   return (

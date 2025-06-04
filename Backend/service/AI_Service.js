@@ -36,5 +36,23 @@ ${code}
   }
   
 };
+ const resumeService = async (prompt) => {
+  const modelName = "gemini-2.0-flash";
 
-module.exports = { AI_Service };
+  const model = genAI.getGenerativeModel({ model: modelName });
+
+  try {
+    const result = await model.generateContent(prompt);
+
+    return result.response.text();
+  } catch (err) {
+    console.error("Error generating AI response:", err);
+    return {
+      error:
+        err.message || "An error occurred while generating the AI response.",
+    };
+  }
+};
+
+
+module.exports = { AI_Service, resumeService };
