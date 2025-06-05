@@ -91,3 +91,41 @@ exports.addProblems=async(req,res)=>{
     message: "Problems added successfully"
   });
 }
+
+exports.addSingleProblem=async(req,res)=>{
+  console.log("Adding single problem",req.body);
+  const { title, description, difficulty, tags,testCases } = req.body;
+
+  
+  try {
+    const newProblem =  new Problem({
+      title,
+      description,
+      difficulty,
+      tags
+    });
+
+    await newProblem.save();
+
+    if (testCases && testCases.length > 0) {
+      const testCasesData = testCases.map(tc => ({
+        input: tc.input,
+        output: tc.output,
+        problemId: newProblem._id
+      }));
+
+      await TestCase.insertMany(testCasesData);
+
+    }
+
+    res.status(201).json({
+      message: "Problem added successfully",
+      problem: newProblem
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to add problem",
+      error: error.message
+    });
+  }
+}

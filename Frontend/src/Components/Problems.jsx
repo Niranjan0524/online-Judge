@@ -16,7 +16,7 @@ const Problems=()=>{
   const sortedProblems = [...problems].sort((a, b) => {
     if (sortBy === "title") return a.title.localeCompare(b.title);
     if (sortBy === "difficulty") return a.difficulty.localeCompare(b.difficulty);
-  
+
     return 0;
   });
 
@@ -29,7 +29,7 @@ const Problems=()=>{
 
   const handleAddProblem=()=>{
     console.log("Add Problem clicked");
-    // navigate("/problem/add");
+    navigate("/problem/add");
   }
   const handleEditProblem=()=>{
     console.log("Edit Problem clicked");

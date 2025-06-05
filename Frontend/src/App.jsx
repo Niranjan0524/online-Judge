@@ -15,6 +15,7 @@ import PageNotFound from "./components/PageNotFound";
 import "./index.css"
 import { LeaderBoardProvider } from "./store/LeaderBoardContext";
 import ResumeReviewer from "./components/ResumeReviewer";
+import AddProblem from "./components/AddProblem";
 
 function App() {
 
@@ -36,6 +37,7 @@ function App() {
                 <Route path="profile" element={<Profile />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="resume-reviewer" element={<ResumeReviewer />} />
+                <Route path="problem/add" element={<AddProblem />} />
               </Route>
               <Route path="*" element={<PageNotFound />} />
 
