@@ -1,9 +1,17 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../store/authContext";
 import { toast } from "react-hot-toast";
+import {
+  FaRegThumbsUp,
+  FaRegThumbsDown,
+  FaTrashAlt,
+  FaUserCircle,
+} from "react-icons/fa";
+import { AiTwotoneDislike } from "react-icons/ai";
+import { AiTwotoneLike } from "react-icons/ai";
 
 const Discussion = ({ problemId }) => {
-  const { token } = useAuth();
+  const { token ,user} = useAuth();
   const [discussions, setDiscussions] = useState([]);
   const [selectedDiscussion, setSelectedDiscussion] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -11,6 +19,9 @@ const Discussion = ({ problemId }) => {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [msgLoading, setMsgLoading] = useState(false);
+  
+
+
 
   // Fetch all discussions for this problem
   const fetchDiscussions = async () => {
@@ -168,6 +179,119 @@ const Discussion = ({ problemId }) => {
       });
   };
 
+   
+
+  
+  const handleLike = (messageId) => {
+    console.log("Like clicked for message:", messageId);
+   
+
+    if (!messageId) {
+      toast.error("Message ID is required to like a message");
+      return;
+    }
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/likeMessage/${messageId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ userId: user._id }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (res.status !== 200) {
+          console.error("Error liking message:", data.message || "Failed to like message");
+          toast.error(data.message || "Failed to like message");
+          return;
+        }
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg._id === messageId ? { ...msg, likes: data.likes, dislikes: data.dislikes } : msg
+          )
+        );
+    
+      })
+      .catch((err) => {
+        console.error("Error liking message:", err);
+       
+      });
+  }
+
+  const handleDislike=(messageId)=>{
+    console.log("Dislike clicked for message:", messageId);
+    if (!messageId) {
+      toast.error("Message ID is required to dislike a message");
+      return;
+    }
+
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/dislikeMessage/${messageId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ userId: user._id }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (res.status !== 200) {
+          console.error("Error disliking message:", data.message || "Failed to dislike message");
+          toast.error(data.message || "Failed to dislike message");
+          return;
+        }
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg._id === messageId ? { ...msg, dislikes: data.dislikes, likes: data.likes } : msg
+          )
+        );
+        
+      })
+      .catch((err) => {
+        console.error("Error disliking message:", err);
+       
+      });
+  }
+
+  const handleDelete=async(messageId)=>{ 
+    console.log("Delete clicked for message:", messageId);
+
+    if(!messageId){
+      toast.error("Message ID is required to delete a message");
+      return;
+    }
+
+    const deleteLoader=toast.loading("Deleting message...");
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/deleteMessage/${messageId}`, {
+      method: "DELETE",
+      headers:{
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, 
+      }
+    })
+    .then(async(res)=>{
+      const data=await res.json();
+
+      if(res.status!==200){
+        console.error("Error deleting message:", data.message || "Failed to delete message");
+        toast.error(data.message || "Failed to delete message");
+        return;
+      }
+
+      setMessages(data.remainingMessages || []);
+      toast.success("Message deleted successfully");
+    })
+    .catch((err)=>{
+      setMessages([]);
+      console.error("Error deleting message:", err);
+      toast.error("Failed to delete message");
+    })
+    .finally(()=>{
+      toast.dismiss(deleteLoader);
+    });
+  }
+
+
   return (
     <div className="bg-gray-800/80 text-gray-100 rounded-2xl p-8 max-w-3xl mx-auto shadow-xl min-h-[500px] border border-gray-700">
       <h2 className="text-2xl font-bold mb-6 tracking-wide text-blue-400">
@@ -237,6 +361,7 @@ const Discussion = ({ problemId }) => {
             {selectedDiscussion.title}
           </div>
           <div className="mb-4 text-sm text-gray-400">Messages</div>
+
           <div className="space-y-3 max-h-64 overflow-y-auto mb-4 pr-1">
             {messages.length === 0 ? (
               <div className="text-gray-400 italic">No messages yet.</div>
@@ -244,12 +369,75 @@ const Discussion = ({ problemId }) => {
               messages.map((msg) => (
                 <div
                   key={msg._id}
-                  className="bg-gray-900/80 rounded-md px-3 py-2 border border-gray-700"
+                  className="bg-gray-900/80 rounded-md px-3 py-2 border border-gray-700 flex flex-col"
                 >
-                  <div className="text-gray-200">{msg.message}</div>
-                  <div className="text-xs text-gray-500 mt-1 flex justify-between">
-                    <span>{msg.userId?.username || "User"}</span>
-                    <span>{new Date(msg.createdAt).toLocaleString()}</span>
+                  {/* User Info */}
+                  <div className="flex items-center gap-2 mb-1">
+                    {/* Avatar */}
+                    <FaUserCircle className="text-2xl text-indigo-400" />
+                    {/* Username */}
+                    <span className="font-semibold text-gray-200">
+                      {msg.userId === user._id
+                        ? "You"
+                        : msg.username || "Anonymous"}
+                    </span>
+                  </div>
+                  {/* Message */}
+                  <div className="text-gray-200 mb-2 ml-8">{msg.message}</div>
+                  {/* Footer: Like/Unlike/Delete */}
+                  <div className="flex items-center justify-between mt-2 px-1">
+                    <div className="flex items-center gap-4">
+                      <button
+                        className="flex items-center gap-1 text-gray-400 hover:text-indigo-400 transition"
+                        onClick={() => handleLike(msg._id)}
+                        title="Like"
+                      >
+                        {msg.likes?.includes(user._id) ? (
+                          <AiTwotoneLike
+                            className="text-indigo-400"
+                            size={20}
+                          />
+                        ) : (
+                          <FaRegThumbsUp />
+                        )}
+                        <span className="text-xs">
+                          {msg.likes?.length || 0}
+                        </span>
+                      </button>
+                      <button
+                        className="flex items-center gap-1 text-gray-400 hover:text-red-400 transition"
+                        onClick={() => handleDislike(msg._id)}
+                        title="Dislike"
+                      >
+                        {msg.dislikes?.includes(user._id) ? (
+                          <AiTwotoneDislike
+                            className="text-indigo-400"
+                            size={20}
+                          />
+                        ) : (
+                          <FaRegThumbsDown />
+                        )}
+                        <span className="text-xs">
+                          {msg.dislikes?.length || 0}
+                        </span>
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500">
+                        {new Date(msg.createdAt).toLocaleString()}
+                      </span>
+                      {user?._id === msg.userId && (
+                        <>
+                          <button
+                            className="text-gray-400 hover:text-red-500 transition"
+                            onClick={() => handleDelete(msg._id)}
+                            title="Delete"
+                          >
+                            <FaTrashAlt />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))

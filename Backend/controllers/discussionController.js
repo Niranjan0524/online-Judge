@@ -100,3 +100,112 @@ exports.getAllMessages=async(req,res)=>{
   }
 
 }
+
+exports.deleteMessage=async(req,res)=>{
+
+  const messageId=req.params.messageId;
+
+  if(!messageId){
+    return res.status(400).json({
+      message: "Message ID is required"
+    })
+  }
+
+  try{
+    const deletedMessage=await Message.findByIdAndDelete(messageId);
+    if (!deletedMessage) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+    const discussionId=deletedMessage.discussionId;
+    const remainingMessages=await Message.find({discussionId});
+
+    res.status(200).json({
+      message: "Message deleted successfully",
+      remainingMessages: remainingMessages,
+    });
+  }
+  catch(err){
+    return res.status(500).json({ message: "Error deleting message", error: err.message });
+  }
+}
+
+
+exports.likeMessage=async(req,res)=>{
+
+  const messageId = req.params.messageId;
+  if(!messageId){
+    return res.status(400).json({ message: "Message ID is required" });
+  }
+
+  try{
+    const message= await Message.findById(messageId);
+    const userHadLiked=message.likes.includes(req.userId);
+
+    if(userHadLiked){
+      message.likes=message.likes.filter((uId)=>{
+        return uId.toString()!== req.userId.toString();
+      });
+     
+    }
+    else{
+      message.likes.push(req.userId);
+      if(message.dislikes.includes(req.userId)){
+        message.dislikes=message.dislikes.filter((uId)=>{
+          return uId.toString()!== req.userId.toString();
+        });
+      }
+      
+    }
+    
+    await message.save();
+
+    
+    res.status(200).json({
+      message: "Message liked successfully",
+      likes: message.likes,
+      dislikes: message.dislikes,
+    });
+
+  } catch(err){
+    return res.status(500).json({ message: "Error liking message", error: err.message });
+  }
+}
+
+exports.disLikeMessage=async(req,res)=>{
+
+  const messageId = req.params.messageId;
+  if(!messageId){
+    return res.status(400).json({ message: "Message ID is required" });
+  }
+
+  try{
+    const message= await Message.findById(messageId);
+    
+    const userHadDisliked=message.dislikes.includes(req.userId);
+    console.log("status of disliked",userHadDisliked);
+    if(userHadDisliked){
+      console.log("user had disliked");
+      message.dislikes=message.dislikes.filter((uId)=>{
+        return uId.toString()!== req.userId.toString();
+      });
+    }
+    else{
+      message.dislikes.push(req.userId);
+      if(message.likes.includes(req.userId)){
+        message.likes=message.likes.filter((uId)=>{
+          return uId.toString()!== req.userId.toString();
+        });
+      }
+    }
+    await message.save();
+    
+    res.status(200).json({
+      message: "Message disliked successfully",
+      dislikes: message.dislikes,
+      likes: message.likes,
+    });
+  }
+  catch(err){
+    return res.status(500).json({ message: "Error disliking message", error: err.message });
+  }
+}
