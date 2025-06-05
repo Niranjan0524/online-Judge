@@ -73,3 +73,21 @@ exports.removeTestCase=async(req,res)=>{
     message:"Test case deleted successfully"
   })
 }
+
+exports.addProblems=async(req,res)=>{
+
+  const data=req.body;
+
+  data.map(async (problem)=>{
+    const problemData= await new Problem({
+      title: problem.title,
+      description: problem.description,
+      difficulty: problem.difficulty,
+      tags: problem.tags
+    }).save();
+  });
+
+  res.status(200).json({
+    message: "Problems added successfully"
+  });
+}

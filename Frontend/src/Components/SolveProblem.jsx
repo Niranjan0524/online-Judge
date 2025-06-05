@@ -349,9 +349,9 @@ const SolveProblem = () => {
           <h2 className="text-2xl font-bold text-yellow-400">
             {problem && problem.title}
           </h2>
-          <div className="ml-4">
-            <span
-              className={`px-3 py-1 rounded-lg text-sm font-semibold shadow mr-2
+          <div className="ml-4 display-flex items-center gap-2">
+            <div
+              className={`px-3 py-1 rounded-lg text-sm font-semibold shadow mr-2 mb-3
       ${
         problem?.difficulty === "hard" 
           ? "bg-red-800 text-red-200 border border-red-400"
@@ -361,9 +361,9 @@ const SolveProblem = () => {
       }`}
             >
               {problem?.difficulty}
-            </span>
+            </div>
 
-            <span
+            <div
               className={`px-3 py-1 rounded-lg text-sm font-semibold shadow
       ${
          status === "Wrong Answer"
@@ -374,7 +374,7 @@ const SolveProblem = () => {
       }`}
             >
               {status}
-            </span>
+            </div>
           </div>
         </div>
 

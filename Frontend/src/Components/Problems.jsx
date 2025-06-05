@@ -36,7 +36,7 @@ const Problems=()=>{
   }
   return (
     <>
-      <div className="flex md:flex-row md:items-center md:justify-between mb-6 gap-4">
+      <div className="flex md:flex-row md:items-center md:justify-between mb-6 gap-4 ">
         {user && user.type === "admin" && (
           <h2 className="text-2xl font-bold text-gray-100">Your Problems</h2>
         )}
@@ -44,9 +44,16 @@ const Problems=()=>{
           <h2 className="text-2xl font-bold text-gray-100"> Problems</h2>
         )}
         <div className="flex items-center justify-between w-full md:w-auto gap-4">
-          {user && user.type==="admin" && <div>
-            <button onClick={handleAddProblem} className="bg-red-400 text-black font-bold px-4 py-1 rounded hover:scale-105 transition">Add Problem</button>
-          </div>}
+          {user && user.type === "admin" && (
+            <div>
+              <button
+                onClick={handleAddProblem}
+                className="bg-red-400 text-black font-bold px-4 py-1 rounded hover:scale-105 transition"
+              >
+                Add Problem
+              </button>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <span className="text-gray-400">Sort by:</span>
             <select
@@ -60,11 +67,11 @@ const Problems=()=>{
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-6 ">
+      <div className="grid grid-cols-1 gap-6 max-h-[calc(100vh-200px)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-800">
         {sortedProblems.map((problem) => (
           <div
             key={problem._id}
-            className="glass-card flex flex-col md:flex-row md:items-center justify-between p-6 border border-gray-700 hover:border-blue-400 transition hover:scale-105 transition"
+            className="glass-card flex flex-col md:flex-row md:items-center justify-between p-3 border border-gray-700 hover:border-blue-400 transition max-w-4xl "
           >
             <div>
               <div className="flex items-center gap-3 mb-2">
