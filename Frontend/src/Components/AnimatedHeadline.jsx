@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+
 
 const words = [
   { text: "Responsive", color: "text-red-600" },

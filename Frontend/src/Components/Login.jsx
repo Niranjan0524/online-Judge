@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../store/AuthContext";
 
-export default function Login() {
+const Login = () => {
 
   const loginWithGoogle = () => {
     console.log("Login with Google");
@@ -181,3 +181,6 @@ export default function Login() {
     </div>
   );
 }
+
+
+export default Login;
