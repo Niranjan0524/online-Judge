@@ -1,5 +1,5 @@
 import { useAuth } from "../store/AuthContext";
-
+import { Link } from "react-router-dom";
 
 const Explore=()=>{
 
@@ -12,8 +12,8 @@ const Explore=()=>{
           Explore Our Features
         </h3>
         <div className="flex flex-col gap-4">
-          <a
-            href="/resume-reviewer"
+          <Link
+            to="/resume-reviewer"
             className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-blue-400 hover:to-cyan-500 hover:shadow-xl animate-slide-in"
           >
             <svg
@@ -27,9 +27,9 @@ const Explore=()=>{
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
             Resume Reviewer
-          </a>
-          <a
-            href="/host-contest"
+          </Link>
+          <Link
+            to="/host-contest"
             className="flex items-center justify-center gap-2 bg-gradient-to-r from-pink-400 to-red-400 text-black font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-red-400 hover:to-pink-400 hover:shadow-xl animate-slide-in"
             style={{ animationDelay: "0.1s" }}
           >
@@ -47,10 +47,10 @@ const Explore=()=>{
             <span className="text-xs font-bold uppercase tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-400 text-white px-3 py-1 rounded-full ml-2 shadow-lg ring-2 ring-yellow-300 animate-pulse">
               upcoming
             </span>
-          </a>
+          </Link>
           {user && user.type === "user" && (
-            <a
-              href="/participate-contest"
+            <Link
+              to="/participate-contest"
               className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-orange-400 text-black font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-orange-400 hover:to-yellow-400 hover:shadow-xl animate-slide-in"
               style={{ animationDelay: "0.2s" }}
             >
@@ -68,10 +68,10 @@ const Explore=()=>{
               <span className="text-xs font-bold uppercase tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-400 text-white px-3 py-1 rounded-full ml-2 shadow-lg ring-2 ring-yellow-300 animate-pulse">
                 upcoming
               </span>
-            </a>
+            </Link>
           )}
-          <a
-            href="/blog"
+          <Link
+            to="/blog"
             className="flex items-center justify-center gap-2 bg-gradient-to-r from-lime-400 to-green-400 text-black font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-green-400 hover:to-lime-400 hover:shadow-xl animate-slide-in"
             style={{ animationDelay: "0.3s" }}
           >
@@ -89,7 +89,7 @@ const Explore=()=>{
             <span className="text-xs font-bold uppercase tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-400 text-white px-3 py-1 rounded-full ml-2 shadow-lg ring-2 ring-yellow-300 animate-pulse">
               upcoming
             </span>
-          </a>
+          </Link>
         </div>
       </div>
     </>
