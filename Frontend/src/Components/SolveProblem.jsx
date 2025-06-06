@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../store/authContext";
+import { useAuth } from "../store/AuthContext";
 import toast from "react-hot-toast";
 import { Circles } from "react-loader-spinner";
 import { v4 as uuidv4 } from "uuid";

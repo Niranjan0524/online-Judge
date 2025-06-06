@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Home from "./components/Home";
 import { AuthProvider } from "./store/AuthContext";
@@ -16,6 +15,7 @@ import "./index.css"
 import { LeaderBoardProvider } from "./store/LeaderBoardContext";
 import ResumeReviewer from "./components/ResumeReviewer";
 import AddProblem from "./components/AddProblem";
+import Login from "./components/Login";
 
 function App() {
 

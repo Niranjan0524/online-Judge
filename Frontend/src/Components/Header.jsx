@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../store/authContext";
+import { useAuth } from "../store/AuthContext";
 import toast from "react-hot-toast";
 import { Outlet } from "react-router-dom";
 import { Link } from "react-router-dom";

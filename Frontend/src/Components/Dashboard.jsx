@@ -1,7 +1,7 @@
 // ... keep your existing imports
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
-import { useAuth } from "../store/authContext";
+import { useAuth } from "../store/AuthContext";
 import { useSolutions } from "../store/SolutionContext";
 import { useProblems } from "../store/ProblemsContext";
 import { useLeaderBoard } from "../store/LeaderBoardContext";

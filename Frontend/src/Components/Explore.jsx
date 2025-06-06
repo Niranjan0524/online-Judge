@@ -1,4 +1,4 @@
-import { useAuth } from "../store/authContext";
+import { useAuth } from "../store/AuthContext";
 
 
 const Explore=()=>{
