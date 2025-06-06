@@ -10,7 +10,7 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-app.use(cors()); // Enable CORS
+
 const mongoose = require("mongoose");
 const authRouter = require("./routers/authRouter");
 const problemRouter=require("./routers/problemRouter");
@@ -18,7 +18,25 @@ const codeRouter=require("./routers/codeRouter");
 const leaderboardRouter = require("./routers/leaderboardRouter");
 const resumeRouter = require("./routers/resumeRouter");
 const discussionRouter = require("./routers/discussionRouter");
+const morgan = require("morgan");
+const path = require("path");
+const helmet = require("helmet"); 
+const compression = require("compression");
 
+app.use(cors({
+  origin:process.env.ORIGIN_URL || "http://localhost:5173",
+  methods:["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+})); 
+
+app.use(morgan("combined")); // Logging middleware for development
+
+
+const staticPath=path.join(__dirname, "dist");
+app.use(express.static(staticPath));
+
+app.use(helmet()); // Security middleware to set various HTTP headers
+
+app.use(compression()); // Middleware to compress response bodies for better performance
 
 // Add this before passport initialization
 const session = require("express-session");
