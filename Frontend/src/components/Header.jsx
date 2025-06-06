@@ -39,30 +39,30 @@ const Header=()=>{
         </Link>
 
         <div className="space-x-6 text-lg flex items-center">
-          <a
-            href="/#"
+          <Link
+            to="/#"
             className="hover:text-cyan-400 transition hover:border-b-2 border-cyan-400"
           >
             Home
-          </a>
-          <a
-            href="/#problems"
+          </Link>
+          <Link
+            to="/#problems"
             className="hover:text-red-400 transition hover:border-b-2 border-red-400"
           >
             Problems
-          </a>
-          <a
-            href="/#features"
+          </Link>
+          <Link
+            to="/#features"
             className="hover:text-pink-400 transition hover:border-b-2 border-pink-400"
           >
             Features
-          </a>
-          <a
-            href="/#about"
+          </Link>
+          <Link
+            to="/#about"
             className="hover:text-yellow-400 transition hover:border-b-2 border-yellow-400"
           >
             About
-          </a>
+          </Link>
 
           <div className="relative group">
             <Link to='/profile'>
@@ -72,19 +72,19 @@ const Header=()=>{
             </button>
             </Link>
             <div className="absolute right-0 mt-2 w-40 bg-gray-900 border border-gray-700 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition z-50">
-            
-              <a
-                href="/settings"
+
+              <Link
+                to="/settings"
                 className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition"
               >
                 Settings
-              </a>
-              <a
-                href="/dashboard"
+              </Link>
+              <Link
+                to="/dashboard"
                 className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition"
               >
                 DashBoard
-              </a>
+              </Link>
               {isLoggedIn ? (
                 <button
                   className="w-full text-left px-4 py-2 text-red-400 hover:bg-gray-800 hover:text-red-300 transition rounded-b-lg"
