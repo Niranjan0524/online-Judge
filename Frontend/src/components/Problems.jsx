@@ -109,7 +109,7 @@ const Problems=()=>{
               ) : (
                 <button
                   className="bg-blue-200 text-black font-bold px-4 py-1 rounded hover:scale-105 transition"
-                  onClick={() => handleEditProblem(problem._id)}
+                  onClick={handleEditProblem}
                 >
                   Edit
                 </button>

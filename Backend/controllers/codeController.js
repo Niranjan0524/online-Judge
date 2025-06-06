@@ -13,6 +13,17 @@ const { AI_Service } = require("../service/AI_Service");
 const Problem= require("../models/problems");
 const Solution = require("../models/solution");
 
+
+function withTimeout(promise, ms, errorMessage = "Timeout") {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(errorMessage)), ms)
+    ),
+  ]);
+}
+
+
 exports.runCode = async (req, res) => {
   const { code, lang = "c++", problemId, input } = req.body;
   console.log("input in backend", input);

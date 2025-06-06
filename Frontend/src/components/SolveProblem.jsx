@@ -210,13 +210,13 @@ const SolveProblem = () => {
         } else if (res.status === 406) {
           toast.error("Wrong code . please check your code");
           setStatus("Wrong Answer");
-          setCorrectness(false);
+          
           return;
         }
         else if(res.status===504){
           toast.error("Server Timeout ,Time Limit Exceeded");
           setStatus("Wrong Answer");
-          setCorrectness(false);
+          
           return;
         }
         toast.error(data.message || "Failed to submit code");

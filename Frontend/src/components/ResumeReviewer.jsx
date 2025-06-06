@@ -56,7 +56,7 @@ const ResumeReviewer = () => {
         />
         <button
           className="bg-gradient-to-r from-yellow-500 to-red-800 text-white font-semibold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
-          onClick={() => fileInputRef.current.click()}
+          onClick={() => fileInputRef?.current.click()}
         >
           {resumeFile ? "Change Resume" : "Choose Resume"}
         </button>
