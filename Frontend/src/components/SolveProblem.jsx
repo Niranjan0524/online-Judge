@@ -43,7 +43,7 @@ const SolveProblem = () => {
   const { id: problemId } = useParams();
   const problem = problems.find((p) => p._id === problemId);
   const currTestCases = testCases.filter((tc) => tc.problemId === problemId);
-  
+  console.log("Current Test Cases:", currTestCases);
 
   const { token } = useAuth();
 
@@ -136,6 +136,12 @@ const SolveProblem = () => {
         toast.error(data.message || "Failed to run code");
         return;
       }
+
+      if(res.status===201){
+        setOutput(data.error || "Error in code");
+        toast.error(data.message);
+        return;
+      }
       setStatus("Attempted");
       setOutput(data.output || "No output");
       toast.success("Code ran successfully");
@@ -209,8 +215,7 @@ const SolveProblem = () => {
           return;
         } else if (res.status === 406) {
           toast.error("Wrong code . please check your code");
-          setStatus("Wrong Answer");
-          
+          setStatus("Wrong Answer");          
           return;
         }
         else if(res.status===504){
@@ -223,26 +228,19 @@ const SolveProblem = () => {
         
         return;
       }
+
+      if(res.status===201){
+        setOutput(data.error|| "Error in code");
+        return ;
+      }
       setActiveTab("Result");
       await fetchSolutions();
-      let c=0,t=0;
-      for (const opStatus of data.output) {
-        t++;
-        if (opStatus.correct === false) {
-          toast.error("Wrong Answer");
-        } else {
-          c++;
-        }
+      let c = data.solution.testCasesPassed;
+      let t = data.output.length;
 
-      }
-      if(c==t){
-        setStatus("Accepted");
-      }
-      else{
-        setStatus("Wrong Answer");
-      }
-      
-      setCorrectness({correct:c,total:t});
+      setStatus(data.solution.status);
+
+      setCorrectness({ correct: c, total: t });
 
       toast.success("Code submitted Successfully");
       
@@ -327,14 +325,25 @@ const SolveProblem = () => {
       return;
     }
     setCurrSubmission(sub);
-    console.log("Solution Exists:", sub);
+  
     if (sub && sub.length > 0) {
-      console.log("inside useEffect");
-      setStatus(sub[0].status);
-      setCorrectness({ correct: 5, total: 5 });
-      setCurrSolution(sub[0].code);
+      // console.log("inside useEffect");
+      // setStatus(sub[0].status);
+      // setCode(sub[0].code);
+      for(const sol of sub){
+        if(sol.status==="Accepted"){
+          setStatus("Accepted");
+          setCorrectness({correct:sol.testCasesPassed,total:currTestCases.length});
+          return ;
+        }
+      }
+      setStatus("Wrong Answer");
+      setCorrectness({
+        correct:sub[0].testCasesPassed,
+        total:currTestCases.length
+      });    
     } else {
-      setCurrSolution(null);
+   
     }
 
   }, [problems, problem, problemId,solutions]);
@@ -346,29 +355,29 @@ const SolveProblem = () => {
       {/* <div className="md:w-2/5  w-fit h-auto bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col"> */}
       <div className="md:w-2/5 w-fit h-auto bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-2xl font-bold text-yellow-400">
+          <h2 className="text-2xl font-bold text-gray-100">
             {problem && problem.title}
-          </h2>
-          <div className="ml-4 display-flex items-center gap-2">
             <div
-              className={`px-3 py-1 rounded-lg text-sm font-semibold shadow mr-2 mb-3
+              className={`px-3 py-1 rounded-lg text-sm font-semibold shadow mr-2 mb-3 max-w-[70px]
       ${
-        problem?.difficulty === "hard" 
+        problem?.difficulty === "hard"
           ? "bg-red-800 text-red-200 border border-red-400"
-          : problem?.difficulty === "medium" 
+          : problem?.difficulty === "medium"
           ? "bg-yellow-800 text-yellow-300 border border-yellow-400"
           : "bg-green-800 text-green-300 border border-green-400"
       }`}
             >
-              {problem?.difficulty}
+              {problem?.difficulty.toUpperCase()}
             </div>
+          </h2>
 
+          <div className="ml-4 display-flex items-center gap-2">
             <div
               className={`px-3 py-1 rounded-lg text-sm font-semibold shadow
       ${
-         status === "Wrong Answer"
+        status === "Wrong Answer"
           ? "bg-red-800 text-red-200 border border-red-400"
-          :  status === "Not Attempted"
+          : status === "Not Attempted"
           ? "bg-yellow-800 text-yellow-300 border border-yellow-400"
           : "bg-green-800 text-green-300 border border-green-400"
       }`}
@@ -398,42 +407,90 @@ const SolveProblem = () => {
         <div className="flex-1 h-auto overflow-y-auto">
           {activeTab === "Description" && (
             <div>
-              <p className="text-gray-200 font-mono text-lg">
+              <p className="text-gray-200 font-mono text-lg mb-4">
                 {problem && problem.description}
               </p>
-              <div>
-                {currTestCases &&
-                  currTestCases.slice(0, 2).map((tc) => (
-                    <div
-                      key={tc._id}
-                      className="font-mono  glass-card mt-2 p-2 rounded bg-gray-800 border border-gray-300 mb-4 "
-                    >
-                      <div className="text-blue-300 font-semibold">Input:</div>
-                      {tc.input && typeof tc.input === "object" ? (
-                        Object.entries(tc.input).map(([key, value]) => (
-                          <div key={key} className="ml-2">
-                            <span className="text-gray-300">{key}:</span>{" "}
-                            <span className="text-gray-100">
-                              {Array.isArray(value)
-                                ? JSON.stringify(value)
-                                : String(value)}
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="ml-2 text-gray-100">
-                          {String(tc.input)}
-                        </div>
-                      )}
-                      <div className="text-green-300 font-semibold mt-1">
-                        Expected Output:
-                      </div>
-                      <div className="ml-2 text-gray-100">
-                        {String(tc.output)}
-                      </div>
+
+              {/* Modern Input/Output Format & Time Limit Display */}
+              <div className="flex flex-col gap-4 mb-4">
+                {/* Input Format */}
+                {problem?.inputFormat && problem.inputFormat.length > 0 && (
+                  <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 rounded-xl p-4 border border-blue-400 shadow">
+                    <div className="text-blue-300 font-bold text-base mb-2 flex items-center gap-2">
+                      <span className="material-icons text-blue-400">
+                        input
+                      </span>
+                      Input Format
                     </div>
-                  ))}
+                    <ul className="list-disc list-inside text-blue-100 text-sm pl-2">
+                      {problem.inputFormat.map((line, idx) => (
+                        <li key={idx}>{line}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Output Format */}
+                {problem?.outputFormat && problem.outputFormat.length > 0 && (
+                  <div className="bg-gradient-to-r from-green-900 via-green-800 to-green-900 rounded-xl p-4 border border-green-400 shadow">
+                    <div className="text-green-300 font-bold text-base mb-2 flex items-center gap-2">
+                      <span className="material-icons text-green-400">
+                        output
+                      </span>
+                      Output Format
+                    </div>
+                    <ul className="list-disc list-inside text-green-100 text-sm pl-2">
+                      {problem.outputFormat.map((line, idx) => (
+                        <li key={idx}>{line}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Time Limit */}
+                <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-900 via-yellow-800 to-yellow-900 rounded-xl p-3 border border-yellow-400 shadow w-fit">
+                  <span className="text-yellow-200 font-semibold text-sm">
+                    Time Limit: {problem?.timeLimit || 1000} ms
+                  </span>
+                </div>
+                {/* Sample Test Cases */}
+                <div>
+                  {currTestCases &&
+                    currTestCases.slice(0, 2).map((tc) => (
+                      <div
+                        key={tc._id}
+                        className="font-mono glass-card mt-2 p-2 rounded bg-gray-800 border border-gray-300 mb-4"
+                      >
+                        <div className="text-blue-300 font-semibold">
+                          Sample Input:
+                        </div>
+                        {tc.input && typeof tc.input === "object" ? (
+                          Object.entries(tc.input).map(([key, value]) => (
+                            <div key={key} className="ml-2">
+                              <span className="text-gray-300">{key}:</span>{" "}
+                              <span className="text-gray-100">
+                                {Array.isArray(value)
+                                  ? JSON.stringify(value)
+                                  : String(value)}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="ml-2 text-gray-100">
+                            {String(tc.input)}
+                          </div>
+                        )}
+                        <div className="text-green-300 font-semibold mt-1">
+                          Expected Output:
+                        </div>
+                        <div className="ml-2 text-gray-100">
+                          {String(tc.output)}
+                        </div>
+                      </div>
+                    ))}
+                </div>
               </div>
+
               {aiReview && (
                 <div
                   className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-2 border-yellow-400 rounded-2xl shadow-lg p-4 mb-4 transition-all duration-300"
@@ -484,7 +541,7 @@ const SolveProblem = () => {
                     currSubmission.map((sol) => (
                       <div
                         key={sol._id}
-                        className="flex items-center justify-between bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-3 shadow hover:shadow-lg transition-all cursor-pointer hover:bg-gray-700/50 hover:text-gray-100 transition  "
+                        className="flex items-center justify-between bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-3 shadow hover:shadow-lg transition-all cursor-pointer hover:bg-gray-700/50 hover:text-gray-100 transition"
                         onClick={() => handleSolutionView(sol._id)}
                       >
                         <div className="flex-1">
@@ -497,17 +554,27 @@ const SolveProblem = () => {
                               : "Not submitted"}
                           </div>
                         </div>
+                        {/* Test Cases Passed */}
+                        <div className="mx-4 flex flex-col items-center">
+                          <span className="text-sm font-mono text-blue-300">
+                            {sol.testCasesPassed ?? 0} /{" "}
+                            {currTestCases.length ?? "-"}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            Testcases
+                          </span>
+                        </div>
                         <div>
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-bold
-              ${
-                sol.status === "Accepted"
-                  ? "bg-green-900 text-green-300 border border-green-400"
-                  : sol.status === "Wrong Answer"
-                  ? "bg-red-900 text-red-200 border border-red-400"
-                  : "bg-yellow-900 text-yellow-300 border border-yellow-400"
-              }
-            `}
+        ${
+          sol.status === "Accepted"
+            ? "bg-green-900 text-green-300 border border-green-400"
+            : sol.status === "Wrong Answer"
+            ? "bg-red-900 text-red-200 border border-red-400"
+            : "bg-yellow-900 text-yellow-300 border border-yellow-400"
+        }
+      `}
                           >
                             {sol.status}
                           </span>
@@ -599,9 +666,7 @@ const SolveProblem = () => {
               )}
             </div>
           )}
-          {activeTab === "Discussions" && (
-            <Discussion problemId={problemId} />
-          )}
+          {activeTab === "Discussions" && <Discussion problemId={problemId} />}
           {activeTab === "Hints" && (
             <div className="text-gray-400 italic">No hints available.</div>
           )}

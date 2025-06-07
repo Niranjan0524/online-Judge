@@ -23,6 +23,14 @@ function withTimeout(promise, ms, errorMessage = "Timeout") {
   ]);
 }
 
+const deleteFiles=async(fp)=>{
+
+  if(fs.existsSync(fp)){
+    fs.unlinkSync(fp);
+
+  }
+  return;
+}
 
 exports.runCode = async (req, res) => {
   const { code, lang = "c++", problemId, input } = req.body;
@@ -53,9 +61,10 @@ exports.runCode = async (req, res) => {
     res.status(401).json({message:"Unauthorized"});
     return;
   }
-  let output;
+  let output; let filePath;
+  let inputFilePath;
   try{
-    let filePath;
+   
     if(lang==="java"){
       const {className}=req.body;
       if(!className){
@@ -68,10 +77,11 @@ exports.runCode = async (req, res) => {
       filePath=generateFile(code,lang);
     }
     
-    const inputFilePath=generateInputFile(input);
+     inputFilePath=generateInputFile(input);
 
     if(lang==="cpp"){
        output=await executeCpp(filePath ,inputFilePath);
+
     }
     else if(lang=="py"){
       output=await executePython(filePath,  inputFilePath); 
@@ -86,16 +96,48 @@ exports.runCode = async (req, res) => {
       res.status(200).json({output:output.error||output.stderr});
       return;
     }
+
+    await deleteFiles(filePath);
+    await deleteFiles(inputFilePath);
+
+    if(output && (output.stderr || output.error)){
+      console.log("Error during code execution:", output.error || output.stderr);
+      return res.status(201).json({
+        message: "Error during code execution",
+        error: output.error || output.stderr,
+      });
+    }
+
     res.json({
       message:"Code ran successfully",
       output:output
     });
   }
   catch(err){
-    console.log(err);
-    res.status(500).json({ message:"Internal server error"});
-    return;
-  }
+    await deleteFiles(filePath);
+    await deleteFiles(inputFilePath);
+      // If the error object contains stderr or error, send it to the frontend
+      if (err && (err.stderr || err.error)) {
+        console.log("XYZ", err.stderr || err.error);
+        res.status(201).json({
+          message: "Error during code execution",
+          error: err.stderr || err.error
+        });
+        return;
+       
+      }
+      // If it's a timeout
+      if (err.message === "Execution timed out") {
+        res.status(504).json({ message: "Execution timed out" });
+        return;
+
+      }
+      // Otherwise, generic error
+      console.log("error in code:", err.error || err.stderr || err.message);
+      res.status(500).json({ message:"Internal server error"});
+      return;
+    }
+  
 
 }
 
@@ -129,8 +171,9 @@ exports.submitCode=async(req,res)=>{
     return;
   }
   let output;
+  let filePath;
   try{
-    let filePath;
+    
     if(lang==="java"){
       const {className}=req.body;
       if(!className){
@@ -157,7 +200,9 @@ exports.submitCode=async(req,res)=>{
       } else if (lang == "js") {
         output = await withTimeout(executeJavaScript(filePath, inputFilePath),5000, "Execution timed out");
       }
-     
+      
+      await deleteFiles(inputFilePath);
+
         result.push({
           id: tc._id,
           output: output,
@@ -165,6 +210,8 @@ exports.submitCode=async(req,res)=>{
         });
 
     }
+      await deleteFiles(filePath);
+     
 
     try{
       let c=0;
@@ -180,42 +227,41 @@ exports.submitCode=async(req,res)=>{
         res.status(404).json({message:"Problem not found"});
         return;
       }
-      if(c==0){
-        const solution=  new Solution({
-          problemId:problemId,
-          userId:id,
-          code:code,
-          titleName:problem.title,
-          status:"Accepted",
-          submittedAt: new Date()
-        })
+      
+        const solution = new Solution({
+          problemId: problemId,
+          userId: id,
+          code: code,
+          titleName: problem.title,
+          testCasesPassed: t - c,
+          status: c ? "Wrong Answer" : "Accepted",
+          submittedAt: new Date(),
+        });
         await solution.save();
         console.log("Solution saved successfully");
+        res.status(200).json({
+          message: "Code submitted Successfully",
+          output: result,
+          solution: solution,
+        });
       }
-      else{
-        const solution=  new Solution({
-          problemId:problemId,
-          userId:id,
-          code:code,
-          titleName:problem.title,
-          status:"Wrong Answer",
-          submittedAt: new Date()
-        })
-        await solution.save();
-        console.log("Solution saved with wrong answer");
+      catch(err){
+        console.log("Error saving solution:", err);
+        res.status(500).json({message: "Internal server error , unable to save solution"});
+        return;
       }
-    }
-    catch(err){
-      console.log("Error saving solution:", err);
-      res.status(500).json({message: "Internal server error , unable to save solution"});
-      return;
-    }
-    res.status(200).json({
-      message: "Code submitted Successfully",
-      output: result
-    })
   }
   catch(err){
+    await deleteFiles(filePath);
+    await deleteFiles(inputFilePath);
+    
+    if (err && (err.stderr || err.error)) {
+      res.status(201).json({
+        message: "Error during code execution",
+        error: err.stderr || err.error,
+      });
+      return;
+    }
     if (err.message === "Execution timed out") {
       res.status(504).json({ message: "Execution timed out" });
       return;

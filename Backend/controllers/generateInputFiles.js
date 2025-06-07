@@ -8,13 +8,39 @@ if(!fs.existsSync(dirInputs)){
   fs.mkdirSync(dirInputs,{recursive:true});
 }
 
-const formatInput = (inputObj) => {
-  // Join nums array as space-separated string
-  const inputArray=inputObj.split("\n");
-  const formattedInput=inputArray.map((line)=>line.trim()).join("\n");
+function formatInput(input) {
+  // Handle null or undefined
+  if (input === null || input === undefined) return "";
 
-  return formattedInput;
-};
+  // Primitives
+  if (
+    typeof input === "number" ||
+    typeof input === "boolean" ||
+    typeof input === "string"
+  ) {
+    return String(input);
+  }
+  if (Array.isArray(input)) {
+    // If it's a 2D array, print each row on a new line
+    if (input.length > 0 && Array.isArray(input[0])) {
+      return input.map((row) => formatInput(row)).join("\n");
+    }
+    // 1D array: print space-separated
+    return input.map((item) => formatInput(item)).join(" ");
+  }
+
+  // Object: print each key-value pair on a new line, or flatten if keys are standard (like LeetCode)
+  if (typeof input === "object") {
+    // Special handling for LeetCode-style objects (like {"capacity":2,"operations":[...]})
+    // Print each value on a new line, in key order
+    return Object.values(input)
+      .map((val) => formatInput(val))
+      .join("\n");
+  }
+
+  // Fallback
+  return String(input);
+}
 
 const generateInputFile=(inputObj)=>{
   const jobId=uuid();
@@ -24,6 +50,7 @@ const generateInputFile=(inputObj)=>{
     // Use your formatInput function here!
     inputText = formatInput(inputObj);
   }
+  console.log("inputText",inputText);
   fs.writeFileSync(inputFilePath,inputText);
   
   return inputFilePath;

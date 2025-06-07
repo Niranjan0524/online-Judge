@@ -23,11 +23,7 @@ const executeCpp = (filepath,inputFilePath) => {
 
   const jobId = path.basename(filepath).split(".")[0];
   const outPath = path.join(outputPath, `${jobId}.exe`);
-  // const formattedInput = formatInput(testCases[4].input);
-  
 
-  // const inputFilePath=path.join(outputPath,`${jobId}_input.txt`);
-  // fs.writeFileSync(inputFilePath,formattedInput);
 
   return new Promise((resolve, reject) => {
     exec(
@@ -37,7 +33,8 @@ const executeCpp = (filepath,inputFilePath) => {
           reject({ error, stderr });
         }
         if (stderr) {
-          reject(stderr);
+          console.error("Error in executeCpp:", stderr);
+          reject({ stderr });
         }
         resolve(stdout);
       }

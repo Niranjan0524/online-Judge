@@ -19,6 +19,7 @@ const solutionSchema=new mongoose.Schema({
     type:String,
     required:true
   },
+  testCasesPassed:{type:Number,default:0},
   status:{type:String,required:true,enum:['Accepted','Wrong Answer','Time Limit Exceeded','Error']},
   submittedAt:{type:Date,default:Date.now},
 });

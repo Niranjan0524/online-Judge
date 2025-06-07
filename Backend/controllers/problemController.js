@@ -1,9 +1,13 @@
 const Problem=require('../models/problems');
 const TestCase=require('../models/testCases');
+const fs=require('fs');
+const path=require('path');
 
 exports.getProblems=async(req,res)=>{
 
     const problems=await Problem.find();
+
+   
     if(!problems){
       res.status(422).json({
         message:"No problems found"
@@ -52,6 +56,7 @@ exports.getTestCases=async(req,res)=>{
 
 
   const testCases=await TestCase.find();
+ 
   if(!testCases){
     res.status(402).json({
       messages:"No test cases found"
@@ -80,9 +85,13 @@ exports.addProblems=async(req,res)=>{
 
   data.map(async (problem)=>{
     const problemData= await new Problem({
+      _id: problem._id,
       title: problem.title,
       description: problem.description,
       difficulty: problem.difficulty,
+      inputFormat: problem.inputFormat,
+      outputFormat: problem.outputFormat,
+      timeLimit: problem.timeLimit,
       tags: problem.tags
     }).save();
   });
@@ -125,6 +134,36 @@ exports.addSingleProblem=async(req,res)=>{
   } catch (error) {
     res.status(500).json({
       message: "Failed to add problem",
+      error: error.message
+    });
+  }
+}
+
+
+
+exports.deleteAllTestCases=async(req,res)=>{
+  try {
+    await TestCase.deleteMany({});
+    res.status(200).json({
+      message: "All test cases deleted successfully"
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete test cases",
+      error: error.message
+    });
+  }
+}
+
+exports.deleteAllProblems=async(req,res)=>{ 
+  try {
+    await Problem.deleteMany({});
+    res.status(200).json({
+      message: "All problems deleted successfully"
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete problems",
       error: error.message
     });
   }
