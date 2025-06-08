@@ -18,7 +18,7 @@ const codeRouter=require("./routers/codeRouter");
 const leaderboardRouter = require("./routers/leaderboardRouter");
 const resumeRouter = require("./routers/resumeRouter");
 const discussionRouter = require("./routers/discussionRouter");
-const uploadFileRouter = require("./routers/uploadFile");
+
 
 const morgan = require("morgan");
 const path = require("path");
@@ -70,7 +70,7 @@ app.use("/api/code",codeRouter);
 app.use("/api/alldata", leaderboardRouter);
 app.use("/api/resume", resumeRouter);
 app.use("/api/discussion", discussionRouter);
-app.use("/api/file", uploadFileRouter);
+
 
 
 
