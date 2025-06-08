@@ -630,7 +630,7 @@ const SolveProblem = () => {
                     Submission Accepted
                   </span>
                   <span className="mt-2 text-lg text-gray-100">
-                    Correctness:{" "}
+                    
                     <span className="font-semibold text-yellow-300">
                       {correctness.correct}
                     </span>
@@ -647,6 +647,17 @@ const SolveProblem = () => {
                   <span className="text-red-400 text-lg font-semibold flex items-center gap-2">
                     <TbXboxX className="w-5 h-5 inline-block" />
                     Wrong Answer
+                  </span>
+                  <span className="mt-2 text-lg text-gray-100">
+                    Correctness:{" "}
+                    <span className="font-semibold text-yellow-300">
+                      {correctness.correct}
+                    </span>
+                    <span className="text-gray-400"> / </span>
+                    <span className="font-semibold text-yellow-300">
+                      {correctness.total}
+                    </span>{" "}
+                    test cases passed
                   </span>
                 </div>
               )}
