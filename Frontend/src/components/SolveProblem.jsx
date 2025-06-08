@@ -133,6 +133,12 @@ const SolveProblem = () => {
           toast.error(data.message || "Error in running code");
           return;
         }
+        else if(res.status===504){
+          setOutput("Server Timeout, Time Limit Exceeded");
+        
+          toast.error("Server Timeout, Time Limit Exceeded");
+          return;
+        }
         toast.error(data.message || "Failed to run code");
         return;
       }

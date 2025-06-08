@@ -80,17 +80,25 @@ exports.runCode = async (req, res) => {
      inputFilePath=generateInputFile(input);
 
     if(lang==="cpp"){
-       output=await executeCpp(filePath ,inputFilePath);
+       output = await withTimeout(
+         executeCpp(filePath, inputFilePath),
+         5000,
+         "Execution timed out"
+       );
 
     }
     else if(lang=="py"){
-      output=await executePython(filePath,  inputFilePath); 
+      output=await withTimeout(
+        executePython(filePath,  inputFilePath),
+        5000,
+        "Execution timed out"
+      );
     }
     else if(lang=="java"){
-      output=await executeJava(filePath,  inputFilePath);
+      output=await withTimeout(executeJava(filePath,  inputFilePath),5000,"Execution timed out");
     }
     else if(lang=="js"){
-      output=await executeJavaScript(filePath,  inputFilePath);
+      output=await withTimeout(executeJavaScript(filePath,  inputFilePath),5000,"Execution timed out");
     }
     if(output && output.error){
       res.status(200).json({output:output.error||output.stderr});
@@ -116,7 +124,8 @@ exports.runCode = async (req, res) => {
   catch(err){
     await deleteFiles(filePath);
     await deleteFiles(inputFilePath);
-      // If the error object contains stderr or error, send it to the frontend
+
+    console.log("99",err.message);
       if (err && (err.stderr || err.error)) {
         console.log("XYZ", err.stderr || err.error);
         res.status(201).json({
@@ -128,6 +137,7 @@ exports.runCode = async (req, res) => {
       }
       // If it's a timeout
       if (err.message === "Execution timed out") {
+        console.log("100", err.message);
         res.status(504).json({ message: "Execution timed out" });
         return;
 
@@ -192,13 +202,29 @@ exports.submitCode=async(req,res)=>{
 
       if (lang === "cpp") {
 
-        output = await  withTimeout(executeCpp(filePath, inputFilePath),5000, "Execution timed out");
+        output = await withTimeout(
+          executeCpp(filePath, inputFilePath),
+          5000,
+          "Execution timed out"
+        );
       } else if (lang == "py") {
-        output = await withTimeout(executePython(filePath, inputFilePath),5000, "Execution timed out");
+        output = await withTimeout(
+          executePython(filePath, inputFilePath),
+          5000,
+          "Execution timed out"
+        );
       } else if (lang == "java") {
-        output = await withTimeout(executeJava(filePath, inputFilePath),5000, "Execution timed out");
+        output = await withTimeout(
+          executeJava(filePath, inputFilePath),
+          5000,
+          "Execution timed out"
+        );
       } else if (lang == "js") {
-        output = await withTimeout(executeJavaScript(filePath, inputFilePath),5000, "Execution timed out");
+        output = await withTimeout(
+          executeJavaScript(filePath, inputFilePath),
+          5000,
+          "Execution timed out"
+        );
       }
       
       await deleteFiles(inputFilePath);
