@@ -55,7 +55,14 @@ export default function Signup() {
     }
   };
 
+  const signupWithGoogle = () => {
+    console.log("Signup with Google");
+    window.location.href=`${import.meta.env.VITE_BACKEND_URL}/api/auth/google`;
+  };
+
   // ...existing code...
+
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a]">
       <div className="w-full max-w-md bg-gray-900/80 rounded-2xl shadow-lg p-8">
@@ -182,7 +189,8 @@ export default function Signup() {
         <div className="mt-4 flex  gap-2">
           <div className="w-1/2">
           
-          <button className="w-full bg-gray-800 hover:bg-gray-700 text-gray-100 py-2 rounded-lg flex items-center justify-center gap-2 border border-gray-700 transition">
+          <button className="w-full bg-gray-800 hover:bg-gray-700 text-gray-100 py-2 rounded-lg flex items-center justify-center gap-2 border border-gray-700 transition"
+          onClick={signupWithGoogle}>
             <img
               src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
               alt="Google"

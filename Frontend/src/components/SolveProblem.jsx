@@ -15,6 +15,7 @@ import { useSolutions } from "../store/SolutionContext";
 import { TbXboxX } from "react-icons/tb";
 import { RxCrossCircled } from "react-icons/rx";
 import Discussion from "./Discussion";
+import { useLeaderBoard } from "../store/LeaderBoardContext";
 
 const TABS = ["Description","Result", "Submissions", "Discussions", "Hints"];
 
@@ -43,7 +44,7 @@ const SolveProblem = () => {
   const { id: problemId } = useParams();
   const problem = problems.find((p) => p._id === problemId);
   const currTestCases = testCases.filter((tc) => tc.problemId === problemId);
-  console.log("Current Test Cases:", currTestCases);
+  const { fetchLeaderBoardData } = useLeaderBoard();
 
   const { token } = useAuth();
 
@@ -249,6 +250,7 @@ const SolveProblem = () => {
       setCorrectness({ correct: c, total: t });
 
       toast.success("Code submitted Successfully");
+      fetchLeaderBoardData();
       
     })
     .catch((err) => {

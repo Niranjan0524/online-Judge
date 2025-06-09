@@ -8,19 +8,13 @@ export const LeaderBoardProvider=({children})=>{
   const {token} = useAuth() || {};
   const [leaderBoardData, setLeaderBoardData] = useState([]);
 
-  useEffect(()=>{
-    if(!token){
-      console.error("Token is not available");
-      setLeaderBoardData([]);
-      return;
-    }
-
+  const fetchLeaderBoardData = async () => {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/alldata/getleaderboard`, {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
-      .then( (response) => {
+      .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch leaderboard data");
         }
@@ -34,13 +28,23 @@ export const LeaderBoardProvider=({children})=>{
         console.error("Error fetching leaderboard data:", error);
         setLeaderBoardData([]);
       });
+  }
+  useEffect(() => {
+    if (!token) {
+      console.error("Token is not available");
+      setLeaderBoardData([]);
+      return;
+    }
+
+    fetchLeaderBoardData();
+
   }, [token]);
 
   return (
-    <LeaderBoardContext.Provider value={{ leaderBoardData }}>
+    <LeaderBoardContext.Provider value={{ leaderBoardData, fetchLeaderBoardData }}>
       {children}
     </LeaderBoardContext.Provider>
   );
 };
 
-export const useLeaderBoard = () =>  useContext(LeaderBoardContext) ;
+export const useLeaderBoard = () => useContext(LeaderBoardContext);

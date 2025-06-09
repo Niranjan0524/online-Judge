@@ -14,13 +14,11 @@ const outputPath = path.join(__dirname, "../", "outputs");
 if (!fs.existsSync(outputPath)) {
   fs.mkdirSync(outputPath, { recursive: true });
 }
-
 const executeCpp = (filepath, inputFilePath, timeout = 5000) => {
   const jobId = path.basename(filepath).split(".")[0];
   const outPath = path.join(outputPath, `${jobId}.exe`);
 
   return new Promise((resolve, reject) => {
-    // First, compile the code
     exec(
       `g++ "${filepath}" -o "${outPath}"`,
       (compileErr, _, compileStderr) => {
@@ -28,12 +26,10 @@ const executeCpp = (filepath, inputFilePath, timeout = 5000) => {
           return reject({ error: compileErr, stderr: compileStderr });
         }
 
-        // Then, run the executable with spawn for better control
         const child = spawn(outPath, [], {
           stdio: ["pipe", "pipe", "pipe"],
         });
 
-        // Pipe input file to child process
         const inputStream = fs.createReadStream(inputFilePath);
         inputStream.pipe(child.stdin);
 
@@ -47,14 +43,21 @@ const executeCpp = (filepath, inputFilePath, timeout = 5000) => {
           stderr += data.toString();
         });
 
-        // Timeout logic
+        let killed = false;
         const timer = setTimeout(() => {
+          killed = true;
           child.kill("SIGKILL");
-          reject({ error: "Execution timed out" });
         }, timeout);
 
         child.on("close", (code) => {
           clearTimeout(timer);
+          // Clean up input file here, after process is closed
+          if (fs.existsSync(inputFilePath)) {
+            fs.unlinkSync(inputFilePath);
+          }
+          if (killed) {
+            return reject({ error: "Execution timed out" });
+          }
           if (code !== 0 || stderr) {
             return reject({ error: `Exited with code ${code}`, stderr });
           }
@@ -63,12 +66,16 @@ const executeCpp = (filepath, inputFilePath, timeout = 5000) => {
 
         child.on("error", (err) => {
           clearTimeout(timer);
+          if (fs.existsSync(inputFilePath)) {
+            fs.unlinkSync(inputFilePath);
+          }
           reject({ error: err.message });
         });
       }
     );
   });
 };
+
 
 module.exports = {
   executeCpp,

@@ -9,7 +9,6 @@ const Login = () => {
   const loginWithGoogle = () => {
     console.log("Login with Google");
     window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`;
-
   };
   const [formData,setFormData]=useState({
     email:"",
