@@ -32,9 +32,10 @@ It allows users to solve coding problems, run and submit code in multiple langua
 ## 🖼️ Screenshots
 
 <p align="center">
-  <img src="https://i.imgur.com/your-screenshot1.png" width="700" alt="Home Page"/>
-  <img src="https://i.imgur.com/your-screenshot2.png" width="700" alt="Problem Page"/>
-  <img src="https://i.imgur.com/your-screenshot3.png" width="700" alt="Code Editor"/>
+  <img src="assets/HomePage.png" width="700" alt="Home Page"/>
+  <img src="assets/SolveProblem.png" width="700" alt="Problem Page"/>
+  <img src="assets/Dashboard" width="700" alt="Code Editor"/>
+  <img src="assets/Leaderboard" width="700" alt="Code Editor"/>
 </p>
 
 ---
