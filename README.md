@@ -34,8 +34,8 @@ It allows users to solve coding problems, run and submit code in multiple langua
 <p align="center">
   <img src="assets/HomePage.png" width="700" alt="Home Page"/>
   <img src="assets/SolveProblem.png" width="700" alt="Problem Page"/>
-  <img src="assets/Dashboard" width="700" alt="Code Editor"/>
-  <img src="assets/Leaderboard" width="700" alt="Code Editor"/>
+  <img src="assets/Dashboard.png" width="700" alt="Code Editor"/>
+  <img src="assets/Leaderboard.png" width="700" alt="Code Editor"/>
 </p>
 
 ---
