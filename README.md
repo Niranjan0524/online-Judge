@@ -1,5 +1,9 @@
 # 🚀 CodeVibe: MERN Online Judge Platform
 
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Online-green?style=for-the-badge&logo=vercel)](https://online-judge-frontend-two.vercel.app/)
+
+---
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 ![Issues](https://img.shields.io/github/issues/Niranjan0524/online-Judge)
