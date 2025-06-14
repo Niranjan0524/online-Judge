@@ -240,7 +240,7 @@ const SolveProblem = () => {
         setOutput(data.error|| "Error in code");
         return ;
       }
-      setActiveTab("Result");
+      setActiveTab("Submissions");
       await fetchSolutions();
       let c = data.solution.testCasesPassed;
       let t = data.output.length;
