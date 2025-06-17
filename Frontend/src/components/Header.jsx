@@ -111,7 +111,7 @@ const Header=()=>{
                   >
                     Settings
                   </Link>
-                  &&{" "}
+                  {" "}
                   <Link
                     to="/dashboard"
                     className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition"
