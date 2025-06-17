@@ -27,7 +27,7 @@ export const ProblemsProvider=({children})=>{
         console.log("Error in fetching the problems", err);
       });
 
-      console.log("Fetched problems:", problems);
+     
   },[]);
   return (
     <ProblemsContext.Provider value={{problems,setProblems}}>

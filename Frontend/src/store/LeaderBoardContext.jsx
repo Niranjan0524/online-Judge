@@ -22,7 +22,7 @@ export const LeaderBoardProvider=({children})=>{
       })
       .then((data) => {
         setLeaderBoardData(data.leaderboard);
-        console.log("Leaderboard data fetched successfully:", data.leaderboard);
+        
       })
       .catch((error) => {
         console.error("Error fetching leaderboard data:", error);

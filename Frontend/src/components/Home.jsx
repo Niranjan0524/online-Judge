@@ -11,29 +11,8 @@ import Problems from "./Problems";
 const Home = () => {
 
   
-  
-  const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuth();
 
-  const handleLogin = () => navigate("/login");
-  const handleLogout = () => {
-    const status = confirm("Are you sure you want to logout?");
-    const toastId = toast.loading("Logging out...");
-    if (status) {
-      setTimeout(() => {
-        logout();
-        navigate("/login");
-        toast.dismiss(toastId);
-        toast.success("Logged out successfully");
-      }, 2000);
-    } else {
-      toast.dismiss(toastId);
-      toast.error("You are Logged in");
-    }
-  };
 
-  
-  const {user}=useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white">

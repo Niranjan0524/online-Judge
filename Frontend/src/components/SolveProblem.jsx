@@ -335,9 +335,6 @@ const SolveProblem = () => {
     setCurrSubmission(sub);
   
     if (sub && sub.length > 0) {
-      // console.log("inside useEffect");
-      // setStatus(sub[0].status);
-      // setCode(sub[0].code);
       for(const sol of sub){
         if(sol.status==="Accepted"){
           setStatus("Accepted");

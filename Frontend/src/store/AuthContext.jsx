@@ -30,13 +30,12 @@ export const AuthProvider=({children})=>{
     const token=localStorage.getItem('token')||null;
 
     if(isTokenExpired(token)){
-      console.log('Token Expired');
+      
       logout();
     }
     else{
-      console.log('Token Valid');
       setToken(token);
-      console.log(token);
+      
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/getUser`, {
       method: "GET",
       headers: {
@@ -49,7 +48,7 @@ export const AuthProvider=({children})=>{
           // <-- use res.ok or res.status
           setIsLoggedIn(false);
           setUser(null);
-          console.log("error in fetching the user", data);
+          
         } else {
           setIsLoggedIn(true);
           setUser(data.user);
@@ -75,10 +74,7 @@ export const AuthProvider=({children})=>{
     setIsLoggedIn(true);
     setUserType(data.user.type);
     localStorage.setItem('token',data.token);
-    console.log("User logged in successfully");
-    console.log("isLoggedIn",isLoggedIn);
-    console.log("user",user);
-    console.log("token",token);
+
   }
 
   const logout=()=>{
@@ -87,7 +83,7 @@ export const AuthProvider=({children})=>{
     setToken(null);
     setUserType(null);
     localStorage.removeItem('token');
-    console.log("User Logged out Successfully");
+
   }
   return (
     <AuthContext.Provider value={{ user, token, isLoggedIn, login, logout }}>
