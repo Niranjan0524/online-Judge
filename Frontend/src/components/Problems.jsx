@@ -99,14 +99,15 @@ const Problems=()=>{
               </div>
             </div>
             <div className="flex items-center gap-4 mt-3 md:mt-0">
-              {user?.type === "user" ? (
+              {user?.type === "user" && (
                 <button
                   className="bg-blue-200 text-black font-bold px-4 py-1 rounded hover:scale-105 transition"
                   onClick={() => handleProblemClick(problem._id)}
                 >
                   Solve
                 </button>
-              ) : (
+              )}
+              {user?.type === "admin" && (
                 <button
                   className="bg-blue-200 text-black font-bold px-4 py-1 rounded hover:scale-105 transition"
                   onClick={handleEditProblem}

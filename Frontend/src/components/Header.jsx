@@ -79,60 +79,72 @@ const Header=()=>{
             About
           </a>
 
-          <div
-            className="relative group"
-            ref={profileBtnRef}
-            onMouseEnter={() => setShowProfileMenu(true)}
-            onMouseLeave={() => setTimeout(() => setShowProfileMenu(false), 100)}
-          >
-            <Link to="/profile">
-              <button
-                className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-yellow-400 text-yellow-400 font-semibold rounded-full shadow hover:bg-gray-700 hover:text-yellow-300 transition"
-                
-                type="button"
-              >
-                <CgProfile size={25} />
-                {isLoggedIn ? `Hello, ${user.name}` : "Profile"}
-              </button>
-            </Link>
-            {showProfileMenu && (
-              <div
-                className="absolute right-0  w-40 bg-gray-900 border border-gray-700 rounded-lg shadow-lg  transition z-50"
-                onMouseEnter={() => setShowProfileMenu(true)}
-                onMouseLeave={() =>
-                  setTimeout(() => setShowProfileMenu(false), 200)
-                }
-              >
-                <Link
-                  to="/settings"
-                  className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition"
+          {isLoggedIn && (
+            <div
+              className="relative group"
+              ref={profileBtnRef}
+              onMouseEnter={() => setShowProfileMenu(true)}
+              onMouseLeave={() =>
+                setTimeout(() => setShowProfileMenu(false), 100)
+              }
+            >
+              <Link to="/profile">
+                <button
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-yellow-400 text-yellow-400 font-semibold rounded-full shadow hover:bg-gray-700 hover:text-yellow-300 transition"
+                  type="button"
                 >
-                  Settings
-                </Link>
-                <Link
-                  to="/dashboard"
-                  className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition"
+                  <CgProfile size={25} />
+                  {isLoggedIn ? `Hello, ${user.name}` : "Profile"}
+                </button>
+              </Link>
+              {showProfileMenu && (
+                <div
+                  className="absolute right-0  w-40 bg-gray-900 border border-gray-700 rounded-lg shadow-lg  transition z-50"
+                  onMouseEnter={() => setShowProfileMenu(true)}
+                  onMouseLeave={() =>
+                    setTimeout(() => setShowProfileMenu(false), 200)
+                  }
                 >
-                  DashBoard
-                </Link>
-                {isLoggedIn ? (
-                  <button
-                    className="w-full text-left px-4 py-2 text-red-400 hover:bg-gray-800 hover:text-red-300 transition rounded-b-lg"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </button>
-                ) : (
                   <Link
-                    to="/login"
-                    className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition rounded-b-lg"
+                    to="/settings"
+                    className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition"
                   >
-                    Login
+                    Settings
                   </Link>
-                )}
-              </div>
-            )}
-          </div>
+                  &&{" "}
+                  <Link
+                    to="/dashboard"
+                    className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition"
+                  >
+                    DashBoard
+                  </Link>
+                  {isLoggedIn ? (
+                    <button
+                      className="w-full text-left px-4 py-2 text-red-400 hover:bg-gray-800 hover:text-red-300 transition rounded-b-lg"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </button>
+                  ) : (
+                    <Link
+                      to="/login"
+                      className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition rounded-b-lg"
+                    >
+                      Login
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+          {!isLoggedIn && (
+            <Link
+              to="/login"
+              className="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/30 text-white font-bold rounded-full shadow-lg hover:bg-white/20 hover:border-cyan-300 hover:text-cyan-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2"
+            >
+              Login
+            </Link>
+          )}
         </div>
       </nav>
       <main className="bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] min-h-screen">
