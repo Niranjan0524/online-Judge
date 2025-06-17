@@ -16,6 +16,7 @@ import { LeaderBoardProvider } from "./store/LeaderBoardContext";
 import ResumeReviewer from "./components/ResumeReviewer";
 import AddProblem from "./components/AddProblem";
 import Login from "./components/Login";
+import Contest from "./components/Contest";
 
 function App() {
 
@@ -37,6 +38,7 @@ function App() {
                 <Route path="profile" element={<Profile />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="resume-reviewer" element={<ResumeReviewer />} />
+                <Route path="contest" element={<Contest />} />
                 <Route path="problem/add" element={<AddProblem />} />
               </Route>
               <Route path="*" element={<PageNotFound />} />

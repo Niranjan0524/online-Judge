@@ -50,7 +50,7 @@ const Explore=()=>{
           </Link>
           {user && user.type === "user" && (
             <Link
-              to="/participate-contest"
+              to="/contest"
               className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-orange-400 text-black font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-orange-400 hover:to-yellow-400 hover:shadow-xl animate-slide-in"
               style={{ animationDelay: "0.2s" }}
             >
