@@ -31,7 +31,6 @@ export const LeaderBoardProvider=({children})=>{
   }
   useEffect(() => {
     if (!token) {
-      console.error("Token is not available");
       setLeaderBoardData([]);
       return;
     }

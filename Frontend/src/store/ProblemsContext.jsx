@@ -7,8 +7,10 @@ const ProblemsContext=createContext();
 
 export const ProblemsProvider=({children})=>{
   const [problems,setProblems]=useState([]);
+  const [problemLoading,setProblemLoading]=useState(false);
 
   useEffect(()=>{
+    setProblemLoading(true);
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problem/getAllProblems`, {
       method: "GET"
     })
@@ -25,12 +27,15 @@ export const ProblemsProvider=({children})=>{
       })
       .catch((err) => {
         console.log("Error in fetching the problems", err);
+      })
+      .finally(() => {
+        setProblemLoading(false);
       });
 
      
   },[]);
   return (
-    <ProblemsContext.Provider value={{problems,setProblems}}>
+    <ProblemsContext.Provider value={{problems,setProblems,problemLoading}}>
       {children}
     </ProblemsContext.Provider>
   )
