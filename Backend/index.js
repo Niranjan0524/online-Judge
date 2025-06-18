@@ -25,10 +25,12 @@ const path = require("path");
 const helmet = require("helmet"); 
 const compression = require("compression");
 
-app.use(cors({
-  origin:process.env.ORIGIN_URL || "http://localhost:5173",
-  methods:["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-})); 
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  })
+); 
 
 app.use(morgan("combined")); // Logging middleware for development
 
