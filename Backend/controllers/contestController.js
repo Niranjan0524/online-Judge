@@ -70,3 +70,30 @@ exports.getAllContests=async(req,res)=>{
     });
   }
 }
+
+exports.getContestById=async(req,res)=>{
+
+  const contestId=req.params.id;
+  // console.log("Contest ID:", contestId);
+  try{
+    const contest=await Contest.findById(contestId);
+    
+    if(!contest){
+      return res.status(404).json({
+        message: "Contest not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Contest fetched successfully",
+      contest: contest,
+    })
+  }
+  catch(err){
+    console.error("Error fetching contest:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+}
