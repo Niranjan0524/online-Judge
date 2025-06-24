@@ -9,18 +9,18 @@ codeRouter.post("/run",verifyUser,async(req,res)=>{
   
   console.log("got it");
   try{
-    const response=await fetch(`${process.env.COMPILER_URL}/run`,{
-      method:"POST",
-      headers:{
+    const response = await fetch(`${process.env.COMPILER_URL}/run`, {
+      method: "POST",
+      headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         code,
         lang,
         problemId,
-        input
-      })
-    })
+        input,
+      }),
+    });
 
     const data=await response.json();
     if(!response.ok){
@@ -45,18 +45,18 @@ codeRouter.post("/submit",verifyUser,async(req,res)=>{
   const { code, lang = "c++", problemId } = req.body;
   const id = req.userId;
   try{
-    const response=await fetch(`${process.env.COMPILER_URL}/submit`,{
-      headers:{
+    const response = await fetch(`${process.env.COMPILER_URL}/submit`, {
+      method: "POST",
+      headers: {
         "Content-Type": "application/json",
       },
-      method:"POST",
       body: JSON.stringify({
         code,
         lang,
         problemId,
-        id
-      })
-  });
+        id,
+      }),
+    });
 
   if(!response.ok){
     return res.status(500).json({

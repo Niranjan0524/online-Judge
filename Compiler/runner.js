@@ -22,24 +22,33 @@ app.use(
   })
 ); 
 
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 app.get("/", (req, res) => {
   res.send("Compiler service is running!");
 });
 
-app.use(bodyParser.json());
 
 app.post("/run", runCode);
 app.post("/submit", submitCode);
 
 const url = `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@xdb.mjwzy.mongodb.net/${process.env.MONGO_DB_DATABASE}`;
 
+const port = process.env.PORT || 5000;
 
 mongoose.connect(url)
   .then(() => {
     console.log("Connected to MongoDB");
-    app.listen(process.env.PORT, ()=>{console.log("Server is running on port 5000")});
+    app.listen(port, ()=>{console.log("Server is running on port 5000")});
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err);
   });
 
+// Optional: generic error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Internal server error" });
+});
