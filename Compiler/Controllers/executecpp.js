@@ -55,6 +55,9 @@ const executeCpp = (filepath, inputFilePath, timeout = 5000) => {
           if (fs.existsSync(inputFilePath)) {
             fs.unlinkSync(inputFilePath);
           }
+          if (fs.existsSync(outPath)) {
+            fs.unlinkSync(outPath);
+          }
           if (killed) {
             return reject({ error: "Execution timed out" });
           }
