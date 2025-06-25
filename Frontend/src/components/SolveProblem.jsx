@@ -212,7 +212,7 @@ const SolveProblem = () => {
     }).then(async (res) => {
       const data = await res.json();
       setSubmitting(false);
-
+      console.log("Submission response:", data);
       if (!res.ok) {
         if (res.status === 401) {
           toast.error("Unauthorized. Please login again.");

@@ -66,8 +66,9 @@ codeRouter.post("/submit",verifyUser,async(req,res)=>{
 
   const data=await response.json();
   res.status(200).json({
-    message:"Success",
-    output:data
+    message: "Code submitted Successfully",
+    output: data.output,
+    solution: data.solution,
   });
   }
   catch(err){

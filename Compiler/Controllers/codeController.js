@@ -148,6 +148,7 @@ exports.submitCode=async(req,res)=>{
   
   let output;
   let filePath;
+  let inputFilePath;
   try{
     
     if(lang==="java"){
@@ -164,7 +165,7 @@ exports.submitCode=async(req,res)=>{
 
     let result = [];
     for (const tc of testCases) {
-      const inputFilePath = generateInput(tc.input);
+       inputFilePath = generateInput(tc.input);
 
       if (lang === "cpp") {
 
