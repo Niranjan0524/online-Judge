@@ -50,7 +50,19 @@ exports.getResumeReview=async(req,res)=>{
     const trimmedText = cleanText.slice(0, 6000); // ~1,200 tokens
 
 
-    const prompt = `You are an experienced HR. Review the following resume and provide  feedback:\n\n${trimmedText} \n\nPlease provide your review in a clear and CONCISE manner, focusing on strengths, weaknesses, and areas for improvement.`;
+    const prompt = `You are an experienced HR professional with expertise in resume screening and career guidance.
+Please review the following resume thoroughly and provide a professional, concise, and constructive evaluation.
+Avoid using phrases like "Here's your response" or "Okay."
+Just begin directly with the structured review in a formal and encouraging tone.
+Your response should be well-structured and include(Strictly follow the format below):
+
+Strengths: Key highlights of the resume.
+
+Weaknesses: Gaps, formatting issues, or lack of clarity.
+
+Recommendations: Specific suggestions to improve the resume.
+
+Resume:${trimmedText}`;
 
     const review = await resumeService(prompt);
 

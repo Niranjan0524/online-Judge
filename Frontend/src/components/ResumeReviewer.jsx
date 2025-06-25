@@ -2,6 +2,18 @@ import { useState, useRef } from "react";
 import { Circles } from "react-loader-spinner";
 import ReactMarkdown from "react-markdown";
 
+function extractSection(markdown, sectionTitle) {
+  const pattern = new RegExp(
+    `\\*\\*${sectionTitle}:\\*\\*[\\s\\S]*?(?=\\*\\*\\w+:\\*\\*|$)`,
+    "i"
+  );
+  const match = markdown.match(pattern);
+  if (!match) return `No ${sectionTitle.toLowerCase()} found.`;
+  return match[0].replace(`**${sectionTitle}:**`, "").trim();
+}
+
+
+
 const ResumeReviewer = () => {
   const [resumeFile, setResumeFile] = useState(null);
   const [review, setReview] = useState("");
@@ -37,9 +49,9 @@ const ResumeReviewer = () => {
       });
   };
 
-  return (
-    <div className="max-w-2xl mx-auto bg-gradient-to-br from-[#0a1020] to-[#1e293b] rounded-xl shadow-lg p-8 border border-[#2a3447] ">
 
+  return (
+    <div className="max-w-6xl mx-auto bg-gradient-to-br from-[#0a1020] to-[#1e293b] rounded-xl shadow-lg p-8 border border-[#2a3447] ">
       <h2 className="text-3xl font-bold text-yellow-400 mb-2">
         Resume Reviewer
       </h2>
@@ -81,17 +93,47 @@ const ResumeReviewer = () => {
         </button>
       </div>
       <div className="w-full mt-8">
-        <h3 className="text-xl font-semibold text-pink-300 mb-2">AI Review</h3>
-        <div className="bg-gray-900/80 border border-yellow-400 rounded-xl p-4 min-h-[80px] text-gray-100 font-mono shadow transition-all duration-300 scrollbar-thin scrollbar-thumb-yellow-500/50 scrollbar-track-gray-800/50">
+        <h3 className="text-2xl font-bold text-yellow-300 mb-4">
+          ✨ AI-Powered Resume Review
+        </h3>
+
+        <div className="bg-gray-900/80 border border-yellow-400 rounded-2xl p-6 min-h-[120px] text-gray-100 font-mono shadow-lg transition-all duration-300 ease-in-out scrollbar-thin scrollbar-thumb-yellow-500/50 scrollbar-track-gray-800/50">
           {loading ? (
-            <span className="text-yellow-400">Analyzing your resume...</span>
+            <div className="text-yellow-400 text-lg animate-pulse">
+              ⏳ Analyzing your resume...
+            </div>
           ) : review ? (
-            <ReactMarkdown>
-              {review}
-            </ReactMarkdown>
+            <div className="space-y-6 text-base leading-relaxed animate-fade-in">
+              <section className="bg-green-1000 p-4 rounded-xl shadow-sm border border-green-300">
+                <h2 className="text-green-700 text-xl font-semibold mb-2">
+                  ✅ Strengths
+                </h2>
+                <ReactMarkdown>
+                  {extractSection(review, "Strengths")}
+                </ReactMarkdown>
+              </section>
+
+              <section className="bg-pink-1000 p-4 rounded-xl shadow-sm border border-pink-800">
+                <h2 className="text-pink-700 text-xl font-semibold mb-2">
+                  ⚠️ Weaknesses
+                </h2>
+                <ReactMarkdown>
+                  {extractSection(review, "Weaknesses")}
+                </ReactMarkdown>
+              </section>
+
+              <section className="bg-blue-1000 p-4 rounded-xl shadow-sm border border-blue-300">
+                <h2 className="text-blue-700 text-xl font-semibold mb-2">
+                  💡 Recommendations
+                </h2>
+                <ReactMarkdown>
+                  {extractSection(review, "Recommendations")}
+                </ReactMarkdown>
+              </section>
+            </div>
           ) : (
-            <span className="text-gray-500">
-              Your review will appear here after uploading.
+            <span className="text-gray-400 italic">
+              📄 Upload your resume to generate a detailed review.
             </span>
           )}
         </div>
