@@ -16,7 +16,7 @@ function extractSection(markdown, sectionTitle) {
 
 const ResumeReviewer = () => {
   const [resumeFile, setResumeFile] = useState(null);
-  const [review, setReview] = useState("");
+  const [review, setReview] = useState({});
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef();
 
@@ -109,7 +109,9 @@ const ResumeReviewer = () => {
                   ✅ Strengths
                 </h2>
                 <ReactMarkdown>
-                  {extractSection(review, "Strengths")}
+                  {Array.isArray(review.strengths)
+                    ? review.strengths.join("\n")
+                    : review.strengths || "No strengths found."}
                 </ReactMarkdown>
               </section>
 
@@ -118,7 +120,9 @@ const ResumeReviewer = () => {
                   ⚠️ Weaknesses
                 </h2>
                 <ReactMarkdown>
-                  {extractSection(review, "Weaknesses")}
+                  {Array.isArray(review.weaknesses)
+                    ? review.weaknesses.join("\n")
+                    : review.weaknesses || "No weaknesses found."}
                 </ReactMarkdown>
               </section>
 
@@ -127,7 +131,9 @@ const ResumeReviewer = () => {
                   💡 Recommendations
                 </h2>
                 <ReactMarkdown>
-                  {extractSection(review, "Recommendations")}
+                  {Array.isArray(review.recommendations)
+                    ? review.recommendations.join("\n")
+                    : review.recommendations || "No recommendations found."}
                 </ReactMarkdown>
               </section>
             </div>

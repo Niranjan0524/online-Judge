@@ -54,22 +54,35 @@ exports.getResumeReview=async(req,res)=>{
 Please review the following resume thoroughly and provide a professional, concise, and constructive evaluation.
 Avoid using phrases like "Here's your response" or "Okay."
 Just begin directly with the structured review in a formal and encouraging tone.
-Your response should be well-structured and include(Strictly follow the format below):
+Your response must be in strict JSON format as shown below (do not include any markdown, explanations, or extra text):
 
-Strengths: Key highlights of the resume.
-
-Weaknesses: Gaps, formatting issues, or lack of clarity.
-
-Recommendations: Specific suggestions to improve the resume.
+{
+  "strengths": ["..."],
+  "weaknesses": ["..."],
+  "recommendations": ["..."]
+}
 
 Resume:${trimmedText}`;
 
     const review = await resumeService(prompt);
 
-    console.log("Generated Review:", review);
+    let reviewObj ;
+    try{
+      const jsonMatch=review.match(/\{[\s\S]*\}/);
+      reviewObj=jsonMatch? JSON.parse(jsonMatch[0]):null;
+      
+    }
+    catch(err){
+      console.error("Error parsing JSON response:", err);
+      return res.status(500).json({
+        message: "Error parsing the AI response. Please try again later.",
+        error: err.message
+      });
+    }
+
     res.status(200).json({
       message: "Resume review service is not implemented yet.",
-      review: review || "No review generated. Please try again later.",
+      review: reviewObj || "No review generated. Please try again later.",
     });
   }
   catch(err){
