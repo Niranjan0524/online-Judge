@@ -8,13 +8,10 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 
-
-const app = express();
-
 const mongoose = require("mongoose");
 const authRouter = require("./routers/authRouter");
-const problemRouter=require("./routers/problemRouter");
-const codeRouter=require("./routers/codeRouter");
+const problemRouter = require("./routers/problemRouter");
+const codeRouter = require("./routers/codeRouter");
 const leaderboardRouter = require("./routers/leaderboardRouter");
 const resumeRouter = require("./routers/resumeRouter");
 const discussionRouter = require("./routers/discussionRouter");
@@ -22,8 +19,29 @@ const contestRouter = require("./routers/contestRouter");
 
 const morgan = require("morgan");
 const path = require("path");
-const helmet = require("helmet"); 
+const helmet = require("helmet");
 const compression = require("compression");
+const initializeSocket = require("./Socket/socketHandler");
+
+
+const app = express();
+
+
+//socket connection:
+const http=require("http");
+const {Server}=require("socket.io");
+
+const server=http.createServer(app);
+
+//socket.io setup:
+
+const io=new Server(server,{
+  cors:{
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST"]
+  }
+});
+
 
 app.use(
   cors({
@@ -32,7 +50,7 @@ app.use(
   })
 ); 
 
-app.use(morgan("combined")); // Logging middleware for development
+// app.use(morgan("combined")); 
 
 
 const staticPath=path.join(__dirname, "dist");
@@ -66,6 +84,12 @@ app.use((req, res, next) => {
   next();
 });
 
+//SOCKET:
+app.set("io",io);
+
+initializeSocket(io); // Initialize socket.io with the server
+
+
 app.use("/api/auth", authRouter);
 app.use("/api/problem",problemRouter);
 app.use("/api/code",codeRouter);
@@ -81,7 +105,7 @@ mongoose
   .connect(url)
   .then(() => {
     console.log("connected to database");
-    app.listen(port, () => {
+    server.listen(port, () => {
       console.log(`server is running on port ${port}`);
     });
   })

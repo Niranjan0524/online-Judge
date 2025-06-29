@@ -7,7 +7,7 @@ import {
   FaHistory,
 } from "react-icons/fa";
 import { useEffect } from "react";
-
+import {useSocketContext} from "../store/SocketContext";
 
 
 
@@ -52,19 +52,23 @@ const Contest = () => {
     },
   ];
 
+
+  const { joinContest, unJoinContest, activeContest, socket, isConnected } = useSocketContext();
   // Register/Unregister handlers
   const handleRegister = (id) => {
     setContests((prev) =>
       prev.map((c) => (c._id === id ? { ...c, registered: true } : c))
     );
+    joinContest(id);
   };
   const handleUnregister = (id) => {
     setContests((prev) =>
       prev.map((c) => (c._id === id ? { ...c, registered: false } : c))
     );
+    unJoinContest(id);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const fetchContests = async () => {
       try {
         const response = await fetch(

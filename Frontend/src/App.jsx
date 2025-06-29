@@ -17,12 +17,15 @@ import ResumeReviewer from "./components/ResumeReviewer";
 import AddProblem from "./components/AddProblem";
 import Login from "./components/Login";
 import Contest from "./components/Contest";
+import { SocketContextProvider } from "./store/SocketContext";
+
 
 function App() {
 
 
   return (
     <AuthProvider>
+      <SocketContextProvider>
       <Toaster />
       <ProblemsProvider>
         <TestCaseProvider>
@@ -48,6 +51,7 @@ function App() {
           </SolutionContextProvider>
         </TestCaseProvider>
       </ProblemsProvider>
+      </SocketContextProvider>
     </AuthProvider>
   );
 }
