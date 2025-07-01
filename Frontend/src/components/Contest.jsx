@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState, useEffect } from "react";
 import ContestCard from "./ContestCard";
 import {
   FaRegClock,
@@ -6,10 +6,9 @@ import {
   FaPlayCircle,
   FaHistory,
 } from "react-icons/fa";
-import { useEffect } from "react";
-import {useSocketContext} from "../store/SocketContext";
-
-
+import { useSocketContext } from "../store/SocketContext";
+import { useAuth } from "../store/AuthContext";
+import toast from "react-hot-toast";
 
 const NAV_OPTIONS = [
   { label: "Future Contests", icon: <FaRegClock /> },
@@ -18,11 +17,10 @@ const NAV_OPTIONS = [
   { label: "Attempted Contests", icon: <FaCheckCircle /> },
 ];
 
-
-
 const Contest = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [contests, setContests] = useState([]);
+  const { user, token } = useAuth();
 
   // Filter contests for each tab
   const now = new Date();
@@ -52,20 +50,93 @@ const Contest = () => {
     },
   ];
 
+  const handleRegister = async (id) => {
+    console.log("Registering for contest with ID:", id);
+    if (!id) return;
 
-  const { joinContest, unJoinContest, activeContest, socket, isConnected } = useSocketContext();
-  // Register/Unregister handlers
-  const handleRegister = (id) => {
-    setContests((prev) =>
-      prev.map((c) => (c._id === id ? { ...c, registered: true } : c))
-    );
-    joinContest(id);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/contest/registerUser/${id}`,
+        {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Successfully joined contest:", data);
+        toast.success("Successfully joined contest!");
+
+        // ✅ Update the contests state to reflect registration
+        setContests((prev) =>
+          prev.map((contest) =>
+            contest._id === id
+              ? {
+                  ...contest,
+                  registeredUsers: [
+                    ...(contest.registeredUsers || []),
+                    user._id,
+                  ],
+                }
+              : contest
+          )
+        );
+      } else {
+        console.error("Failed to join contest:", data.message);
+        toast.error(data.message || "Failed to join contest.");
+      }
+    } catch (error) {
+      console.error("Error registering for contest:", error);
+      toast.error("Network error. Please try again.");
+    }
   };
-  const handleUnregister = (id) => {
-    setContests((prev) =>
-      prev.map((c) => (c._id === id ? { ...c, registered: false } : c))
-    );
-    unJoinContest(id);
+
+  const handleUnregister = async (id) => {
+    console.log("Unregistering from contest with ID:", id);
+    if (!id) return;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/contest/unregisterUser/${id}`,
+        {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Successfully left contest:", data);
+        toast.success("Successfully left contest!");
+
+        // ✅ Update the contests state to reflect unregistration
+        setContests((prev) =>
+          prev.map((contest) =>
+            contest._id === id
+              ? {
+                  ...contest,
+                  registeredUsers: (contest.registeredUsers || []).filter(
+                    (userId) => userId !== user._id
+                  ),
+                }
+              : contest
+          )
+        );
+      } else {
+        console.error("Failed to leave contest:", data.message);
+        toast.error(data.message || "Failed to leave contest.");
+      }
+    } catch (error) {
+      console.error("Error unregistering from contest:", error);
+      toast.error("Network error. Please try again.");
+    }
   };
 
   useEffect(() => {
@@ -109,6 +180,7 @@ const Contest = () => {
           ))}
         </div>
       </div>
+
       {/* Tab Content */}
       <div className="w-full max-w-3xl flex flex-col gap-6">
         {tabContent[activeTab].data.length > 0 ? (
@@ -118,6 +190,7 @@ const Contest = () => {
               key={contest._id}
               onRegister={handleRegister}
               onUnregister={handleUnregister}
+              userId={user?._id}
             />
           ))
         ) : (

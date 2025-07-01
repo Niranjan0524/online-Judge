@@ -97,3 +97,93 @@ exports.getContestById=async(req,res)=>{
     });
   }
 }
+
+
+
+exports.registereUser=async(req,res)=>{
+  const contestId=req.params.id;
+  const userId=req.userId; // Assuming user ID is stored in req.user after authentication
+  if(!contestId || !userId){
+    return res.status(400).json({
+      message: "Contest ID and User ID are required",
+    });
+  }
+
+  try{
+    const contest=await Contest.findById(contestId);
+    
+    if(!contest){
+      return res.status(404).json({
+        message: "Contest not found",
+      });
+    }
+
+    // Check if user is already registered
+    if(contest.registeredUsers.includes(userId)){
+      return res.status(400).json({
+        message: "User already registered for this contest",
+      });
+    }
+
+    // Register user for the contest
+    contest.registeredUsers.push(userId);
+    await contest.save();
+
+    res.status(200).json({
+      message: "User registered for contest successfully",
+      contest: contest,
+    });
+
+  }
+  catch(err){
+    console.error("Error registering user for contest:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+}
+
+exports.unregisterUser=async(req,res)=>{
+  const contestId=req.params.id;
+  const userId=req.userId; // Assuming user ID is stored in req.user after authentication
+  if(!contestId || !userId){
+    return res.status(400).json({
+      message: "Contest ID and User ID are required",
+    });
+  }
+
+  try{
+    const contest=await Contest.findById(contestId);
+    
+    if(!contest){
+      return res.status(404).json({
+        message: "Contest not found",
+      });
+    }
+
+    // Check if user is registered
+    if(!contest.registeredUsers.includes(userId)){
+      return res.status(400).json({
+        message: "User not registered for this contest",
+      });
+    }
+
+    // Unregister user from the contest
+    contest.registeredUsers = contest.registeredUsers.filter(id => id.toString() !== userId);
+    await contest.save();
+
+    res.status(200).json({
+      message: "User unregistered from contest successfully",
+      contest: contest,
+    });
+
+  }
+  catch(err){
+    console.error("Error unregistering user from contest:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+}

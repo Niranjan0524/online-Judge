@@ -4,7 +4,8 @@ import {
   FaPlayCircle,
   FaHistory,
 } from "react-icons/fa";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const getStatus = (contest) => {
   const now = new Date();
@@ -16,8 +17,15 @@ const getStatus = (contest) => {
   return "unknown";
 };
 
-const ContestCard = ({ contest, onRegister, onUnregister }) => {
+const ContestCard = ({ contest, onRegister, onUnregister, userId }) => {
   const [status, setStatus] = useState(getStatus(contest));
+
+  // ✅ Safe initialization with fallback
+  const [isRegistered, setIsRegistered] = useState(
+    contest.registeredUsers?.includes(userId) || false
+  );
+
+  
 
   let statusColor =
     status === "future"
@@ -26,31 +34,71 @@ const ContestCard = ({ contest, onRegister, onUnregister }) => {
       ? "bg-green-800 text-green-300 border-green-400"
       : "bg-gray-800 text-gray-300 border-gray-400";
 
+  const navigate = useNavigate();
 
-    useEffect(()=>{
-      const fetchContestData=async()=>{
-        try{
-          const response = await fetch(
-            `${import.meta.env.VITE_BACKEND_URL}/api/contest/getContestById/${
-              contest._id
-            }`
-          );
-          const data = await response.json();
-          if (response.ok) {
-            setStatus(getStatus(data.contest));
+  const handleContestClick = () => {
+    if (isRegistered && status === "ongoing") {
+      console.log("Contest is ongoing, redirecting to contest page...");
+      navigate(`/contest/${contest._id}`);
+    }
+  };
+
+  const handleRegisterClick = (e) => {
+    e.stopPropagation();
+    onRegister(contest._id);
+    setIsRegistered(true); // ✅ Update local state immediately for UI feedback
+  };
+
+  const handleUnregisterClick = (e) => {
+    e.stopPropagation();
+    onUnregister(contest._id);
+    setIsRegistered(false); // ✅ Update local state immediately for UI feedback
+  };
+
+  const handleParticipateClick = (e) => {
+    e.stopPropagation();
+    handleContestClick();
+  };
+
+  // ✅ Fixed useEffect with proper dependencies
+  useEffect(() => {
+    const fetchContestData = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/contest/getContestById/${
+            contest._id
+          }`
+        );
+        const data = await response.json();
+        if (response.ok) {
+          setStatus(getStatus(data.contest));
+          // ✅ Safe check for registeredUsers
+          if (userId && data.contest.registeredUsers) {
+            setIsRegistered(data.contest.registeredUsers.includes(userId));
           }
-        } catch (error) {
-          console.error("Error fetching contest data:", error);
         }
-      };
+      } catch (error) {
+        console.error("Error fetching contest data:", error);
+      }
+    };
 
-      fetchContestData();
+    fetchContestData();
+    const interval = setInterval(fetchContestData, 30000);
+    return () => clearInterval(interval);
+  }, [contest._id, userId]); // ✅ Added proper dependencies
 
-      const interval = setInterval(fetchContestData, 30000);
-      return () => clearInterval(interval);
-    }, [contest._id]);
+  // ✅ Update local state when props change
+  useEffect(() => {
+    if (contest.registeredUsers && userId) {
+      setIsRegistered(contest.registeredUsers.includes(userId));
+    }
+  }, [contest.registeredUsers, userId]);
+
   return (
-    <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg p-6 flex flex-col gap-2 hover:scale-[1.02] hover:shadow-xl transition-all duration-200">
+    <div
+      className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg p-6 flex flex-col gap-2 hover:scale-[1.02] hover:shadow-xl transition-all duration-200 cursor-pointer"
+      onClick={handleContestClick}
+    >
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold text-white">{contest.title}</h3>
         <span
@@ -63,7 +111,9 @@ const ContestCard = ({ contest, onRegister, onUnregister }) => {
             : "Past"}
         </span>
       </div>
+
       <p className="text-gray-200 text-sm mb-2">{contest.description}</p>
+
       <div className="flex gap-4 text-xs text-gray-300 font-mono">
         <span>
           <FaRegClock className="inline mr-1 text-yellow-300" />
@@ -76,20 +126,31 @@ const ContestCard = ({ contest, onRegister, onUnregister }) => {
           </span>
         )}
       </div>
-      {/* Register/Unregister for future contests */}
+
+      {isRegistered && status === "ongoing" && (
+        <div className="flex items-center gap-2 mt-3">
+          <button
+            className="px-5 py-2 bg-gradient-to-r from-red-500 to-yellow-500 text-white font-semibold rounded-full shadow hover:scale-105 hover:bg-red-600 transition"
+            onClick={handleParticipateClick}
+          >
+            Participate in Contest
+          </button>
+        </div>
+      )}
+
       {status === "future" && (
         <div className="mt-3">
-          {contest.registered ? (
+          {isRegistered ? (
             <button
               className="px-5 py-2 bg-gradient-to-r from-red-500 to-yellow-500 text-white font-semibold rounded-full shadow hover:scale-105 hover:bg-red-600 transition"
-              onClick={() => onUnregister(contest._id)}
+              onClick={handleUnregisterClick} // ✅ Fixed - pass event, not ID
             >
               Unregister
             </button>
           ) : (
             <button
               className="px-5 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-full shadow hover:scale-105 hover:bg-cyan-600 transition"
-              onClick={() => onRegister(contest._id)}
+              onClick={handleRegisterClick} // ✅ Fixed - pass event, not ID
             >
               Register
             </button>

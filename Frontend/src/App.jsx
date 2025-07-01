@@ -18,7 +18,7 @@ import AddProblem from "./components/AddProblem";
 import Login from "./components/Login";
 import Contest from "./components/Contest";
 import { SocketContextProvider } from "./store/SocketContext";
-
+import SolveContest from "./components/SolveContest";
 
 function App() {
 
@@ -43,6 +43,7 @@ function App() {
                 <Route path="resume-reviewer" element={<ResumeReviewer />} />
                 <Route path="contest" element={<Contest />} />
                 <Route path="problem/add" element={<AddProblem />} />
+                <Route path="contest/:id" element={<SolveContest />} />
               </Route>
               <Route path="*" element={<PageNotFound />} />
 
