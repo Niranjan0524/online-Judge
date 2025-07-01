@@ -19,6 +19,8 @@ import Login from "./components/Login";
 import Contest from "./components/Contest";
 import { SocketContextProvider } from "./store/SocketContext";
 import SolveContest from "./components/SolveContest";
+import ViewContest from "./components/ViewContest";
+
 
 function App() {
 
@@ -37,13 +39,14 @@ function App() {
 
               <Route path="/" element={<Header />}>
                 <Route index element={<Home />} />
-                <Route path="problem/solve/:id" element={<SolveProblem />} />
+                <Route path="problem/solve/:problemId" element={<SolveProblem />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="resume-reviewer" element={<ResumeReviewer />} />
                 <Route path="contest" element={<Contest />} />
                 <Route path="problem/add" element={<AddProblem />} />
-                <Route path="contest/:id" element={<SolveContest />} />
+                <Route path="contest/:contestId" element={<ViewContest />} />
+                <Route path="contest/:contestId/solve/:problemId" element={<SolveContest />} />
               </Route>
               <Route path="*" element={<PageNotFound />} />
 

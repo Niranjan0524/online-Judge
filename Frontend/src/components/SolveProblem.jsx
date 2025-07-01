@@ -41,7 +41,8 @@ const SolveProblem = () => {
   const { solutions, fetchSolutions } = useSolutions();
   const { problems } = useProblems();
   const navigate = useNavigate();
-  const { id: problemId } = useParams();
+  const {  problemId ,contestId} = useParams();
+
   const problem = problems.find((p) => p._id === problemId);
   const currTestCases = testCases.filter((tc) => tc.problemId === problemId);
   const { fetchLeaderBoardData } = useLeaderBoard();
@@ -777,7 +778,7 @@ const SolveProblem = () => {
                     visible={true}
                   />
                 </button>
-              ) : (
+              ) : !contestId ? (
                 <button
                   className="bg-gray-900/80 border border-red-300 px-6 py-2 rounded-lg shadow hover:scale-105 transition font-bold"
                   onClick={handleAIReview}
@@ -786,7 +787,9 @@ const SolveProblem = () => {
                     AI Review
                   </span>
                 </button>
-              )}
+              ) : (
+                <div></div>
+              ) }
             </div>
           </div>
         </div>
