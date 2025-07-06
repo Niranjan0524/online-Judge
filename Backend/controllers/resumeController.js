@@ -49,7 +49,7 @@ exports.getResumeReview=async(req,res)=>{
     }
     const trimmedText = cleanText.slice(0, 6000); // ~1,200 tokens
 
-
+    console.log("Extracted text:", trimmedText);
     const prompt = `You are an experienced HR professional with expertise in resume screening and career guidance.
 Please review the following resume thoroughly and provide a professional, concise, and constructive evaluation.
 Avoid using phrases like "Here's your response" or "Okay."
@@ -65,6 +65,7 @@ Your response must be in strict JSON format as shown below (do not include any m
 Resume:${trimmedText}`;
 
     const review = await resumeService(prompt);
+    // const review="this is a mock response for testing purposes. Please replace this with the actual AI service call.";
 
     let reviewObj ;
     try{

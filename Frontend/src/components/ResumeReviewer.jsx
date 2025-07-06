@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Circles } from "react-loader-spinner";
 import ReactMarkdown from "react-markdown";
+import toast from "react-hot-toast";
 
 function extractSection(markdown, sectionTitle) {
   const pattern = new RegExp(
@@ -31,9 +32,18 @@ const ResumeReviewer = () => {
     setReview("");
     const formData=new FormData();
     formData.append("resume",resumeFile);
-
+    const token = localStorage.getItem("token");
+    if(!token){
+      setLoading(false);
+      toast.error("You need to be logged in to upload a resume.");
+      return;
+    }
+    
     await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/resume/getReview`, {
       method: "POST",
+      headers:{
+        authorization:`Bearer ${localStorage.getItem("token")}`,
+      },
       body: formData,
     })
       .then((res) => {

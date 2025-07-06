@@ -50,7 +50,7 @@ app.use(
   })
 ); 
 
-app.use(morgan("combined")); 
+// app.use(morgan("combined")); 
 
 
 const staticPath=path.join(__dirname, "dist");
