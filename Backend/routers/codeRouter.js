@@ -2,9 +2,8 @@ const express=require("express");
 
 const codeRouter=express.Router();
 const { aiReviewCode} = require("../controllers/codeController");
-const {verifyUser} =require("../controllers/verifyUser");
 
-codeRouter.post("/run",verifyUser,async(req,res)=>{
+codeRouter.post("/run",async(req,res)=>{
   const { code, lang = "c++", problemId, input } = req.body;
   
   console.log("got it");
@@ -41,7 +40,7 @@ codeRouter.post("/run",verifyUser,async(req,res)=>{
     })
   }
 });
-codeRouter.post("/submit",verifyUser,async(req,res)=>{
+codeRouter.post("/submit",async(req,res)=>{
   const { code, lang = "c++", problemId } = req.body;
   const id = req.userId;
   try{

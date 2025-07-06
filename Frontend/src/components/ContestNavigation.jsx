@@ -15,12 +15,14 @@ import {
 import { useAuth } from "../store/AuthContext";
 import { useProblems } from "../store/ProblemsContext";
 import toast from "react-hot-toast";
+import { FallingLines } from "react-loader-spinner";
+
 
 const ContestNavigation = () => {
   const navigate = useNavigate();
   const { contestId, problemId } = useParams();
   const { token } = useAuth();
-  const { problems } = useProblems();
+ 
 
   // Timer states
   const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
@@ -30,7 +32,8 @@ const ContestNavigation = () => {
   // Contest states
   const [contestProblems, setContestProblems] = useState([]);
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
-  const [solvedProblems, setSolvedProblems] = useState(new Set());
+  const [solvedProblems, setSolvedProblems] = useState(0);
+  const [solvedProblemsLoading, setSolvedProblemsLoading] = useState(false);
   const [attemptedProblems, setAttemptedProblems] = useState(new Set());
   const [contestData, setContestData] = useState(null);
 
@@ -62,12 +65,49 @@ const ContestNavigation = () => {
         console.error("Error fetching contest data:", error);
         toast.error("Failed to load contest data");
       }
+
+      
     };
 
     if (contestId && token) {
       fetchContestData();
     }
   }, [contestId, token, problemId]);
+
+
+//getting no of solved problems:
+  useEffect(()=>{
+    const fetchSolvedProblems=async()=>{
+    try{
+      setSolvedProblemsLoading(true);
+      const response=await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contest/${contestId}/getTotalSolvedProblems`,{
+        headers:{
+          authorization:`Bearer ${token}`
+        }
+      });
+      const data=await response.json();
+      
+
+      if(response.ok){
+        setSolvedProblems(data.totalSolved || 0);
+        console.log("Total Solved Problems:",data.totalSolved);
+      }
+    }catch(error){
+      console.error("Error fetching total solved problems:",error);
+      toast.error("Failed to load total solved problems");
+    }
+    finally{
+      setSolvedProblemsLoading(false);
+    }
+  };
+
+  if (contestId && token) {
+    fetchSolvedProblems();
+  }
+
+  },[contestId, token]);
+
+
 
   // Timer logic
   useEffect(() => {
@@ -91,7 +131,7 @@ const ContestNavigation = () => {
           setIsRunning(false);
           toast.error("Contest has ended!");
         }
-      }, 1000);
+      }, 1000); // Update every second
     }
 
     return () => {
@@ -213,7 +253,14 @@ const ContestNavigation = () => {
                 <div className="flex items-center gap-2">
                   <FaCheck className="w-4 h-4 text-green-400" />
                   <span className="text-green-400 text-sm font-medium">
-                    {solvedProblems.size}
+                    {solvedProblemsLoading ? (
+                      <FallingLines color="#4fa94d"
+                      width="20"
+                      visible={true}
+                      ariaLabel="falling-circles-loading"/>
+                    ) : (
+                      solvedProblems
+                    )}
                   </span>
                   <span className="text-gray-400 text-sm">solved</span>
                 </div>
@@ -241,7 +288,7 @@ const ContestNavigation = () => {
               </div>
 
               <div className="flex gap-1">
-                <button
+                {/* <button
                   onClick={toggleTimer}
                   className="p-2 rounded-lg bg-gray-700/50 hover:bg-gray-700/70 text-gray-300 hover:text-white transition-all duration-200"
                 >
@@ -250,9 +297,9 @@ const ContestNavigation = () => {
                   ) : (
                     <FaPlay className="w-3 h-3" />
                   )}
-                </button>
+                </button> */}
 
-                <button
+                {/* <button
                   onClick={() => {
                     setIsRunning(false);
                     setTime({ hours: 0, minutes: 0, seconds: 0 });
@@ -260,7 +307,7 @@ const ContestNavigation = () => {
                   className="p-2 rounded-lg bg-gray-700/50 hover:bg-gray-700/70 text-gray-300 hover:text-white transition-all duration-200"
                 >
                   <FaStop className="w-3 h-3" />
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
@@ -278,28 +325,7 @@ const ContestNavigation = () => {
               </p>
             </div>
 
-            {/* Current Problem Title */}
-            {contestProblems[currentProblemIndex] && (
-              <div className="text-right">
-                <h2 className="text-lg font-semibold text-cyan-400">
-                  {contestProblems[currentProblemIndex].title}
-                </h2>
-                <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    contestProblems[currentProblemIndex].difficulty === "easy"
-                      ? "bg-green-800 text-green-300"
-                      : contestProblems[currentProblemIndex].difficulty ===
-                        "medium"
-                      ? "bg-yellow-800 text-yellow-300"
-                      : "bg-red-800 text-red-300"
-                  }`}
-                >
-                  {contestProblems[
-                    currentProblemIndex
-                  ].difficulty?.toUpperCase()}
-                </span>
-              </div>
-            )}
+            
           </div>
         </div>
       </div>

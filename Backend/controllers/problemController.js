@@ -4,7 +4,7 @@ const fs=require('fs');
 const path=require('path');
 
 exports.getProblems=async(req,res)=>{
-
+    console.log("Fetching all problems");
     const problems=await Problem.find();
 
    

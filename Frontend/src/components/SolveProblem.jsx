@@ -69,6 +69,8 @@ const SolveProblem = () => {
     
   }
   const handleRun = async() => {
+
+    
     let data={}
    if(lang==="java"){
       data = {
@@ -164,6 +166,7 @@ const SolveProblem = () => {
 
   const handleSubmit = async () => {
  
+    const url=contestId?`${import.meta.env.VITE_BACKEND_URL}/api/contest/${contestId}/submit`:`${import.meta.env.VITE_BACKEND_URL}/api/code/submit`;
    
     if(!token){
       toast.error("Unauthorized,Please Login");
@@ -203,7 +206,7 @@ const SolveProblem = () => {
 
     setSubmitting(true);
     
-    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/submit`, {
+    await fetch(url, {
       method: "POST",
       headers: {
         authorization: `Bearer ${token}`,
@@ -271,7 +274,7 @@ const SolveProblem = () => {
     }
 
     if(!code || code.trim() === ""){
-      toast(
+      toast.error(
         " please write some code to get AI review.",
         {
           duration: 6000,
@@ -320,39 +323,41 @@ const SolveProblem = () => {
     setViewSubmission(false);
   };
 
-  useEffect(()=>{
-    window.scrollTo(0,0);
-    if (problems.length>0 && !problem) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (problems.length > 0 && !problem) {
       toast.error("Problem not found");
       navigate("/");
     }
-    
-    const sub = solutions?.filter((sol)=>sol.problemId === problemId);
-    
+
+    const sub = solutions?.filter((sol) => sol.problemId === problemId);
+
     if (!sub || sub.length === 0) {
+      setStatus("Not Attempted");
       setCurrSolution(null);
       return;
     }
     setCurrSubmission(sub);
-  
+    
     if (sub && sub.length > 0) {
-      for(const sol of sub){
-        if(sol.status==="Accepted"){
+      for (const sol of sub) {
+        if (sol.status === "Accepted") {
           setStatus("Accepted");
-          setCorrectness({correct:sol.testCasesPassed,total:currTestCases.length});
-          return ;
+          setCorrectness({
+            correct: sol.testCasesPassed,
+            total: currTestCases.length,
+          });
+          return;
         }
       }
       setStatus("Wrong Answer");
       setCorrectness({
-        correct:sub[0].testCasesPassed,
-        total:currTestCases.length
-      });    
+        correct: sub[0].testCasesPassed,
+        total: currTestCases.length,
+      });
     } else {
-   
     }
-
-  }, [problems, problem, problemId,solutions]);
+  }, [problemId,problems, problem, solutions]);
 
 
   return (
@@ -421,11 +426,9 @@ const SolveProblem = () => {
               <div className="flex flex-col gap-4 mb-4">
                 {/* Input Format */}
                 {problem?.inputFormat && problem.inputFormat.length > 0 && (
-                  <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 rounded-xl p-4 border border-blue-400 shadow">
+                  <div className="bg-gradient-to-r from-grey-900 via-grey-800 to-grey-900 rounded-xl p-4 border border-blue-400 shadow">
                     <div className="text-blue-300 font-bold text-base mb-2 flex items-center gap-2">
-                      <span className="material-icons text-blue-400">
-                        input
-                      </span>
+                     
                       Input Format
                     </div>
                     <ul className="list-disc list-inside text-blue-100 text-sm pl-2">
@@ -438,11 +441,9 @@ const SolveProblem = () => {
 
                 {/* Output Format */}
                 {problem?.outputFormat && problem.outputFormat.length > 0 && (
-                  <div className="bg-gradient-to-r from-green-900 via-green-800 to-green-900 rounded-xl p-4 border border-green-400 shadow">
+                  <div className="bg-gradient-to-r from-grey-900 via-grey-800 to-grey-900 rounded-xl p-4 border border-green-400 shadow">
                     <div className="text-green-300 font-bold text-base mb-2 flex items-center gap-2">
-                      <span className="material-icons text-green-400">
-                        output
-                      </span>
+                     
                       Output Format
                     </div>
                     <ul className="list-disc list-inside text-green-100 text-sm pl-2">

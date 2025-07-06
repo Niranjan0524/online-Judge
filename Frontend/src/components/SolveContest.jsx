@@ -8,7 +8,7 @@ const SolveContest = () => {
       <ContestNavigation />
  
       <SolveProblem />
-      <h1>Solve Contest</h1>
+      
     </div>
   );
 };

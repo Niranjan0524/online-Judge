@@ -60,8 +60,8 @@ const Contest = () => {
         {
           method: "POST",
           headers: {
-            authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
           },
         }
       );
@@ -105,8 +105,8 @@ const Contest = () => {
         {
           method: "POST",
           headers: {
-            authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
           },
         }
       );
@@ -143,7 +143,14 @@ const Contest = () => {
     const fetchContests = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/contest/getAllContests`
+          `${import.meta.env.VITE_BACKEND_URL}/api/contest/getAllContests`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              authorization: `Bearer ${token}`,
+            },
+          }
         );
         const data = await response.json();
         if (response.ok) {

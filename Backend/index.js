@@ -22,7 +22,7 @@ const path = require("path");
 const helmet = require("helmet");
 const compression = require("compression");
 const initializeSocket = require("./Socket/socketHandler");
-
+const {verifyUser} = require("./controllers/verifyUser");
 
 const app = express();
 
@@ -50,7 +50,7 @@ app.use(
   })
 ); 
 
-// app.use(morgan("combined")); 
+app.use(morgan("combined")); 
 
 
 const staticPath=path.join(__dirname, "dist");
@@ -91,12 +91,12 @@ initializeSocket(io); // Initialize socket.io with the server
 
 
 app.use("/api/auth", authRouter);
-app.use("/api/problem",problemRouter);
-app.use("/api/code",codeRouter);
-app.use("/api/alldata", leaderboardRouter);
-app.use("/api/resume", resumeRouter);
-app.use("/api/discussion", discussionRouter);
-app.use("/api/contest",contestRouter);
+app.use("/api/problem", problemRouter);
+app.use("/api/code", verifyUser, codeRouter);
+app.use("/api/alldata", verifyUser, leaderboardRouter);
+app.use("/api/resume", verifyUser, resumeRouter);
+app.use("/api/discussion", verifyUser, discussionRouter);
+app.use("/api/contest", verifyUser, contestRouter);
 
 
 

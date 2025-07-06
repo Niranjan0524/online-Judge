@@ -64,7 +64,7 @@ exports.runCode = async (req, res) => {
     if(lang==="cpp"){
        output = await withTimeout(
          executeCpp(filePath, inputFilePath),
-         5000,
+         10000,
          "Execution timed out"
        );
 
@@ -72,15 +72,15 @@ exports.runCode = async (req, res) => {
     else if(lang=="py"){
       output=await withTimeout(
         executePython(filePath,  inputFilePath),
-        5000,
+        10000,
         "Execution timed out"
       );
     }
     else if(lang=="java"){
-      output=await withTimeout(executeJava(filePath,  inputFilePath),5000,"Execution timed out");
+      output=await withTimeout(executeJava(filePath,  inputFilePath),10000,"Execution timed out");
     }
     else if(lang=="js"){
-      output=await withTimeout(executeJavaScript(filePath,  inputFilePath),5000,"Execution timed out");
+      output=await withTimeout(executeJavaScript(filePath,  inputFilePath),10000,"Execution timed out");
     }
     if(output && output.error){
       res.status(200).json({output:output.error||output.stderr});
@@ -236,6 +236,7 @@ exports.submitCode=async(req,res)=>{
           message: "Code submitted Successfully",
           output: result,
           solution: solution,
+          solutionId: solution._id,
         });
       }
       catch(err){
