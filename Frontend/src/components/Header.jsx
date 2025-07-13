@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { Outlet } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { CgProfile } from "react-icons/cg";
+
 const Header=()=>{
 
   const navigate = useNavigate();
@@ -47,37 +48,37 @@ const Header=()=>{
         className="relative flex justify-between items-center px-8 py-6 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white
   before:content-[''] before:absolute before:left-0 before:bottom-0 before:w-full before:h-[3px] before:bg-gradient-to-r before:from-red-400 before:via-gray-400 before:to-yellow-400"
       >
-        <a href="/">
+        <Link to="/">
           <div className="text-2xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 ">
             CodeVibe
           </div>
-        </a>
+        </Link>
 
         <div className="space-x-6 text-lg flex items-center">
-          <a
-            href="/#"
+          <Link
+            to="/"
             className="hover:text-cyan-400 transition hover:border-b-2 border-cyan-400"
           >
             Home
-          </a>
-          <a
-            href="/#problems"
+          </Link>
+          <Link
+            to="/#problems"
             className="hover:text-red-400 transition hover:border-b-2 border-red-400"
           >
             Problems
-          </a>
-          <a
-            href="/#features"
+          </Link>
+          <Link
+            to="/#features"
             className="hover:text-pink-400 transition hover:border-b-2 border-pink-400"
           >
             Features
-          </a>
-          <a
-            href="/#about"
+          </Link>
+          <Link
+            to="/#about"
             className="hover:text-yellow-400 transition hover:border-b-2 border-yellow-400"
           >
             About
-          </a>
+          </Link>
 
           {isLoggedIn && (
             <div
