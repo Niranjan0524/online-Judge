@@ -1,4 +1,4 @@
-# 🚀 CodeVibe: MERN Online Judge Platform
+# 🚀 CodeVibe: Online Judge Platform
 
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Online-green?style=for-the-badge&logo=vercel)](https://online-judge-frontend-two.vercel.app/)
