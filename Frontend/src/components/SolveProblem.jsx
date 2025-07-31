@@ -17,6 +17,7 @@ import { RxCrossCircled } from "react-icons/rx";
 import Discussion from "./Discussion";
 import { useLeaderBoard } from "../store/LeaderBoardContext";
 
+
 const TABS = ["Description","Result", "Submissions", "Discussions", "Hints"];
 
 const SolveProblem = () => {
@@ -50,6 +51,7 @@ const SolveProblem = () => {
   const { token } = useAuth();
 
   const handleLangChange = (value) => {
+
     
     setLang(value);
     let className;
@@ -152,7 +154,9 @@ const SolveProblem = () => {
         toast.error(data.message);
         return;
       }
-      setStatus("Attempted");
+      if(status === "Not Attempted"){
+        setStatus("Attempted");
+      }
       setOutput(data.output || "No output");
       toast.success("Code ran successfully");
     })
@@ -325,6 +329,7 @@ const SolveProblem = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    setActiveTab("Description");
     if (problems.length > 0 && !problem) {
       toast.error("Problem not found");
       navigate("/");
@@ -335,6 +340,7 @@ const SolveProblem = () => {
     if (!sub || sub.length === 0) {
       setStatus("Not Attempted");
       setCurrSolution(null);
+      setCurrSubmission(null);
       return;
     }
     setCurrSubmission(sub);
@@ -357,7 +363,7 @@ const SolveProblem = () => {
       });
     } else {
     }
-  }, [problemId,problems, problem, solutions]);
+  }, [problemId,problems, problem,solutions]);
 
 
   return (
@@ -369,7 +375,7 @@ const SolveProblem = () => {
           <h2 className="text-2xl font-bold text-gray-100">
             {problem && problem.title}
             <div
-              className={`px-3 py-1 rounded-lg text-sm font-semibold shadow mr-2 mb-3 max-w-[70px]
+              className={`px-2 py-1 rounded-lg text-sm font-semibold shadow mr-2 mb-3 max-w-[70px]
       ${
         problem?.difficulty === "hard"
           ? "bg-red-800 text-red-200 border border-red-400"
@@ -390,6 +396,8 @@ const SolveProblem = () => {
           ? "bg-red-800 text-red-200 border border-red-400"
           : status === "Not Attempted"
           ? "bg-yellow-800 text-yellow-300 border border-yellow-400"
+          : status === "Attempted"
+          ? "bg-blue-800 text-blue-300 border border-blue-400"
           : "bg-green-800 text-green-300 border border-green-400"
       }`}
             >
@@ -703,12 +711,13 @@ const SolveProblem = () => {
             <select
               className="bg-gray-800 text-gray-100 rounded-lg p-2 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-[120px]"
               value={lang}
+              onClick={()=>toast("More languages coming soon!",{icon:"🚀"})}
               onChange={(e) => handleLangChange(e.target.value)}
             >
               <option value="cpp">c++</option>
-              <option value="java">java</option>
+              {/* <option value="java">java </option>
               <option value="python">python</option>
-              <option value="javascript">javascript</option>
+              <option value="javascript">javascript</option> */}
             </select>
           </div>
           <div

@@ -8,6 +8,7 @@ export const TestCaseProvider=({children})=>{
    const [testCases,setTestCases]=useState([]);
 
   useEffect(()=>{
+    const fetchTestCases=async()=>{
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problem/getAllTestCases`,{
       method:'GET'
     })
@@ -26,6 +27,8 @@ export const TestCaseProvider=({children})=>{
     .catch((err)=>{
       console.log("Error in fetching the test cases",err);
     })
+  }
+    fetchTestCases();
   },[]);
 
   return(

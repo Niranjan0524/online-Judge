@@ -141,7 +141,6 @@ exports.login=async(req,res)=>{
         type:user.type
       }
     }); 
-  
 }
 
 

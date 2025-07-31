@@ -1,7 +1,7 @@
 const Contest = require('../models/contest');
 const Submission = require('../models/submissions');
 const Solution = require('../models/solution');
-
+const Problem = require('../models/problems');
 
 
 exports.createContest=async(req,res)=>{
@@ -227,11 +227,34 @@ exports.submitSolution=async(req,res)=>{
   }
 
   
+  
+
+  
   res.status(200).json({
     message: "Code submitted Successfully",
     output: submissionData.output,
     solution: submissionData.solution,
   });
+
+  try{
+    const io=req.app.get('io');
+    if(io){
+      const sampleLeaderboardData =getLeaderboardData(contestId);
+      
+      console.log("starting to emit leaderboard update");
+      io.to(`contest-${contestId}`).emit("leaderboardUpdate",{
+        contestId:contestId,
+        leaderboard:sampleLeaderboardData,        
+        message: "Leaderboard updated",
+      });
+      console.log("Leaderboard updated and emitted to contest room:", contestId);
+
+    }
+  }
+  catch(err){
+    console.error("Error emitting leaderboard update:", err);
+  }
+
   }
   catch(err){
     console.log("Compiler Server Error:",err.message);
@@ -365,4 +388,81 @@ catch(err){
   });
 
 }
+}
+
+
+const getLeaderboardData=async(contestId)=>{
+
+  console.log("Contest ID",contestId);
+
+  try{
+    const contestSubmissions=await Submission.find({contestId:contestId});
+    console.log("Contest Submissions:", contestSubmissions.length);
+    
+    const contestDetails=await Contest.find({_id:contestId});
+    const userIDs=contestDetails.registeredUsers;
+
+
+    const contestStartTime=new Date(contestDetails.startTime).getTime();
+
+
+    let leaderboardData=await Promise.all(
+      userIDs.map(async(userId)=>{
+        const userSubmissions=await Submission.find({contestId: contestId, userId: userId}).sort({createdAt:1});
+
+        const uniqueProblemSolved=new Set();
+        const totalSubmissions=userSubmissions.length;
+        if(totalSubmissions===0) return null;
+
+        let lastcorrectSubmissionTime = contestStartTime;
+
+        let totalPoints=0;
+        
+        userSubmissions.forEach(async(sub)=>{
+          
+          const sol=await Solution.findById(sub.solutionId);
+          if(!sol) return;
+
+          const problemId=sol.problemId.toString();
+          const problem=await Problem.findById(problemId);
+          if(!problem) return;
+          const problemDifficulty=problem.difficulty;
+          
+          const submissionTime=new Date(sub.createdAt).getTime();
+          const timeDiffInMinutes=(submissionTime - lastcorrectSubmissionTime)/ (1000 * 60);
+
+          if (!uniqueProblemSolved.has(problemId) && sol.status === "Accepted") {
+            uniqueProblemSolved.add(problemId);
+            totalPoints+=problemDifficulty==='easy'? 100 : problemDifficulty==='medium'? 200 : 300;
+            totalPoints-=timeDiffInMinutes;
+            lastcorrectSubmissionTime = submissionTime;
+          }
+          else if(!uniqueProblemSolved.has(problemId) && sol.status === "Wrong Answer"){
+            totalPoints-=20;
+          }
+          else if(!uniqueProblemSolved.has(problemId) && sol.status === "Time Limit Exceeded"){
+            totalPoints-=10;
+          }       
+        });
+        const userName = await User.findById(userId).then(user => user ? user.name : "Unknown User");
+        
+        const accuracy = (uniqueProblemSolved.size / totalSubmissions) * 100 || 0;
+        return {
+          userId:userId,
+          userName:userName,
+          noOfProblemsSolved: uniqueProblemSolved.size,
+          totalPoints: totalPoints,
+          totalSubmissions: totalSubmissions,
+          accuracy: accuracy.toFixed(2)       
+        }
+      })
+    );
+
+    leaderboardData=leaderboardData.sort((a,b) => b.totalPoints - a.totalPoints);
+    return leaderboardData.filter(data => data !== null);
+    }
+    catch(err){
+      console.error("Error fetching leaderboard data:", err);
+      return null;
+    }
 }

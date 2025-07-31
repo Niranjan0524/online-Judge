@@ -68,6 +68,12 @@ const Header=()=>{
             Problems
           </Link>
           <Link
+            to="/dashboard"
+            className="hover:text-green-700 transition hover:border-b-2 border-green-700"
+          >
+            Dashboard
+          </Link>
+          <Link
             to="/#features"
             className="hover:text-pink-400 transition hover:border-b-2 border-pink-400"
           >

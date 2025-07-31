@@ -1,4 +1,4 @@
-const contestSocketHandler=require("./contestSocket");
+const leaderboardSocket = require("./leaderboardSocket");
 
 
 const initializeSocket=(io)=>{
@@ -7,7 +7,9 @@ const initializeSocket=(io)=>{
     console.log("New socket connection: ", socket.id);
 
     // Handle contest-specific socket events
-    contestSocketHandler(io, socket);
+    leaderboardSocket(io, socket);
+    //io is nothing but the server instance
+    // socket is nothing but the client instance
 
     // Handle other socket events here if needed
 

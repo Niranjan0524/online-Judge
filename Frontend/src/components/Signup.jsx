@@ -57,7 +57,8 @@ export default function Signup() {
 
   const signupWithGoogle = () => {
     console.log("Signup with Google");
-    window.location.href=`${import.meta.env.VITE_BACKEND_URL}/api/auth/google`;
+    toast.error("This feature is under development , Sorry for the inconvenience");
+    // window.location.href=`${import.meta.env.VITE_BACKEND_URL}/api/auth/google`;
   };
 
   // ...existing code...

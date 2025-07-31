@@ -9,6 +9,8 @@ const SocketContextProvider=({children})=>{
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   // const [activeContest, setActiveContest] = useState(new Set());
+  const [leaderBoardData,setLeaderBoardData] = useState([]);
+
 
 
   useEffect(() => {
@@ -22,6 +24,8 @@ const SocketContextProvider=({children})=>{
       setIsConnected(true);
     });
 
+    
+
     newSocket.on("disconnect",()=>{
       console.log("Socket disconnected");
       setIsConnected(false);
@@ -33,6 +37,25 @@ const SocketContextProvider=({children})=>{
     });
 
 
+    newSocket.on("leaderboardUpdate",(data)=>{
+      console.log("testing");
+      console.log("🔥 LIVE UPDATE:", new Date().toLocaleTimeString(), data);
+      setLeaderBoardData(data.leaderboard);      
+    });
+
+    newSocket.on("leaderboardData",(data)=>{
+      console.log("Initial data received:", data);
+      setLeaderBoardData(data.leaderboard);
+    })
+
+    newSocket.on("participantJoined", (data) => {
+      toast.success("New participant joined!");
+    });
+
+    newSocket.on("participantLeft", (data) => {
+      toast.info("A participant left the contest");
+    });
+
     setSocket(newSocket); 
 
     return()=>{
@@ -40,9 +63,30 @@ const SocketContextProvider=({children})=>{
     }
   },[]);
 
+  const joinContestLeaderboard=(contestId,userId)=>{
+    if(socket){
+      socket.emit("joinContestLeaderboard", {
+        contestId,
+        userId,
+      });
+    }
+  }
+
+  const leaveContestLeaderboard=(contestId)=>{
+    if(socket){
+      socket.emit("leaveContestLeaderboard", contestId);
+    }
+  }
+
+ const getContestStatus = (contestId) => {
+   if (socket && isConnected) {
+     socket.emit("getContestStatus", contestId);
+   }
+ };
+
   return (
     <SocketContext.Provider
-      value={{  socket, isConnected }}
+      value={{  socket, isConnected, leaderBoardData, setLeaderBoardData, joinContestLeaderboard, leaveContestLeaderboard, getContestStatus }}
     >
       {children}
     </SocketContext.Provider>

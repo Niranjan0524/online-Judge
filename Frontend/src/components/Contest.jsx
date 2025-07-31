@@ -25,12 +25,17 @@ const Contest = () => {
   // Filter contests for each tab
   const now = new Date();
   const futureContests = contests.filter((c) => new Date(c.startTime) > now);
-  const ongoingContests = contests.filter(
-    (c) => new Date(c.startTime) <= now && new Date(c.endTime) >= now
-  );
+ const ongoingContests = contests.filter((c) => {
+   const startTime = new Date(c.startTime);
+   const endTime = new Date(c.endTime);
+   return startTime <= now && endTime >= now; // ✅ All Date objects now
+ });
   const pastContests = contests.filter((c) => new Date(c.endTime) < now);
   const attemptedContests = contests.filter((c) => c.attempted);
 
+ 
+
+  // console.log("onGoingContests:", ongoingContests);
   const tabContent = [
     {
       data: futureContests,
@@ -155,6 +160,7 @@ const Contest = () => {
         const data = await response.json();
         if (response.ok) {
           setContests(data.contests);
+          
         } else {
           console.error("Failed to fetch contests:", data.message);
         }
@@ -166,6 +172,14 @@ const Contest = () => {
     fetchContests();
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Force re-render every minute to update contest status
+      setContests((prev) => [...prev]);
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4 py-10 flex flex-col items-center">
       {/* Centered Nav Bar */}

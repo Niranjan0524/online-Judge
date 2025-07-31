@@ -6,6 +6,7 @@ import {
 } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import  {useAuth}  from "../store/AuthContext";
 
 const getStatus = (contest) => {
   const now = new Date();
@@ -15,7 +16,9 @@ const getStatus = (contest) => {
   if (now >= start && now <= end) return "ongoing";
   if (now > end) return "past";
   return "unknown";
-};
+};  
+
+  
 
 const ContestCard = ({ contest, onRegister, onUnregister, userId }) => {
   const [status, setStatus] = useState(getStatus(contest));
@@ -24,9 +27,10 @@ const ContestCard = ({ contest, onRegister, onUnregister, userId }) => {
   const [isRegistered, setIsRegistered] = useState(
     contest.registeredUsers?.includes(userId) || false
   );
-
   
 
+  
+const { token } = useAuth();
   let statusColor =
     status === "future"
       ? "bg-blue-800 text-blue-200 border-blue-400"
@@ -67,7 +71,13 @@ const ContestCard = ({ contest, onRegister, onUnregister, userId }) => {
         const response = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/api/contest/getContestById/${
             contest._id
-          }`
+          }`,
+          {
+            headers:{
+              "Content-Type": "application/json",
+              authorization: `Bearer ${token}`,
+            }
+          }
         );
         const data = await response.json();
         if (response.ok) {

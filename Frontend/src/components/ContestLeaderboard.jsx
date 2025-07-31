@@ -1,13 +1,36 @@
-import { useLeaderBoard } from "../store/LeaderBoardContext";
+import  { useState, useEffect } from "react";
+import { useSocketContext } from "../store/SocketContext";
+import { useParams } from "react-router-dom";
+import { useAuth } from "../store/AuthContext";
+const ContestLeaderboard=()=>{
 
-const Leaderboard = () => {
-  const { leaderBoardData } = useLeaderBoard();
+  const { socket ,isConnected, leaderBoardData, joinContestLeaderboard, leaveContestLeaderboard,getContestStatus } = useSocketContext();
+  console.log("leaderBoardData:", leaderBoardData);
+  const [loading,setLoading] = useState(true);
+  const {contestId}=useParams();
+  const { user } = useAuth();
+
+  useEffect(()=>{
+    if(socket && isConnected){
+      console.log("Joining contest leaderboard...");
+      joinContestLeaderboard(contestId, user?._id);
+      
+      getContestStatus(contestId);
+      setLoading(false);
+    }
+    return ()=>{
+      if(contestId && user?._id){
+        leaveContestLeaderboard(contestId);
+        console.log("Leaving contest leaderboard...");
+      }
+    }
+  }, [socket, isConnected, contestId, user?._id]);
 
   return (
     <>
       <div className="text-center text-gray-400 mt-12 bg-gradient-to-br from-[#23293a]/60 to-[#1a2233]/80 rounded-xl shadow-lg p-8 border border-[#2a3447] backdrop-blur-md glass-card md:w-1/2 sm:w-1/2 w-full mx-auto">
         <h2 className="text-2xl font-semibold mb-4 text-yellow-400">
-          Leaderboard
+          Contest Leaderboard
         </h2>
         {leaderBoardData?.length > 0 ? (
           <div className="overflow-x-auto">
@@ -20,7 +43,7 @@ const Leaderboard = () => {
                   <th className="px-4 py-2 text-white font-semibold">
                     Accuracy
                   </th>
-
+                  
                   <th className="px-4 py-2 text-white font-semibold">Easy</th>
                   <th className="px-4 py-2 text-white font-semibold">Medium</th>
                   <th className="px-4 py-2 text-white font-semibold">Hard</th>
@@ -52,7 +75,7 @@ const Leaderboard = () => {
                         {user.accuracy}%
                       </span>
                     </td>
-
+                    
                     <td className="px-4 py-2 text-gray-300">{user.easy}</td>
                     <td className="px-4 py-2 text-gray-300">{user.medium}</td>
                     <td className="px-4 py-2 text-gray-300">{user.hard}</td>
@@ -67,6 +90,7 @@ const Leaderboard = () => {
       </div>
     </>
   );
-};
+}
 
-export default Leaderboard;
+
+export default ContestLeaderboard;
