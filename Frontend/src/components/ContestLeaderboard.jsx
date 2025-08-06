@@ -40,13 +40,9 @@ const ContestLeaderboard=()=>{
                   <th className="px-4 py-2 text-yellow-400 font-bold">#</th>
                   <th className="px-4 py-2 text-white font-semibold">Name</th>
                   <th className="px-4 py-2 text-white font-semibold">Solved</th>
-                  <th className="px-4 py-2 text-white font-semibold">
-                    Accuracy
-                  </th>
-                  
-                  <th className="px-4 py-2 text-white font-semibold">Easy</th>
-                  <th className="px-4 py-2 text-white font-semibold">Medium</th>
-                  <th className="px-4 py-2 text-white font-semibold">Hard</th>
+                  <th className="px-4 py-2 text-white font-semibold">Total Points</th>
+                  <th className="px-4 py-2 text-white font-semibold">Submissions</th>
+                  <th className="px-4 py-2 text-white font-semibold">Accuracy</th>
                 </tr>
               </thead>
               <tbody>
@@ -62,23 +58,39 @@ const ContestLeaderboard=()=>{
                     } hover:bg-blue-900/20 transition`}
                   >
                     <td className="px-4 py-2 font-bold text-yellow-400">
-                      {idx + 1}
+                      {idx === 0 ? '🏆' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx + 1}
                     </td>
                     <td className="px-4 py-2 font-medium text-white">
                       {user.userName}
+                      {user.userId === user?._id && (
+                        <span className="ml-2 text-xs bg-cyan-600/20 text-cyan-400 px-2 py-1 rounded">You</span>
+                      )}
                     </td>
                     <td className="px-4 py-2 text-gray-200">
-                      {user.noOfProblemsSolved}
-                    </td>
-                    <td className="px-4 py-2">
-                      <span className="px-2 py-1 rounded bg-gray-800 text-gray-100 font-mono">
-                        {user.accuracy}%
+                      <span className="font-semibold text-green-400">
+                        {user.noOfProblemsSolved}
+                      </span>
+                      <span className="text-gray-400 text-sm ml-1">
+                        / {user.totalContestProblems || 0}
                       </span>
                     </td>
-                    
-                    <td className="px-4 py-2 text-gray-300">{user.easy}</td>
-                    <td className="px-4 py-2 text-gray-300">{user.medium}</td>
-                    <td className="px-4 py-2 text-gray-300">{user.hard}</td>
+                    <td className="px-4 py-2">
+                      <span className="px-2 py-1 rounded bg-blue-800/30 text-blue-200 font-mono font-bold">
+                        {user.totalPoints || 0}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 text-gray-300">
+                      {user.totalSubmissions || 0}
+                    </td>
+                    <td className="px-4 py-2">
+                      <span className={`px-2 py-1 rounded font-mono text-sm ${
+                        user.accuracy >= 80 ? 'bg-green-800/30 text-green-200' :
+                        user.accuracy >= 60 ? 'bg-yellow-800/30 text-yellow-200' :
+                        'bg-red-800/30 text-red-200'
+                      }`}>
+                        {user.accuracy ? user.accuracy.toFixed(1) : '0.0'}%
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>

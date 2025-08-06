@@ -2,7 +2,8 @@ const Contest = require('../models/contest');
 const Submission = require('../models/submissions');
 const Solution = require('../models/solution');
 const Problem = require('../models/problems');
-
+const Leaderboard = require('../models/leaderboard');
+const User=require('../models/user');
 
 exports.createContest=async(req,res)=>{
   const contestData=req.body;
@@ -239,8 +240,8 @@ exports.submitSolution=async(req,res)=>{
   try{
     const io=req.app.get('io');
     if(io){
-      const sampleLeaderboardData =getLeaderboardData(contestId);
-      
+      const sampleLeaderboardData =await getLeaderboardData(contestId);
+      console.log("Sample Leaderboard Data:", sampleLeaderboardData);
       console.log("starting to emit leaderboard update");
       io.to(`contest-${contestId}`).emit("leaderboardUpdate",{
         contestId:contestId,
@@ -390,79 +391,183 @@ catch(err){
 }
 }
 
+const getLeaderboardData = async (contestId) => {
+  console.log("Contest ID", contestId);
 
-const getLeaderboardData=async(contestId)=>{
-
-  console.log("Contest ID",contestId);
-
-  try{
-    const contestSubmissions=await Submission.find({contestId:contestId});
+  try {
+    const contestSubmissions = await Submission.find({ contestId: contestId });
     console.log("Contest Submissions:", contestSubmissions.length);
-    
-    const contestDetails=await Contest.find({_id:contestId});
-    const userIDs=contestDetails.registeredUsers;
 
+    const contestDetails = await Contest.findById(contestId);
 
-    const contestStartTime=new Date(contestDetails.startTime).getTime();
+    if (!contestDetails) {
+      console.error("Contest not found");
+      return [];
+    }
 
+    const userIDs = contestDetails.registeredUsers;
 
-    let leaderboardData=await Promise.all(
-      userIDs.map(async(userId)=>{
-        const userSubmissions=await Submission.find({contestId: contestId, userId: userId}).sort({createdAt:1});
+    if (!userIDs || userIDs.length === 0) {
+      console.log("No registered users");
+      return [];
+    }
 
-        const uniqueProblemSolved=new Set();
-        const totalSubmissions=userSubmissions.length;
-        if(totalSubmissions===0) return null;
+    const contestStartTime = new Date(contestDetails.startTime).getTime();
 
-        let lastcorrectSubmissionTime = contestStartTime;
+    let leaderboardData = await Promise.all(
+      userIDs.map(async (userId) => {
+        const userSubmissions = await Submission.find({
+          contestId: contestId,
+          userId: userId,
+        }).sort({ createdAt: 1 });
 
-        let totalPoints=0;
-        
-        userSubmissions.forEach(async(sub)=>{
-          
-          const sol=await Solution.findById(sub.solutionId);
-          if(!sol) return;
+        const uniqueProblemSolved = new Set();
+        const totalSubmissions = userSubmissions.length;
 
-          const problemId=sol.problemId.toString();
-          const problem=await Problem.findById(problemId);
-          if(!problem) return;
-          const problemDifficulty=problem.difficulty;
-          
-          const submissionTime=new Date(sub.createdAt).getTime();
-          const timeDiffInMinutes=(submissionTime - lastcorrectSubmissionTime)/ (1000 * 60);
+        if (totalSubmissions === 0) return null;
 
-          if (!uniqueProblemSolved.has(problemId) && sol.status === "Accepted") {
-            uniqueProblemSolved.add(problemId);
-            totalPoints+=problemDifficulty==='easy'? 100 : problemDifficulty==='medium'? 200 : 300;
-            totalPoints-=timeDiffInMinutes;
-            lastcorrectSubmissionTime = submissionTime;
+        let totalPoints = 0;
+        const problemFirstAttempt = new Map(); // Track first attempt for each problem
+
+        // ✅ Fix: Proper scoring logic
+        for (const sub of userSubmissions) {
+          try {
+            const sol = await Solution.findById(sub.solutionId);
+            if (!sol) continue;
+
+            const problemId = sol.problemId.toString();
+            const problem = await Problem.findById(problemId);
+            if (!problem) continue;
+
+            const problemDifficulty = problem.difficulty;
+            const submissionTime = new Date(sub.createdAt).getTime();
+
+            // ✅ Track first attempt time for each problem
+            if (!problemFirstAttempt.has(problemId)) {
+              problemFirstAttempt.set(problemId, submissionTime);
+            }
+
+            // ✅ Only process if problem not yet solved
+            if (!uniqueProblemSolved.has(problemId)) {
+              if (sol.status === "Accepted") {
+                uniqueProblemSolved.add(problemId);
+
+                // Calculate time taken from first attempt to solve
+                const firstAttemptTime = problemFirstAttempt.get(problemId);
+                const timeToSolveMinutes =
+                  (submissionTime - firstAttemptTime) / (1000 * 60);
+
+                // ✅ Base points
+                let basePoints = 0;
+                switch (problemDifficulty) {
+                  case "easy":
+                    basePoints = 100;
+                    break;
+                  case "medium":
+                    basePoints = 200;
+                    break;
+                  case "hard":
+                    basePoints = 300;
+                    break;
+                  default:
+                    basePoints = 100;
+                }
+
+                // ✅ Calculate final points (ensure no NaN)
+                const timePoints = Math.max(0, timeToSolveMinutes) || 0;
+                const problemPoints = Math.max(0, basePoints - timePoints);
+                totalPoints += problemPoints;
+
+                console.log(
+                  `Problem ${problemId}: ${basePoints} - ${timePoints.toFixed(
+                    2
+                  )} = ${problemPoints.toFixed(2)}`
+                );
+              } else if (sol.status === "Wrong Answer") {
+                totalPoints -= 20;
+              } else if (sol.status === "Time Limit Exceeded") {
+                totalPoints -= 10;
+              }
+            }
+          } catch (innerErr) {
+            console.error("Error processing submission:", innerErr);
+            continue;
           }
-          else if(!uniqueProblemSolved.has(problemId) && sol.status === "Wrong Answer"){
-            totalPoints-=20;
-          }
-          else if(!uniqueProblemSolved.has(problemId) && sol.status === "Time Limit Exceeded"){
-            totalPoints-=10;
-          }       
-        });
-        const userName = await User.findById(userId).then(user => user ? user.name : "Unknown User");
-        
-        const accuracy = (uniqueProblemSolved.size / totalSubmissions) * 100 || 0;
-        return {
-          userId:userId,
-          userName:userName,
-          noOfProblemsSolved: uniqueProblemSolved.size,
-          totalPoints: totalPoints,
-          totalSubmissions: totalSubmissions,
-          accuracy: accuracy.toFixed(2)       
         }
+
+        // ✅ Ensure totalPoints is never NaN
+        totalPoints = isNaN(totalPoints) ? 0 : totalPoints;
+        totalPoints = Math.max(0, totalPoints); // Ensure non-negative
+
+        // ✅ Fix: Better user name fetching with error handling
+        let userName = "Unknown User";
+        try {
+          const user = await User.findById(userId);
+          userName = user ? user.name : "Unknown User";
+        } catch (userErr) {
+          console.error("Error fetching user:", userErr);
+        }
+
+        const accuracy =
+          totalSubmissions > 0
+            ? (uniqueProblemSolved.size / totalSubmissions) * 100
+            : 0;
+
+        // ✅ Validate all values before returning
+        const leaderboardEntry = {
+          userId: userId,
+          userName: userName,
+          noOfProblemsSolved: uniqueProblemSolved.size || 0,
+          totalPoints: Math.round(totalPoints) || 0, // Ensure it's a valid number
+          totalSubmissions: totalSubmissions || 0,
+          accuracy: Math.round((accuracy || 0) * 100) / 100, // Round to 2 decimal places
+          totalContestProblems: contestDetails.problems.length || 0,
+        };
+
+        // ✅ Final validation - check for NaN values
+        Object.keys(leaderboardEntry).forEach((key) => {
+          if (
+            typeof leaderboardEntry[key] === "number" &&
+            isNaN(leaderboardEntry[key])
+          ) {
+            console.error(`NaN detected in ${key}, setting to 0`);
+            leaderboardEntry[key] = 0;
+          }
+        });
+
+        console.log(`User ${userName}: ${leaderboardEntry.totalPoints} points`);
+        return leaderboardEntry;
       })
     );
 
-    leaderboardData=leaderboardData.sort((a,b) => b.totalPoints - a.totalPoints);
-    return leaderboardData.filter(data => data !== null);
+    // ✅ Filter out nulls and validate data
+    leaderboardData = leaderboardData
+      .filter((data) => data !== null)
+      .filter((data) => !isNaN(data.totalPoints)) // Extra safety
+      .sort((a, b) => b.totalPoints - a.totalPoints);
+
+    console.log("Final leaderboard data:", leaderboardData);
+
+    // ✅ Fix: Add contestName and better error handling
+    try {
+      await Leaderboard.updateOne(
+        { contestId: contestId },
+        {
+          $set: {
+            contestName: contestDetails.title,
+            leaderboard: leaderboardData,
+            lastUpdated: new Date(),
+          },
+        },
+        { upsert: true }
+      );
+    } catch (dbErr) {
+      console.error("Error updating leaderboard in database:", dbErr);
     }
-    catch(err){
-      console.error("Error fetching leaderboard data:", err);
-      return null;
-    }
-}
+
+    return leaderboardData;
+  } catch (err) {
+    console.error("Error fetching leaderboard data:", err);
+    return [];
+  }
+};

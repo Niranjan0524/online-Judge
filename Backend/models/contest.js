@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { create } = require('./user');
+
 
 const contestSchema=new mongoose.Schema({
   title:{type:String,required:true},
