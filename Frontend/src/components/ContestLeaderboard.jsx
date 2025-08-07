@@ -1,7 +1,8 @@
 import  { useState, useEffect } from "react";
 import { useSocketContext } from "../store/SocketContext";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../store/AuthContext";
+import { FaArrowLeft } from "react-icons/fa";
 const ContestLeaderboard=()=>{
 
   const { socket ,isConnected, leaderBoardData, joinContestLeaderboard, leaveContestLeaderboard,getContestStatus } = useSocketContext();
@@ -9,6 +10,7 @@ const ContestLeaderboard=()=>{
   const [loading,setLoading] = useState(true);
   const {contestId}=useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(()=>{
     if(socket && isConnected){
@@ -28,7 +30,19 @@ const ContestLeaderboard=()=>{
 
   return (
     <>
+    
       <div className="text-center text-gray-400 bg-gradient-to-br from-[#23293a]/60 to-[#1a2233]/80 rounded-xl shadow-lg p-8 border border-[#2a3447] backdrop-blur-md glass-card md:w-1/2 sm:w-1/2 w-full mx-auto mb-8">
+        {/* Back Button */}
+        <div className="flex justify-start mb-4">
+          <button
+            onClick={() => navigate(`/contest/${contestId}`)}
+            className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors duration-200 text-sm font-medium"
+          >
+            <FaArrowLeft className="w-4 h-4" />
+            Back to Contest
+          </button>
+        </div>
+        
         <h2 className="text-2xl font-semibold mb-4 text-yellow-400 ">
           Contest Leaderboard
         </h2>

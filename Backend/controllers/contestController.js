@@ -429,6 +429,7 @@ const getLeaderboardData = async (contestId) => {
         let totalPoints = 0;
         const problemFirstAttempt = new Map(); // Track first attempt for each problem
 
+        let totalCorrectSubmissions = 0;
         // ✅ Fix: Proper scoring logic
         for (const sub of userSubmissions) {
           try {
@@ -446,6 +447,8 @@ const getLeaderboardData = async (contestId) => {
             if (!problemFirstAttempt.has(problemId)) {
               problemFirstAttempt.set(problemId, submissionTime);
             }
+            
+            if(sol.status == "Accepted") totalCorrectSubmissions++;
 
             // ✅ Only process if problem not yet solved
             if (!uniqueProblemSolved.has(problemId)) {
@@ -478,11 +481,6 @@ const getLeaderboardData = async (contestId) => {
                 const problemPoints = Math.max(0, basePoints - timePoints);
                 totalPoints += problemPoints;
 
-                console.log(
-                  `Problem ${problemId}: ${basePoints} - ${timePoints.toFixed(
-                    2
-                  )} = ${problemPoints.toFixed(2)}`
-                );
               } else if (sol.status === "Wrong Answer") {
                 totalPoints -= 20;
               } else if (sol.status === "Time Limit Exceeded") {
@@ -510,7 +508,7 @@ const getLeaderboardData = async (contestId) => {
 
         const accuracy =
           totalSubmissions > 0
-            ? (uniqueProblemSolved.size / totalSubmissions) * 100
+            ? (totalCorrectSubmissions / totalSubmissions) * 100
             : 0;
 
         // ✅ Validate all values before returning
