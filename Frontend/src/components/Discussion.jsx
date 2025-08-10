@@ -183,7 +183,7 @@ const Discussion = ({ problemId }) => {
 
   
   const handleLike = (messageId) => {
-    console.log("Like clicked for message:", messageId);
+   
    
 
     if (!messageId) {
@@ -219,7 +219,7 @@ const Discussion = ({ problemId }) => {
   }
 
   const handleDislike=(messageId)=>{
-    console.log("Dislike clicked for message:", messageId);
+   
     if (!messageId) {
       toast.error("Message ID is required to dislike a message");
       return;
@@ -254,7 +254,7 @@ const Discussion = ({ problemId }) => {
   }
 
   const handleDelete=async(messageId)=>{ 
-    console.log("Delete clicked for message:", messageId);
+   
 
     if(!messageId){
       toast.error("Message ID is required to delete a message");

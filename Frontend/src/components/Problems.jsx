@@ -24,16 +24,16 @@ const Problems=()=>{
   const navigate=useNavigate();
 
   const handleProblemClick=(problemId)=>{
-    console.log("Problem clicked", problemId);
+   
     navigate(`/problem/solve/${problemId}`);
   }
 
   const handleAddProblem=()=>{
-    console.log("Add Problem clicked");
+    
     navigate("/problem/add");
   }
   const handleEditProblem=()=>{
-    console.log("Edit Problem clicked");
+  
   }
   return (
     <>

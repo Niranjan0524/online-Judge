@@ -7,7 +7,7 @@ import { useAuth } from "../store/AuthContext";
 const Login = () => {
 
   const loginWithGoogle = () => {
-    console.log("Login with Google");
+    
     window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`;
   };
   const [formData,setFormData]=useState({
@@ -50,7 +50,7 @@ const Login = () => {
       }
       else{
         login(data);
-        console.log("Login successful");
+       
         navigate("/");
         toast.dismiss(toastId);
         toast.success("Login successful");

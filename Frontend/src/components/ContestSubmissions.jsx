@@ -55,7 +55,7 @@ const ContestSubmissions = () => {
           }
         );
         const data = await response.json();
-        console.log("Submissions data:", data);
+        
         if (response.ok) {
           setSubmissions(data.submissions || []);
         }

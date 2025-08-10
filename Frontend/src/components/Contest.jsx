@@ -35,7 +35,7 @@ const Contest = () => {
 
  
 
-  // console.log("onGoingContests:", ongoingContests);
+ 
   const tabContent = [
     {
       data: futureContests,
@@ -56,7 +56,7 @@ const Contest = () => {
   ];
 
   const handleRegister = async (id) => {
-    console.log("Registering for contest with ID:", id);
+   
     if (!id) return;
 
     try {
@@ -73,7 +73,7 @@ const Contest = () => {
 
       const data = await response.json();
       if (response.ok) {
-        console.log("Successfully joined contest:", data);
+       
         toast.success("Successfully joined contest!");
 
         // ✅ Update the contests state to reflect registration
@@ -101,7 +101,7 @@ const Contest = () => {
   };
 
   const handleUnregister = async (id) => {
-    console.log("Unregistering from contest with ID:", id);
+   
     if (!id) return;
 
     try {
@@ -118,7 +118,7 @@ const Contest = () => {
 
       const data = await response.json();
       if (response.ok) {
-        console.log("Successfully left contest:", data);
+       
         toast.success("Successfully left contest!");
 
         // ✅ Update the contests state to reflect unregistration

@@ -18,8 +18,7 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Form Data:", formData);
-
+    
     const { name, email, password, confirmPassword,type } = formData;
 
     if (password !== confirmPassword) {
@@ -38,7 +37,7 @@ export default function Signup() {
         body: JSON.stringify(formData),
       }).then(async (res) => {
         const data = await res.json();
-        console.log("Response:", data);
+        
         if (res.status !== 200) {
           setError(data.errors);
           toast.dismiss(toastId);
@@ -50,13 +49,13 @@ export default function Signup() {
         }
       });
     } catch (err) {
-      console.log("Error:", err);
+      
       toast.error("An error occurred during signup. Please try again.");
     }
   };
 
   const signupWithGoogle = () => {
-    console.log("Signup with Google");
+    
     toast.error("This feature is under development , Sorry for the inconvenience");
     // window.location.href=`${import.meta.env.VITE_BACKEND_URL}/api/auth/google`;
   };

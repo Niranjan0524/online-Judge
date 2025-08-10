@@ -42,7 +42,7 @@ const { token } = useAuth();
 
   const handleContestClick = () => {
     if (isRegistered && status === "ongoing") {
-      console.log("Contest is ongoing, redirecting to contest page...");
+      
       navigate(`/contest/${contest._id}`);
     }
   };

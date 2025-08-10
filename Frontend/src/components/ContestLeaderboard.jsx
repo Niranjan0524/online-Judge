@@ -6,7 +6,7 @@ import { FaArrowLeft } from "react-icons/fa";
 const ContestLeaderboard=()=>{
 
   const { socket ,isConnected, leaderBoardData, joinContestLeaderboard, leaveContestLeaderboard,getContestStatus } = useSocketContext();
-  console.log("leaderBoardData:", leaderBoardData);
+  
   const [loading,setLoading] = useState(true);
   const {contestId}=useParams();
   const { user } = useAuth();
@@ -14,7 +14,7 @@ const ContestLeaderboard=()=>{
 
   useEffect(()=>{
     if(socket && isConnected){
-      console.log("Joining contest leaderboard...");
+      
       joinContestLeaderboard(contestId, user?._id);
       
       getContestStatus(contestId);
@@ -23,7 +23,7 @@ const ContestLeaderboard=()=>{
     return ()=>{
       if(contestId && user?._id){
         leaveContestLeaderboard(contestId);
-        console.log("Leaving contest leaderboard...");
+        
       }
     }
   }, [socket, isConnected, contestId, user?._id]);

@@ -90,7 +90,7 @@ const ContestNavigation = () => {
 
       if(response.ok){
         setSolvedProblems(data.totalSolved || 0);
-        console.log("Total Solved Problems:",data.totalSolved);
+        
       }
     }catch(error){
       console.error("Error fetching total solved problems:",error);
