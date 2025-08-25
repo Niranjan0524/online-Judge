@@ -89,7 +89,9 @@ app.set("io",io);
 
 initializeSocket(io); // Initialize socket.io with the server
 
-
+app.use("/health",(req,res)=>{
+  res.status(200).json({message:"OK"});
+})
 app.use("/api/auth", authRouter);
 app.use("/api/problem", problemRouter);
 app.use("/api/code", verifyUser, codeRouter);
