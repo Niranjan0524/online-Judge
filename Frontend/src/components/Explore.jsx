@@ -33,6 +33,26 @@ const Explore=()=>{
             </svg>
             Resume Reviewer
           </Link>
+          {user && user.type === "user" && (
+            <Link
+              to="/contest"
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-slate-800 to-slate-900 text-white font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-grey-600 hover:to-grey-600 hover:shadow-xl animate-slide-in border border-slate-500/30"
+              style={{ animationDelay: "0.2s" }}
+            >
+              <svg
+                className="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path d="M9 17v-2a4 4 0 014-4h2a4 4 0 014 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              Participate in Contest
+              
+            </Link>
+          )}
           <Link
             to="/host-contest"
             className="flex items-center justify-center gap-2 bg-gradient-to-r from-slate-800 to-slate-900 text-white font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-grey-600 hover:to-grey-600 hover:shadow-xl animate-slide-in border border-slate-500/30"
@@ -53,28 +73,7 @@ const Explore=()=>{
               upcoming
             </span>
           </Link>
-          {user && user.type === "user" && (
-            <Link
-              to="/contest"
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-slate-800 to-slate-900 text-white font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-grey-600 hover:to-grey-600 hover:shadow-xl animate-slide-in border border-slate-500/30"
-              style={{ animationDelay: "0.2s" }}
-            >
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path d="M9 17v-2a4 4 0 014-4h2a4 4 0 014 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              Participate in Contest
-              <span className="text-xs font-bold uppercase tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-400 text-black px-3 py-1 rounded-full ml-2 shadow-lg ring-2 ring-yellow-300 animate-pulse">
-                upcoming
-              </span>
-            </Link>
-          )}
+          
           <Link
             to="/blog"
             className="flex items-center justify-center gap-2 bg-gradient-to-r from-slate-800 to-slate-900 text-white font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-grey-600 hover:to-grey-600 hover:shadow-xl animate-slide-in border border-slate-500/30"
