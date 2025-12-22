@@ -45,7 +45,7 @@ const Header=()=>{
   return (
     <>
       <nav
-        className="relative flex justify-between items-center px-8 py-6 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white
+        className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-8 py-6 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white
   before:content-[''] before:absolute before:left-0 before:bottom-0 before:w-full before:h-[3px] before:bg-gradient-to-r before:from-red-400 before:via-gray-400 before:to-yellow-400"
       >
         <Link to="/">
@@ -117,8 +117,7 @@ const Header=()=>{
                     className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition"
                   >
                     Settings
-                  </Link>
-                  {" "}
+                  </Link>{" "}
                   <Link
                     to="/dashboard"
                     className="block px-4 py-2 text-gray-100 hover:bg-gray-800 hover:text-yellow-400 transition"
@@ -154,7 +153,7 @@ const Header=()=>{
           )}
         </div>
       </nav>
-      <main className="bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] min-h-screen">
+      <main className="bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] min-h-screen pt-24">
         <Outlet />
       </main>
     </>

@@ -59,7 +59,7 @@ exports.runCode = async (req, res) => {
       filePath=generateFile(code,lang);
     }
     
-     inputFilePath=generateInputFile(input);
+     inputFilePath= generateInputFile(input);
 
     if(lang==="cpp"){
        output = await withTimeout(

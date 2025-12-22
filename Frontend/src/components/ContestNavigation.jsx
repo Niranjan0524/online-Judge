@@ -178,7 +178,7 @@ const ContestNavigation = () => {
 
   if (!contestData) {
     return (
-      <div className="bg-gray-900/80 backdrop-blur-md border-b border-gray-700 px-6 py-4">
+      <div className="bg-gray-900/80 backdrop-blur-md border-b border-gray-700 px-6 py-4 pt-24">
         <div className="flex items-center justify-center">
           <div className="text-gray-400">Loading contest...</div>
         </div>
@@ -187,7 +187,7 @@ const ContestNavigation = () => {
   }
 
   return (
-    <div className="bg-gradient-to-r from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-md border-b border-gray-700/50 shadow-lg">
+    <div className="bg-gradient-to-r from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-md border-b border-gray-700/50 shadow-lg pt-24">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left Section - Navigation & Contest Info */}
@@ -254,10 +254,12 @@ const ContestNavigation = () => {
                   <FaCheck className="w-4 h-4 text-green-400" />
                   <span className="text-green-400 text-sm font-medium">
                     {solvedProblemsLoading ? (
-                      <FallingLines color="#4fa94d"
-                      width="20"
-                      visible={true}
-                      ariaLabel="falling-circles-loading"/>
+                      <FallingLines
+                        color="#4fa94d"
+                        width="20"
+                        visible={true}
+                        ariaLabel="falling-circles-loading"
+                      />
                     ) : (
                       solvedProblems
                     )}
@@ -324,8 +326,6 @@ const ContestNavigation = () => {
                 {contestData.description}
               </p>
             </div>
-
-            
           </div>
         </div>
       </div>

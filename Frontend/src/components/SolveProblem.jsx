@@ -370,7 +370,7 @@ const SolveProblem = () => {
   
 
   return (
-    <div  className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white flex flex-col md:flex-row gap-6 px-4 py-8 md:px-12">
+    <div  className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white flex flex-col md:flex-row gap-6 px-4 py-8 md:px-12 ">
       {/* Left: Problem Details */}
       {/* <div className="md:w-2/5  w-fit h-auto bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col"> */}
       <div className="md:w-2/5 w-fit h-auto bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col">

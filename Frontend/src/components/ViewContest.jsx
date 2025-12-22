@@ -174,7 +174,7 @@ const ViewContest = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] flex items-center justify-center pt-24">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto"></div>
           <p className="text-white mt-4 text-center">
@@ -187,7 +187,7 @@ const ViewContest = () => {
 
   if (!contest) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] flex items-center justify-center pt-24">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 text-center">
           <FaTimesCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-white mb-2">
@@ -212,7 +212,7 @@ const ViewContest = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] py-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] py-8 ">
       <div className="max-w-6xl mx-auto px-6">
         {/* Header Navigation */}
         <div className="mb-8">

@@ -90,7 +90,7 @@ const ResumeReviewer = () => {
         <button
           className="bg-gradient-to-r from-green-400 to-green-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-60"
           onClick={handleUpload}
-          disabled={!resumeFile || loading}
+          disabled={Object.keys(review).length>0  || !resumeFile || loading}
         >
           {loading ? (
             <span className="flex items-center gap-2">

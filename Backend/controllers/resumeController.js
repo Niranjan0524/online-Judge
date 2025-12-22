@@ -82,7 +82,7 @@ Resume:${trimmedText}`;
     }
 
     res.status(200).json({
-      message: "Resume review service is not implemented yet.",
+      message: "Resume review generated successfully.",
       review: reviewObj || "No review generated. Please try again later.",
     });
   }

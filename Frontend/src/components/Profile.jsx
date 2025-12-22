@@ -50,7 +50,7 @@ const Profile = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4 sm:px-10 py-10 text-white font-sans flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4 sm:px-10 py-10 text-white font-sans flex flex-col items-center ">
       <div className="w-full max-w-3xl bg-[#12172f] rounded-3xl shadow-2xl p-8 border border-[#1f2542] hover:border-cyan-400 transition duration-300 flex flex-col items-center">
         {/* Avatar & Edit */}
         <div className="relative flex flex-col items-center">

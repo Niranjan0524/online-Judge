@@ -181,7 +181,7 @@ const Contest = () => {
     return () => clearInterval(interval);
   }, []);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4 py-10 flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4 py-10 flex flex-col items-center ">
       {/* Centered Nav Bar */}
       <div className="w-full max-w-3xl mx-auto mb-10">
         <div className="flex justify-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl shadow-lg border border-white/20 py-2 px-2">

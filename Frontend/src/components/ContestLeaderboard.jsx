@@ -31,7 +31,7 @@ const ContestLeaderboard=()=>{
   return (
     <>
     
-      <div className="text-center text-gray-400 bg-gradient-to-br from-[#23293a]/60 to-[#1a2233]/80 rounded-xl shadow-lg p-8 border border-[#2a3447] backdrop-blur-md glass-card md:w-1/2 sm:w-1/2 w-full mx-auto mb-8">
+      <div className="text-center text-gray-400 bg-gradient-to-br from-[#23293a]/60 to-[#1a2233]/80 rounded-xl shadow-lg p-8 border border-[#2a3447] backdrop-blur-md glass-card md:w-1/2 sm:w-1/2 w-full mx-auto mb-8 ">
         {/* Back Button */}
         <div className="flex justify-start mb-4">
           <button

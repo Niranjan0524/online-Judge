@@ -57,7 +57,7 @@ const Dashboard = () => {
   const rank = count > 0 ? count : "N/A";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4 sm:px-10 py-10 text-white font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4 sm:px-10 py-10 text-white font-sans ">
       <h1 className="text-4xl sm:text-5xl font-bold text-center mb-12 tracking-tight bg-gradient-to-r from-teal-400 via-blue-500 to-gray-700 bg-clip-text text-transparent drop-shadow-md">
         Your Coding Journey
       </h1>

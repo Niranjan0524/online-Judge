@@ -145,7 +145,7 @@ const AddProblem = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] flex justify-center items-start py-10 px-2">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] flex justify-center items-start py-10 px-2 ">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-2xl bg-[#181c2a]/90 rounded-3xl shadow-2xl p-8 border-2 border-[#232946] flex flex-col gap-8"
