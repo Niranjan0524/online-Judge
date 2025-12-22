@@ -112,7 +112,7 @@ const ResumeReviewer = () => {
             <div className="text-yellow-400 text-lg animate-pulse">
               ⏳ Analyzing your resume...
             </div>
-          ) : review ? (
+          ) : Object.keys(review).length ? (
             <div className="space-y-6 text-base leading-relaxed animate-fade-in">
               <section className="bg-green-1000 p-4 rounded-xl shadow-sm border border-green-300">
                 <h2 className="text-green-700 text-xl font-semibold mb-2">
