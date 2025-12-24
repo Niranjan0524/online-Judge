@@ -1,5 +1,5 @@
 import { useState,useEffect,useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../store/AuthContext";
 import toast from "react-hot-toast";
 import { Outlet } from "react-router-dom";
@@ -9,10 +9,32 @@ import { CgProfile } from "react-icons/cg";
 const Header=()=>{
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoggedIn, logout ,user} = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileBtnRef = useRef();
 
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  };
+
+  const handleSectionClick = (sectionId) => {
+    if (location.pathname === "/") {
+      scrollToSection(sectionId);
+    } else {
+      navigate("/");
+      setTimeout(() => scrollToSection(sectionId), 100);
+    }
+  };
 
   const handleLogout = () => {
     const status = confirm("Are you sure you want to logout?");
@@ -61,30 +83,30 @@ const Header=()=>{
           >
             Home
           </Link>
-          <Link
-            to="/#problems"
-            className="hover:text-red-400 transition hover:border-b-2 border-red-400"
+          <button
+            onClick={() => handleSectionClick("problems")}
+            className="hover:text-red-400 transition hover:border-b-2 border-red-400 bg-none border-none cursor-pointer text-white"
           >
             Problems
-          </Link>
+          </button>
           <Link
             to="/dashboard"
             className="hover:text-green-700 transition hover:border-b-2 border-green-700"
           >
             Dashboard
           </Link>
-          <Link
-            to="/#features"
-            className="hover:text-pink-400 transition hover:border-b-2 border-pink-400"
+          <button
+            onClick={() => handleSectionClick("features")}
+            className="hover:text-pink-400 transition hover:border-b-2 border-pink-400 bg-none border-none cursor-pointer text-white"
           >
             Features
-          </Link>
-          <Link
-            to="/#about"
-            className="hover:text-yellow-400 transition hover:border-b-2 border-yellow-400"
+          </button>
+          <button
+            onClick={() => handleSectionClick("about")} 
+            className="hover:text-yellow-400 transition hover:border-b-2 border-yellow-400 bg-none border-none cursor-pointer text-white"
           >
             About
-          </Link>
+          </button>
 
           {isLoggedIn && (
             <div
