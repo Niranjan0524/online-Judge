@@ -738,7 +738,7 @@ const SolveProblem = () => {
           <div className="flex gap-4 mt-4 justify-between items-center">
             <div className="flex gap-4">
               {running ? (
-                <button className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition">
+                <button disabled={true} className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
                   <Circles
                     height="24"
                     width="24"
@@ -751,14 +751,15 @@ const SolveProblem = () => {
                 </button>
               ) : (
                 <button
-                  className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
+                  className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   onClick={handleRun}
+                  disabled={reviewing || submitting}
                 >
                   Run
                 </button>
               )}
               {submitting ? (
-                <button className="bg-gradient-to-r from-green-400 to-green-600 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition">
+                <button disabled={true} className="bg-gradient-to-r from-green-400 to-green-600 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
                   <Circles
                     height="24"
                     width="24"
@@ -771,8 +772,9 @@ const SolveProblem = () => {
                 </button>
               ) : (
                 <button
-                  className="bg-gradient-to-r from-green-400 to-green-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
+                  className="bg-gradient-to-r from-green-400 to-green-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   onClick={handleSubmit}
+                  disabled={reviewing || running}
                 >
                   Submit
                 </button>
@@ -780,7 +782,7 @@ const SolveProblem = () => {
             </div>
             <div>
               {reviewing ? (
-                <button className="bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition">
+                <button disabled={true} className="bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
                   <Circles
                     height="24"
                     width="24"
@@ -793,8 +795,9 @@ const SolveProblem = () => {
                 </button>
               ) : !contestId ? (
                 <button
-                  className="bg-gray-900/80 border border-red-300 px-6 py-2 rounded-lg shadow hover:scale-105 transition font-bold"
+                  className="bg-gray-900/80 border border-red-300 px-6 py-2 rounded-lg shadow hover:scale-105 transition font-bold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   onClick={handleAIReview}
+                  disabled={running || submitting}
                 >
                   <span className="bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 bg-clip-text text-transparent text-lg flex items-center gap-2">
                     AI Review
