@@ -250,7 +250,7 @@ const SolveProblem = () => {
         setOutput(data.error|| "Error in code");
         return ;
       }
-      setActiveTab("Submissions");
+      // setActiveTab("Submissions");
       await fetchSolutions();
       let c = data.solution.testCasesPassed;
       let t = data.output.length;
@@ -260,8 +260,8 @@ const SolveProblem = () => {
       setCorrectness({ correct: c, total: t });
 
       toast.success("Code submitted Successfully");
-      fetchLeaderBoardData();
-      
+      setActiveTab("Result");
+      fetchLeaderBoardData();      
     })
     .catch((err) => {
       setSubmitting(false);
@@ -365,7 +365,13 @@ const SolveProblem = () => {
       });
     } else {
     }
-  }, [problemId,problems, problem,solutions]);
+  }, [problemId, problem]);
+
+
+  useEffect(() => {
+    
+
+  },[solutions]);
 
   
 
