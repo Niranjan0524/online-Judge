@@ -3,8 +3,8 @@ import { InfinitySpin } from "react-loader-spinner";
 const LoadingState = () => {
   return (
     <>
-      <div className="flex items-center justify-center min-h-screen">
-        <InfinitySpin width="200" color="#4fa94d" />
+      <div className="flex min-h-screen items-center justify-center bg-vibe-background">
+        <InfinitySpin width="200" color="#6366F1" />
       </div>
     </>
   );

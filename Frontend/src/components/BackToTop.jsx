@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { LuChevronsUp } from "react-icons/lu";
+
 function BackToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -21,10 +22,10 @@ function BackToTopButton() {
       <div className="relative h-0">
         <button
           onClick={scrollToTop}
-          className="fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg hover:bg-gray-700 transition-all"
+          className="fixed bottom-5 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-xl border border-vibe-border bg-vibe-surface text-vibe-text shadow-subtle hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+          aria-label="Back to top"
         >
-          <LuChevronsUp className="inline-block mr-1" size={25} />
-          Back To Top
+          <LuChevronsUp size={22} />
         </button>
       </div>
     )

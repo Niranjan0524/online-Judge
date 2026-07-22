@@ -35,7 +35,28 @@ function App() {
   return (
     <AuthProvider>
       <SocketContextProvider>
-        <Toaster />
+        <Toaster
+          toastOptions={{
+            style: {
+              background: "#18181B",
+              border: "1px solid #27272A",
+              color: "#FAFAFA",
+              boxShadow: "0 16px 50px rgba(0, 0, 0, 0.22)",
+            },
+            success: {
+              iconTheme: {
+                primary: "#22C55E",
+                secondary: "#09090B",
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: "#EF4444",
+                secondary: "#09090B",
+              },
+            },
+          }}
+        />
         <ProblemsProvider>
           <TestCaseProvider>
             <SolutionContextProvider>

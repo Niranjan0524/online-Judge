@@ -1,19 +1,97 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background: #09090b;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    background: #09090b;
+    color: #fafafa;
+    font-family: "Inter", system-ui, sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Space Grotesk", "Inter", sans-serif;
+    letter-spacing: 0;
+  }
+
+  code,
+  pre,
+  textarea {
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  ::selection {
+    background: rgba(99, 102, 241, 0.35);
+    color: #fafafa;
+  }
+
+  * {
+    scrollbar-color: #27272a #09090b;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #09090b;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border: 2px solid #09090b;
+    border-radius: 999px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: #3f3f46;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    transition-duration: 200ms;
+    transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+    transition-timing-function: ease;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+  }
 }
-/* Glassmorphism utility */
-.glass-card {
-  background: rgba(255,255,255,0.13);
-  border-radius: 1.5rem;
-  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1.5px solid rgba(255,255,255,0.18);
-  transition: box-shadow 0.3s, transform 0.3s;
+
+@layer components {
+  .glass-card {
+    background: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  }
 }
 
 /* Animated headline */
@@ -41,4 +119,3 @@ html {
 .feature-card.delay-1 { animation-delay: 0.2s; }
 .feature-card.delay-2 { animation-delay: 0.4s; }
 .feature-card.delay-3 { animation-delay: 0.6s; }
-

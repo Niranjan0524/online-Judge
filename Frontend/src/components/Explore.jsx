@@ -1,103 +1,92 @@
-import { useAuth } from "../store/AuthContext";
 import { Link } from "react-router-dom";
-import { useEffect ,useState} from "react";
-import { LineWave } from "react-loader-spinner";
+import {
+  FiArrowRight,
+  FiAward,
+  FiBriefcase,
+  FiClock,
+  FiFileText,
+} from "react-icons/fi";
+import { useAuth } from "../store/AuthContext";
 
-const Explore=()=>{
+const Explore = () => {
+  const { user } = useAuth();
 
-  const {user,isLoggedIn} =useAuth();
-
-
+  const actions = [
+    {
+      label: "Resume Reviewer",
+      to: "/resume-reviewer",
+      icon: FiBriefcase,
+      description: "Get targeted feedback before applying.",
+    },
+    user?.type === "user"
+      ? {
+          label: "Participate in Contest",
+          to: "/contest",
+          icon: FiAward,
+          description: "Compete in timed problem sets.",
+        }
+      : null,
+    {
+      label: "Host a Contest",
+      to: "/host-contest",
+      icon: FiClock,
+      description: "Contest creation is coming soon.",
+      badge: "Upcoming",
+    },
+    {
+      label: "Blog",
+      to: "/blog",
+      icon: FiFileText,
+      description: "Editorials and updates are coming soon.",
+      badge: "Upcoming",
+    },
+  ].filter(Boolean);
 
   return (
-    <>
-      <div className="glass-card bg-slate-800 w-full md:w-[400px] p-8 flex flex-col gap-6 shadow-2xl border border-gray-700 hover:border-yellow-400 transition animate-fade-in">
-        <h3 className="text-2xl font-bold text-center mb-2 text-yellow-400 tracking-wide animate-bounce">
-          Explore Our Features
-        </h3>
-
-        <div className="flex flex-col gap-4">
-          <Link
-            to="/resume-reviewer"
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-slate-800 to-slate-900 text-white font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-grey-600 hover:to-grey-600 hover:shadow-xl animate-slide-in border border-slate-500/30"
-          >
-            <svg
-              className="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            Resume Reviewer
-          </Link>
-          {user && user.type === "user" && (
-            <Link
-              to="/contest"
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-slate-800 to-slate-900 text-white font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-grey-600 hover:to-grey-600 hover:shadow-xl animate-slide-in border border-slate-500/30"
-              style={{ animationDelay: "0.2s" }}
-            >
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path d="M9 17v-2a4 4 0 014-4h2a4 4 0 014 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              Participate in Contest
-              
-            </Link>
-          )}
-          <Link
-            to="/host-contest"
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-slate-800 to-slate-900 text-white font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-grey-600 hover:to-grey-600 hover:shadow-xl animate-slide-in border border-slate-500/30"
-            style={{ animationDelay: "0.1s" }}
-          >
-            <svg
-              className="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 8v4l3 3"></path>
-              <circle cx="12" cy="12" r="10"></circle>
-            </svg>
-            Host a Contest
-            <span className="text-xs font-bold uppercase tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-400 text-black px-3 py-1 rounded-full ml-2 shadow-lg ring-2 ring-yellow-300 animate-pulse">
-              upcoming
-            </span>
-          </Link>
-          
-          <Link
-            to="/blog"
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-slate-800 to-slate-900 text-white font-bold py-3 rounded-lg shadow-md text-lg transition transform hover:scale-105 hover:from-grey-600 hover:to-grey-600 hover:shadow-xl animate-slide-in border border-slate-500/30"
-            style={{ animationDelay: "0.3s" }}
-          >
-            <svg
-              className="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path>
-              <polyline points="17 21 17 13 7 13 7 21"></polyline>
-            </svg>
-            Blog
-            <span className="text-xs font-bold uppercase tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-400 text-black px-3 py-1 rounded-full ml-2 shadow-lg ring-2 ring-yellow-300 animate-pulse">
-              upcoming
-            </span>
-          </Link>
-        </div>
+    <aside className="w-full rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel md:max-w-md">
+      <div className="mb-5">
+        <p className="text-sm font-semibold text-vibe-text">Explore CodeVibe</p>
+        <p className="mt-1 text-sm text-vibe-subtext">
+          Jump into the workflows that support deliberate practice.
+        </p>
       </div>
-    </>
+
+      <div className="space-y-3">
+        {actions.map((action) => {
+          const Icon = action.icon;
+
+          return (
+            <Link
+              key={action.label}
+              to={action.to}
+              className="group flex items-center gap-4 rounded-xl border border-vibe-border bg-vibe-elevated/60 p-4 hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-secondary group-hover:border-vibe-secondary/60">
+                <Icon size={18} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2 text-sm font-semibold text-vibe-text">
+                  {action.label}
+                  {action.badge && (
+                    <span className="rounded-full border border-vibe-warning/30 bg-vibe-warning/10 px-2 py-0.5 text-[11px] font-medium text-vibe-warning">
+                      {action.badge}
+                    </span>
+                  )}
+                </span>
+                <span className="mt-1 block text-sm text-vibe-subtext">
+                  {action.description}
+                </span>
+              </span>
+              <FiArrowRight
+                size={17}
+                className="text-vibe-muted group-hover:translate-x-0.5 group-hover:text-vibe-text"
+              />
+            </Link>
+          );
+        })}
+      </div>
+    </aside>
   );
-}
+};
 
 export default Explore;

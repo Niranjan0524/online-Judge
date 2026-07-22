@@ -1,64 +1,122 @@
 import AnimatedHeadline from "./AnimatedHeadline";
-import { useAuth } from "../store/AuthContext";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
 import BackToTopButton from "./BackToTop";
-import Footer from "./Footer";
 import Explore from "./Explore";
 import Features from "./Features";
+import Footer from "./Footer";
 import Problems from "./Problems";
+import HomePageImage from "../assets/HomePageImage.jpg";
 
 const Home = () => {
+  const scrollToProblems = () => {
+    document.getElementById("problems")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white ">
-      {/* Navbar */}
+    <div className="min-h-screen bg-vibe-background text-vibe-text">
+      <section className="border-b border-vibe-border px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <AnimatedHeadline />
+            <p className="mt-6 max-w-2xl text-base leading-8 text-vibe-subtext sm:text-lg">
+              Solve coding challenges, get instant feedback, review submissions,
+              and climb the leaderboard in a clean developer-first interface.
+            </p>
 
-      {/* Hero Section */}
-      <section className="flex flex-col md:flex-row items-center justify-between px-8 py-16 md:py-24">
-        <div className="max-w-xl mb-12 md:mb-0">
-          <AnimatedHeadline />
-          <p className="text-lg text-gray-200 mb-8">
-            Solve coding challenges, get instant feedback, and climb the
-            leaderboard—all in a sleek, glassy interface.
-          </p>
-          <button className="bg-gradient-to-r from-red-800  text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 transition ml-20">
-            Get Started
-          </button>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={scrollToProblems}
+                className="rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-white shadow-panel hover:bg-vibe-primary/90"
+              >
+                Start solving
+              </button>
+              <a
+                href="#features"
+                className="rounded-xl border border-vibe-border bg-vibe-surface px-5 py-3 text-center text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+              >
+                Explore features
+              </a>
+            </div>
+
+            <div className="mt-10 grid max-w-2xl grid-cols-3 gap-3">
+              {[
+                ["Fast", "judge feedback"],
+                ["AI", "code review"],
+                ["Live", "leaderboards"],
+              ].map(([value, label]) => (
+                <div
+                  key={value}
+                  className="rounded-2xl border border-vibe-border bg-vibe-surface p-4"
+                >
+                  <p className="font-heading text-xl font-bold text-vibe-text">
+                    {value}
+                  </p>
+                  <p className="mt-1 text-xs text-vibe-subtext">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="overflow-hidden rounded-2xl border border-vibe-border bg-vibe-surface shadow-subtle">
+              <img
+                src={HomePageImage}
+                alt="CodeVibe dashboard preview"
+                className="h-56 w-full object-cover sm:h-72"
+              />
+              <div className="border-t border-vibe-border p-4">
+                <p className="text-sm font-semibold text-vibe-text">
+                  Premium practice workspace
+                </p>
+                <p className="mt-1 text-sm text-vibe-subtext">
+                  Designed around readability, speed, and focused iteration.
+                </p>
+              </div>
+            </div>
+            <Explore />
+          </div>
         </div>
+      </section>
 
-        <Explore />
+      <section id="problems" className="px-4 py-14 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <Problems />
+        </div>
+      </section>
+
+      <BackToTopButton />
+
+      <section
+        id="features"
+        className="border-t border-vibe-border px-4 py-14 sm:px-6 lg:px-8"
+      >
+        <div className="mx-auto max-w-7xl">
+          <Features />
+        </div>
       </section>
 
       <section
-        id="problems"
-        className="max-w-5xl mx-auto px-6 py-10 border-t border-gray-700"
+        id="about"
+        className="border-t border-vibe-border px-4 py-14 sm:px-6 lg:px-8"
       >
-        <Problems />
-      </section>
-      <BackToTopButton />
-      {/* Features Section */}
-      <section id="features" className="max-w-6xl mx-auto px-6 py-16 ">
-        <Features />
-      </section>
-
-      {/* About Section */}
-      <section id="about" className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold mb-8">About CodeVibe</h2>
-        <p className="text-gray-300">
-          CodeVibe is a passion project designed to explore how competitive
-          programming platforms like LeetCode work under the hood. I built this
-          to provide an intuitive space where developers can solve coding
-          challenges, receive instant feedback, and test their skills in a
-          modern, user-friendly environment.
-        </p>
+        <div className="mx-auto max-w-7xl">
+          <p className="text-sm font-semibold uppercase tracking-wide text-vibe-secondary">
+            About
+          </p>
+          <h2 className="mt-3 font-heading text-3xl font-bold text-vibe-text">
+            A modern online judge for serious practice
+          </h2>
+          <p className="mt-4 max-w-3xl text-base leading-8 text-vibe-subtext">
+            CodeVibe brings problem solving, submissions, contests, AI review,
+            and progress tracking into one streamlined platform inspired by the
+            best developer tools.
+          </p>
+        </div>
       </section>
 
-      {/* Modern Footer */}
       <Footer />
     </div>
   );
 };
 
 export default Home;
-

@@ -1,88 +1,64 @@
-const Features=()=>{
+import { FiCheckCircle, FiCpu, FiRefreshCw, FiZap } from "react-icons/fi";
+
+const Features = () => {
   const features = [
     {
-      icon: (
-        <svg
-          className="w-8 h-8 text-cyan-400"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <path d="M12 4v16m8-8H4"></path>
-        </svg>
-      ),
-      title: "Fast loading",
-      desc: "Optimized for speed and seamless experience.",
+      icon: FiZap,
+      title: "Fast feedback",
+      desc: "Run code, inspect output, and submit without leaving the workspace.",
     },
     {
-      icon: (
-        <svg
-          className="w-8 h-8 text-pink-400"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M12 8v4l2 2"></path>
-        </svg>
-      ),
-      title: "Real-time Feedback",
-      desc: "Instant code evaluation and results.",
+      icon: FiRefreshCw,
+      title: "Live progress",
+      desc: "Track submissions, solved tags, accuracy, and leaderboard movement.",
     },
     {
-      icon: (
-        <svg
-          className="w-8 h-8 text-yellow-400"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-          <path d="M2 10h20"></path>
-        </svg>
-      ),
-      title: "Creative Design",
-      desc: "Modern glassmorphism UI for Gen Z.",
+      icon: FiCpu,
+      title: "AI assist",
+      desc: "Use reviews and resume feedback as coaching layers around practice.",
     },
     {
-      icon: (
-        <svg
-          className="w-8 h-8 text-lime-400"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <path d="M5 13l4 4L19 7"></path>
-        </svg>
-      ),
-      title: "Fully Responsive",
-      desc: "Works beautifully on all devices.",
+      icon: FiCheckCircle,
+      title: "Responsive UI",
+      desc: "A focused interface that stays usable across desktop, tablet, and mobile.",
     },
   ];
-  
+
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 border-t border-gray-700 pt-8 ">
-        {features.map((f, i) => (
-          <div
-            key={f.title}
-            className={`glass-card feature-card delay-${
-              i + 1
-            } flex flex-col items-center text-center p-8 `}
-            style={{ animationFillMode: "forwards" }}
-          >
-            <div className="mb-4 hover:scale-125 transition ">{f.icon}</div>
-            <h4 className="text-xl font-bold mb-2">{f.title}</h4>
-            <p className="text-gray-200">{f.desc}</p>
-          </div>
-        ))}
+    <div className="space-y-8">
+      <div className="max-w-2xl">
+        <p className="text-sm font-semibold uppercase tracking-wide text-vibe-secondary">
+          Platform
+        </p>
+        <h2 className="mt-3 font-heading text-3xl font-bold text-vibe-text">
+          Built for consistent coding momentum
+        </h2>
       </div>
-    </>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {features.map((feature) => {
+          const Icon = feature.icon;
+
+          return (
+            <article
+              key={feature.title}
+              className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel hover:border-vibe-primary/50 hover:bg-vibe-elevated"
+            >
+              <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-primary">
+                <Icon size={20} />
+              </div>
+              <h3 className="font-heading text-lg font-semibold text-vibe-text">
+                {feature.title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-vibe-subtext">
+                {feature.desc}
+              </p>
+            </article>
+          );
+        })}
+      </div>
+    </div>
   );
-}
+};
 
 export default Features;
