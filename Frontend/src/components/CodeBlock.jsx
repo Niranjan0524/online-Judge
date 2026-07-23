@@ -1,10 +1,7 @@
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { dark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism"; // Change to dracula
-import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism"; // Change to atomDark
-import { IoCopyOutline } from "react-icons/io5";
-import { IoCopy } from "react-icons/io5";
 import { useState } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { IoCopy, IoCopyOutline } from "react-icons/io5";
 
 const CodeBlock = ({ code, language }) => {
   const [copied, setCopy] = useState(false);
@@ -18,18 +15,12 @@ const CodeBlock = ({ code, language }) => {
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className="relative overflow-hidden rounded-2xl border border-vibe-border bg-vibe-background">
       <button
         onClick={copyToClipboard}
-        style={{
-          position: "absolute",
-          top: "5px",
-          right: "2px",
-          marginRight: "15px",
-          marginTop: "5px",
-          background: "none",
-          border: "none",
-        }}
+        className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-xl border border-vibe-border bg-vibe-surface text-vibe-subtext hover:border-vibe-primary/60 hover:text-vibe-text"
+        type="button"
+        aria-label="Copy code"
       >
         {copied ? <IoCopy /> : <IoCopyOutline />}
       </button>
@@ -37,15 +28,16 @@ const CodeBlock = ({ code, language }) => {
         language={language}
         style={atomDark}
         customStyle={{
-          background: "#1e1e1e", // Custom background
-          padding: "15px", // Inner padding
-          fontFamily: "Consolas",
-          margin: " 15px 0px",
-          border: "1px solid gray",
+          background: "#09090B",
+          padding: "18px",
+          paddingTop: "48px",
+          fontFamily: "JetBrains Mono",
+          margin: 0,
+          border: "none",
+          fontSize: "13px",
         }}
       >
         {code}
-        {language}
       </SyntaxHighlighter>
     </div>
   );

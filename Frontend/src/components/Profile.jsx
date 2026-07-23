@@ -1,10 +1,9 @@
+import { useNavigate } from "react-router-dom";
+import { FiBarChart2, FiCheckCircle, FiMail, FiTarget, FiUser } from "react-icons/fi";
 import { useAuth } from "../store/AuthContext";
 import { useSolutions } from "../store/SolutionContext";
 import { useProblems } from "../store/ProblemsContext";
 import { useLeaderBoard } from "../store/LeaderBoardContext";
-import { useNavigate } from "react-router-dom";
-import { FaUserEdit, FaMedal, FaEnvelope, FaUserCircle } from "react-icons/fa";
-import { MdLeaderboard } from "react-icons/md";
 
 const Profile = () => {
   const { user } = useAuth() || {};
@@ -13,12 +12,10 @@ const Profile = () => {
   const { leaderBoardData } = useLeaderBoard();
   const navigate = useNavigate();
 
-  // Calculate stats
   const submissions = solutions?.length || 0;
   const accepted =
     solutions?.filter((s) => s.status === "Accepted").length || 0;
-  const attempted =
-    [...new Set(solutions?.map((s) => s.problemId))].length || 0;
+  const attempted = [...new Set(solutions?.map((s) => s.problemId))].length || 0;
   const noOfProblemsSolved =
     leaderBoardData?.find((u) => u.userId === user?._id)?.noOfProblemsSolved ||
     0;
@@ -31,7 +28,6 @@ const Profile = () => {
     }
   }
 
-  // Tag stats
   const tagCountMap = {};
   if (Array.isArray(solutions)) {
     solutions?.forEach((item) => {
@@ -49,101 +45,112 @@ const Profile = () => {
     count,
   }));
 
+  const stats = [
+    { label: "Solved", value: noOfProblemsSolved, icon: FiCheckCircle },
+    { label: "Submissions", value: submissions, icon: FiBarChart2 },
+    { label: "Accepted", value: accepted, icon: FiTarget },
+    { label: "Rank", value: rank, icon: FiUser },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4 sm:px-10 py-10 text-white font-sans flex flex-col items-center ">
-      <div className="w-full max-w-3xl bg-[#12172f] rounded-3xl shadow-2xl p-8 border border-[#1f2542] hover:border-cyan-400 transition duration-300 flex flex-col items-center">
-        {/* Avatar & Edit */}
-        <div className="relative flex flex-col items-center">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-cyan-400 via-purple-500 to-blue-500 text-6xl flex items-center justify-center mb-4 ring-4 ring-blue-500/30 text-white font-semibold shadow-lg">
-            {user?.avatarUrl ? (
-              <img
-                src={user.avatarUrl}
-                alt="avatar"
-                className="w-full h-full object-cover rounded-full"
-              />
-            ) : (
-              <FaUserCircle className="w-28 h-28" />
-            )}
+    <div className="min-h-screen bg-vibe-background px-4 py-10 text-vibe-text sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl space-y-6">
+        <section className="rounded-2xl border border-vibe-border bg-vibe-surface p-6 shadow-panel sm:p-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-5">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-vibe-border bg-vibe-primary/10 text-vibe-primary">
+                {user?.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt="avatar"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <FiUser size={34} />
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold uppercase tracking-wide text-vibe-secondary">
+                  Profile
+                </p>
+                <h1 className="mt-2 truncate font-heading text-3xl font-bold text-vibe-text">
+                  {user?.name || "User Name"}
+                </h1>
+                <p className="mt-2 flex items-center gap-2 text-sm text-vibe-subtext">
+                  <FiMail size={15} />
+                  {user?.email || "user@email.com"}
+                </p>
+              </div>
+            </div>
+            <span className="w-fit rounded-full border border-vibe-primary/30 bg-vibe-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-vibe-primary">
+              {user?.type || "Coder"}
+            </span>
           </div>
-          {/* <button className="absolute top-2 right-2 bg-blue-700/80 hover:bg-blue-800 text-white rounded-full p-2 shadow">
-            <FaUserEdit size={20} />
-          </button> */}
-        </div>
-        {/* User Info */}
-        <h2 className="text-3xl font-bold text-white mb-1 tracking-tight">
-          {user?.name || "User Name"}
-        </h2>
-        <div className="flex items-center gap-2 text-gray-300 mb-2">
-          <FaEnvelope className="text-blue-400" />
-          <span className="text-base">{user?.email || "user@email.com"}</span>
-        </div>
-        <span className="mt-2 px-4 py-1 rounded-full bg-blue-600/20 text-blue-300 text-xs font-medium border border-blue-500/30 uppercase tracking-wider">
-          {user?.type || "Coder"}
-        </span>
+        </section>
 
-        {/* Stats */}
-        <div className="w-full mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-          <div className="bg-[#1a1e35] rounded-xl p-4 border border-[#2d345a]">
-            <div className="text-lg font-bold text-cyan-300">
-              {noOfProblemsSolved}
-            </div>
-            <div className="text-xs text-gray-400 mt-1">Problems Solved</div>
-          </div>
-          <div className="bg-[#1a1e35] rounded-xl p-4 border border-[#2d345a]">
-            <div className="text-lg font-bold text-yellow-300">
-              {submissions}
-            </div>
-            <div className="text-xs text-gray-400 mt-1">Total Submissions</div>
-          </div>
-          <div className="bg-[#1a1e35] rounded-xl p-4 border border-[#2d345a]">
-            <div className="text-lg font-bold text-green-400">{accepted}</div>
-            <div className="text-xs text-gray-400 mt-1">Accepted</div>
-          </div>
-          <div className="bg-[#1a1e35] rounded-xl p-4 border border-[#2d345a]">
-            <div className="text-lg font-bold text-purple-300">{rank}</div>
-            <div className="text-xs text-gray-400 mt-1 flex items-center justify-center gap-1">
-              <MdLeaderboard className="inline-block" /> Rank
-            </div>
-          </div>
-        </div>
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <article
+                key={stat.label}
+                className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm text-vibe-subtext">{stat.label}</p>
+                    <p className="mt-2 font-heading text-3xl font-bold text-vibe-text">
+                      {stat.value}
+                    </p>
+                  </div>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-primary">
+                    <Icon size={18} />
+                  </span>
+                </div>
+              </article>
+            );
+          })}
+        </section>
 
-        {/* Tags */}
-        <div className="w-full mt-8">
-          <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-            <FaMedal className="text-yellow-400" /> Tags Mastered
-          </h3>
-          <div className="flex flex-wrap gap-3">
+        <section className="rounded-2xl border border-vibe-border bg-vibe-surface p-6 shadow-panel">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-heading text-xl font-semibold text-vibe-text">
+                Tags Mastered
+              </h2>
+              <p className="mt-1 text-sm text-vibe-subtext">
+                Topics from accepted submissions.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+              type="button"
+            >
+              Go to Dashboard
+            </button>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
             {tagMap.length > 0 ? (
               tagMap.map((t) => (
                 <span
                   key={t.tag}
-                  className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow hover:scale-105 transition-transform border border-transparent hover:border-white"
+                  className="inline-flex items-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-3 py-2 text-sm font-medium text-vibe-subtext"
                 >
-                  {t.tag}{" "}
-                  <span className="bg-white/80 text-blue-900 rounded px-2 py-0.5 ml-1 font-bold">
+                  {t.tag}
+                  <span className="rounded-lg bg-vibe-primary/10 px-2 py-0.5 font-mono text-xs text-vibe-primary">
                     {t.count}
                   </span>
                 </span>
               ))
             ) : (
-              <span className="text-gray-400 italic">No tags solved yet.</span>
+              <div className="w-full rounded-2xl border border-dashed border-vibe-border bg-vibe-background p-8 text-center text-sm text-vibe-subtext">
+                No tags solved yet.
+              </div>
             )}
           </div>
-        </div>
-
-        {/* Call to Action */}
-        <div className="w-full mt-10 flex flex-col items-center">
-          <div className="text-lg font-medium text-gray-200 mb-2">
-            Want the <span className="text-cyan-400 font-bold">analysis</span>{" "}
-            of your journey?
-          </div>
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition mt-2 text-lg"
-          >
-            Go to Dashboard
-          </button>
-        </div>
+        </section>
       </div>
     </div>
   );

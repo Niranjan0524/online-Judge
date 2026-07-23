@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -18,93 +19,77 @@ const Calendar = () => {
   };
 
   const goToPreviousMonth = () => {
-    const newDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() - 1,
-      1
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
     );
-    setCurrentDate(newDate);
   };
 
   const goToNextMonth = () => {
-    const newDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      1
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
     );
-    setCurrentDate(newDate);
   };
 
   const year = currentDate.getFullYear();
   const month = currentDate.toLocaleString("default", { month: "long" });
   const daysInMonth = getDaysInMonth(currentDate);
   const firstDay = getFirstDayOfMonth(currentDate);
+  const today = new Date();
 
   return (
-    <div className="max-w-md mx-auto p-4 bg-gray-400 rounded-2xl shadow-lg">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-4">
+    <div className="mx-auto max-w-md rounded-2xl border border-vibe-border bg-vibe-surface p-4 shadow-panel">
+      <div className="mb-4 flex items-center justify-between">
         <button
           onClick={goToPreviousMonth}
-          className="p-2 hover:bg-gray-200 rounded-full"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-text hover:border-vibe-primary/60"
+          type="button"
+          aria-label="Previous month"
         >
-          <svg
-            className="w-5 h-5 text-gray-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <FiChevronLeft size={18} />
         </button>
-        <div className="text-lg font-semibold text-gray-700">
+        <div className="font-heading text-lg font-semibold text-vibe-text">
           {month} {year}
         </div>
         <button
           onClick={goToNextMonth}
-          className="p-2 hover:bg-gray-200 rounded-full"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-text hover:border-vibe-primary/60"
+          type="button"
+          aria-label="Next month"
         >
-          <svg
-            className="w-5 h-5 text-gray-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
+          <FiChevronRight size={18} />
         </button>
       </div>
 
-      {/* Week Days */}
-      <div className="grid grid-cols-7 text-center text-sm text-gray-500 mb-2">
+      <div className="mb-2 grid grid-cols-7 text-center text-xs font-semibold uppercase tracking-wide text-vibe-muted">
         {days.map((day) => (
           <div key={day}>{day}</div>
         ))}
       </div>
 
-      {/* Dates */}
-      <div className="grid grid-cols-7 text-center text-gray-700 gap-y-1">
+      <div className="grid grid-cols-7 gap-1 text-center text-sm text-vibe-subtext">
         {Array.from({ length: firstDay }).map((_, i) => (
-          <div key={`empty-${i}`}></div>
+          <div key={`empty-${i}`} />
         ))}
-        {Array.from({ length: daysInMonth }).map((_, i) => (
-          <div
-            key={i + 1}
-            className="p-2 rounded-full hover:bg-blue-200 cursor-pointer"
-          >
-            {i + 1}
-          </div>
-        ))}
+        {Array.from({ length: daysInMonth }).map((_, i) => {
+          const day = i + 1;
+          const isToday =
+            today.getDate() === day &&
+            today.getMonth() === currentDate.getMonth() &&
+            today.getFullYear() === currentDate.getFullYear();
+
+          return (
+            <div
+              key={day}
+              className={`rounded-xl p-2 ${
+                isToday
+                  ? "bg-vibe-primary text-white"
+                  : "hover:bg-vibe-elevated hover:text-vibe-text"
+              }`}
+            >
+              {day}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

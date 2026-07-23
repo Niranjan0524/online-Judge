@@ -1,17 +1,18 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "../store/AuthContext";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
-  FaRegThumbsUp,
-  FaRegThumbsDown,
-  FaTrashAlt,
-  FaUserCircle,
-} from "react-icons/fa";
-import { AiTwotoneDislike } from "react-icons/ai";
-import { AiTwotoneLike } from "react-icons/ai";
+  FiMessageSquare,
+  FiPlus,
+  FiSend,
+  FiThumbsDown,
+  FiThumbsUp,
+  FiTrash2,
+  FiUser,
+} from "react-icons/fi";
+import { useAuth } from "../store/AuthContext";
 
 const Discussion = ({ problemId }) => {
-  const { token ,user} = useAuth();
+  const { token, user } = useAuth();
   const [discussions, setDiscussions] = useState([]);
   const [selectedDiscussion, setSelectedDiscussion] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -19,16 +20,10 @@ const Discussion = ({ problemId }) => {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [msgLoading, setMsgLoading] = useState(false);
-  
 
-
-
-  // Fetch all discussions for this problem
   const fetchDiscussions = async () => {
     fetch(
-      `${
-        import.meta.env.VITE_BACKEND_URL
-      }/api/discussion/getAllDiscussions/${problemId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/discussion/getAllDiscussions/${problemId}`,
       {
         method: "GET",
         headers: {
@@ -52,12 +47,9 @@ const Discussion = ({ problemId }) => {
       });
   };
 
-  // Fetch all messages for a discussion
   const fetchMessages = async (discussionId) => {
     fetch(
-      `${
-        import.meta.env.VITE_BACKEND_URL
-      }/api/discussion/getAllMessages/${discussionId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/discussion/getAllMessages/${discussionId}`,
       {
         method: "GET",
         headers: {
@@ -91,7 +83,6 @@ const Discussion = ({ problemId }) => {
     }
   }, [selectedDiscussion]);
 
-  // Handle new discussion creation
   const handleCreateDiscussion = async (e) => {
     e.preventDefault();
     if (!newDiscussionTitle.trim()) {
@@ -136,7 +127,6 @@ const Discussion = ({ problemId }) => {
       });
   };
 
-  // Handle new message creation
   const handleAddMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) {
@@ -179,13 +169,7 @@ const Discussion = ({ problemId }) => {
       });
   };
 
-   
-
-  
   const handleLike = (messageId) => {
-   
-   
-
     if (!messageId) {
       toast.error("Message ID is required to like a message");
       return;
@@ -207,19 +191,18 @@ const Discussion = ({ problemId }) => {
         }
         setMessages((prevMessages) =>
           prevMessages.map((msg) =>
-            msg._id === messageId ? { ...msg, likes: data.likes, dislikes: data.dislikes } : msg
+            msg._id === messageId
+              ? { ...msg, likes: data.likes, dislikes: data.dislikes }
+              : msg
           )
         );
-    
       })
       .catch((err) => {
         console.error("Error liking message:", err);
-       
       });
-  }
+  };
 
-  const handleDislike=(messageId)=>{
-   
+  const handleDislike = (messageId) => {
     if (!messageId) {
       toast.error("Message ID is required to dislike a message");
       return;
@@ -242,73 +225,70 @@ const Discussion = ({ problemId }) => {
         }
         setMessages((prevMessages) =>
           prevMessages.map((msg) =>
-            msg._id === messageId ? { ...msg, dislikes: data.dislikes, likes: data.likes } : msg
+            msg._id === messageId
+              ? { ...msg, dislikes: data.dislikes, likes: data.likes }
+              : msg
           )
         );
-        
       })
       .catch((err) => {
         console.error("Error disliking message:", err);
-       
       });
-  }
+  };
 
-  const handleDelete=async(messageId)=>{ 
-   
-
-    if(!messageId){
+  const handleDelete = async (messageId) => {
+    if (!messageId) {
       toast.error("Message ID is required to delete a message");
       return;
     }
 
-    const deleteLoader=toast.loading("Deleting message...");
+    const deleteLoader = toast.loading("Deleting message...");
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/deleteMessage/${messageId}`, {
       method: "DELETE",
-      headers:{
+      headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, 
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
-    .then(async(res)=>{
-      const data=await res.json();
+      .then(async (res) => {
+        const data = await res.json();
 
-      if(res.status!==200){
-        console.error("Error deleting message:", data.message || "Failed to delete message");
-        toast.error(data.message || "Failed to delete message");
-        return;
-      }
+        if (res.status !== 200) {
+          console.error("Error deleting message:", data.message || "Failed to delete message");
+          toast.error(data.message || "Failed to delete message");
+          return;
+        }
 
-      setMessages(data.remainingMessages || []);
-      toast.success("Message deleted successfully");
-    })
-    .catch((err)=>{
-      setMessages([]);
-      console.error("Error deleting message:", err);
-      toast.error("Failed to delete message");
-    })
-    .finally(()=>{
-      toast.dismiss(deleteLoader);
-    });
-  }
-
+        setMessages(data.remainingMessages || []);
+        toast.success("Message deleted successfully");
+      })
+      .catch((err) => {
+        setMessages([]);
+        console.error("Error deleting message:", err);
+        toast.error("Failed to delete message");
+      })
+      .finally(() => {
+        toast.dismiss(deleteLoader);
+      });
+  };
 
   return (
-    <div className="bg-gray-800/80 text-gray-100 rounded-2xl p-8 max-w-3xl mx-auto shadow-xl min-h-[500px] border border-gray-700">
-      <h2 className="text-2xl font-bold mb-6 tracking-wide text-blue-400">
-        Discussions
-      </h2>
+    <div className="min-h-[500px] rounded-2xl border border-vibe-border bg-vibe-surface p-4 text-vibe-text shadow-panel sm:p-5">
+      <div className="mb-5 flex items-center gap-2">
+        <FiMessageSquare className="text-vibe-primary" size={20} />
+        <h2 className="font-heading text-xl font-semibold">Discussions</h2>
+      </div>
 
-      {/* New Discussion */}
       <form
-        className="mb-8 bg-gray-800/80 rounded-xl p-4 border border-gray-700 shadow"
+        className="mb-6 rounded-2xl border border-vibe-border bg-vibe-background p-4"
         onSubmit={handleCreateDiscussion}
       >
-        <label className="block mb-2 font-semibold text-blue-300">
+        <label className="block text-sm font-medium text-vibe-subtext">
           Start a new discussion
         </label>
-        <div className="flex gap-2">
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
           <input
-            className="flex-1 px-3 py-2 rounded-md bg-gray-900 border border-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="min-w-0 flex-1 rounded-xl border border-vibe-border bg-vibe-surface px-3 py-2.5 text-sm text-vibe-text placeholder:text-vibe-muted hover:border-vibe-primary/60 focus:border-vibe-primary"
             type="text"
             placeholder="Discussion title..."
             value={newDiscussionTitle}
@@ -317,136 +297,126 @@ const Discussion = ({ problemId }) => {
           />
           <button
             type="submit"
-            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white px-4 py-2 rounded-md font-semibold transition"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={loading}
           >
+            <FiPlus size={15} />
             {loading ? "Posting..." : "Post"}
           </button>
         </div>
       </form>
 
-      {/* Discussions List */}
-      <div className="mb-8">
-        <div className="mb-2 text-lg font-semibold text-blue-300">
+      <div className="mb-6">
+        <div className="mb-3 text-sm font-semibold text-vibe-text">
           All Discussions
         </div>
         {discussions.length === 0 ? (
-          <div className="text-gray-400 italic">No discussions yet.</div>
+          <div className="rounded-2xl border border-dashed border-vibe-border bg-vibe-background p-6 text-center text-sm text-vibe-subtext">
+            No discussions yet.
+          </div>
         ) : (
           <div className="space-y-2">
             {discussions.map((d) => (
-              <div
+              <button
                 key={d._id}
-                className={`cursor-pointer bg-gray-800/80 rounded-xl px-4 py-3 border transition shadow hover:shadow-lg ${
+                className={`w-full rounded-xl border px-4 py-3 text-left ${
                   selectedDiscussion && selectedDiscussion._id === d._id
-                    ? "border-indigo-500 bg-gray-900/80 text-gray-100"
-                    : "border-gray-700 hover:bg-gray-700/50 hover:text-gray-100"
+                    ? "border-vibe-primary bg-vibe-primary/10"
+                    : "border-vibe-border bg-vibe-background hover:border-vibe-primary/60 hover:bg-vibe-elevated"
                 }`}
                 onClick={() => setSelectedDiscussion(d)}
+                type="button"
               >
-                <div className="font-semibold text-gray-100">{d.title}</div>
-                <div className="text-xs text-gray-400">
+                <div className="font-semibold text-vibe-text">{d.title}</div>
+                <div className="mt-1 text-xs text-vibe-muted">
                   {new Date(d.createdAt).toLocaleString()}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Messages Section */}
       {selectedDiscussion && (
-        <div className="bg-gray-800/80 rounded-xl p-4 border border-gray-700 mt-4 shadow">
-          <div className="mb-2 font-semibold text-lg text-indigo-300">
+        <section className="rounded-2xl border border-vibe-border bg-vibe-background p-4">
+          <div className="font-heading text-lg font-semibold text-vibe-text">
             {selectedDiscussion.title}
           </div>
-          <div className="mb-4 text-sm text-gray-400">Messages</div>
+          <div className="mb-4 mt-1 text-sm text-vibe-subtext">Messages</div>
 
-          <div className="space-y-3 max-h-64 overflow-y-auto mb-4 pr-1">
+          <div className="mb-4 max-h-72 space-y-3 overflow-y-auto pr-1">
             {messages.length === 0 ? (
-              <div className="text-gray-400 italic">No messages yet.</div>
+              <div className="rounded-xl border border-dashed border-vibe-border p-6 text-center text-sm text-vibe-subtext">
+                No messages yet.
+              </div>
             ) : (
               messages.map((msg) => (
-                <div
+                <article
                   key={msg._id}
-                  className="bg-gray-900/80 rounded-md px-3 py-2 border border-gray-700 flex flex-col"
+                  className="rounded-xl border border-vibe-border bg-vibe-surface p-4"
                 >
-                  {/* User Info */}
-                  <div className="flex items-center gap-2 mb-1">
-                    {/* Avatar */}
-                    <FaUserCircle className="text-2xl text-indigo-400" />
-                    {/* Username */}
-                    <span className="font-semibold text-gray-200">
-                      {msg.userId === user._id
-                        ? "You"
-                        : msg.username || "Anonymous"}
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-vibe-primary/10 text-vibe-primary">
+                      <FiUser size={16} />
+                    </span>
+                    <span className="font-semibold text-vibe-text">
+                      {msg.userId === user._id ? "You" : msg.username || "Anonymous"}
                     </span>
                   </div>
-                  {/* Message */}
-                  <div className="text-gray-200 mb-2 ml-8">{msg.message}</div>
-                  {/* Footer: Like/Unlike/Delete */}
-                  <div className="flex items-center justify-between mt-2 px-1">
-                    <div className="flex items-center gap-4">
+                  <p className="ml-10 whitespace-pre-wrap text-sm leading-6 text-vibe-subtext">
+                    {msg.message}
+                  </p>
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
                       <button
-                        className="flex items-center gap-1 text-gray-400 hover:text-indigo-400 transition"
+                        className={`inline-flex items-center gap-1 text-sm ${
+                          msg.likes?.includes(user._id)
+                            ? "text-vibe-primary"
+                            : "text-vibe-muted hover:text-vibe-primary"
+                        }`}
                         onClick={() => handleLike(msg._id)}
                         title="Like"
+                        type="button"
                       >
-                        {msg.likes?.includes(user._id) ? (
-                          <AiTwotoneLike
-                            className="text-indigo-400"
-                            size={20}
-                          />
-                        ) : (
-                          <FaRegThumbsUp />
-                        )}
-                        <span className="text-xs">
-                          {msg.likes?.length || 0}
-                        </span>
+                        <FiThumbsUp size={16} />
+                        {msg.likes?.length || 0}
                       </button>
                       <button
-                        className="flex items-center gap-1 text-gray-400 hover:text-red-400 transition"
+                        className={`inline-flex items-center gap-1 text-sm ${
+                          msg.dislikes?.includes(user._id)
+                            ? "text-vibe-danger"
+                            : "text-vibe-muted hover:text-vibe-danger"
+                        }`}
                         onClick={() => handleDislike(msg._id)}
                         title="Dislike"
+                        type="button"
                       >
-                        {msg.dislikes?.includes(user._id) ? (
-                          <AiTwotoneDislike
-                            className="text-indigo-400"
-                            size={20}
-                          />
-                        ) : (
-                          <FaRegThumbsDown />
-                        )}
-                        <span className="text-xs">
-                          {msg.dislikes?.length || 0}
-                        </span>
+                        <FiThumbsDown size={16} />
+                        {msg.dislikes?.length || 0}
                       </button>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500">
-                        {new Date(msg.createdAt).toLocaleString()}
-                      </span>
+                    <div className="flex items-center gap-2 text-xs text-vibe-muted">
+                      {new Date(msg.createdAt).toLocaleString()}
                       {user?._id === msg.userId && (
-                        <>
-                          <button
-                            className="text-gray-400 hover:text-red-500 transition"
-                            onClick={() => handleDelete(msg._id)}
-                            title="Delete"
-                          >
-                            <FaTrashAlt />
-                          </button>
-                        </>
+                        <button
+                          className="text-vibe-muted hover:text-vibe-danger"
+                          onClick={() => handleDelete(msg._id)}
+                          title="Delete"
+                          type="button"
+                        >
+                          <FiTrash2 size={15} />
+                        </button>
                       )}
                     </div>
                   </div>
-                </div>
+                </article>
               ))
             )}
           </div>
-          {/* New Message */}
-          <form className="flex gap-2" onSubmit={handleAddMessage}>
+
+          <form className="flex flex-col gap-2 sm:flex-row" onSubmit={handleAddMessage}>
             <input
-              className="flex-1 px-3 py-2 rounded-md bg-gray-900 border border-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="min-w-0 flex-1 rounded-xl border border-vibe-border bg-vibe-surface px-3 py-2.5 text-sm text-vibe-text placeholder:text-vibe-muted hover:border-vibe-primary/60 focus:border-vibe-primary"
               type="text"
               placeholder="Type your message..."
               value={newMessage}
@@ -455,13 +425,14 @@ const Discussion = ({ problemId }) => {
             />
             <button
               type="submit"
-              className="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white px-4 py-2 rounded-md font-semibold transition"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
               disabled={msgLoading}
             >
+              <FiSend size={15} />
               {msgLoading ? "Sending..." : "Send"}
             </button>
           </form>
-        </div>
+        </section>
       )}
     </div>
   );

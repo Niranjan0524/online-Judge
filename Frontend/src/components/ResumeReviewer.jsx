@@ -1,19 +1,8 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { Circles } from "react-loader-spinner";
 import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
-
-function extractSection(markdown, sectionTitle) {
-  const pattern = new RegExp(
-    `\\*\\*${sectionTitle}:\\*\\*[\\s\\S]*?(?=\\*\\*\\w+:\\*\\*|$)`,
-    "i"
-  );
-  const match = markdown.match(pattern);
-  if (!match) return `No ${sectionTitle.toLowerCase()} found.`;
-  return match[0].replace(`**${sectionTitle}:**`, "").trim();
-}
-
-
+import { FiCheckCircle, FiFileText, FiUpload, FiXCircle } from "react-icons/fi";
 
 const ResumeReviewer = () => {
   const [resumeFile, setResumeFile] = useState(null);
@@ -30,19 +19,19 @@ const ResumeReviewer = () => {
     if (!resumeFile) return;
     setLoading(true);
     setReview("");
-    const formData=new FormData();
-    formData.append("resume",resumeFile);
+    const formData = new FormData();
+    formData.append("resume", resumeFile);
     const token = localStorage.getItem("token");
-    if(!token){
+    if (!token) {
       setLoading(false);
       toast.error("You need to be logged in to upload a resume.");
       return;
     }
-    
+
     await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/resume/getReview`, {
       method: "POST",
-      headers:{
-        authorization:`Bearer ${localStorage.getItem("token")}`,
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: formData,
     })
@@ -59,102 +48,129 @@ const ResumeReviewer = () => {
       });
   };
 
+  const hasReview = review && typeof review === "object" && Object.keys(review).length > 0;
 
   return (
-    <div className="max-w-6xl mx-auto bg-gradient-to-br from-[#0a1020] to-[#1e293b] rounded-xl shadow-lg p-8 border border-[#2a3447] ">
-      <h2 className="text-3xl font-bold text-yellow-400 mb-2">
-        Resume Reviewer
-      </h2>
-      <p className="text-gray-300 mb-6">
-        Upload your resume (PDF or DOCX) and get instant AI-powered feedback!
-      </p>
-      <div className="w-full flex flex-col items-center gap-4">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf,.doc,.docx"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        <button
-          className="bg-gradient-to-r from-yellow-500 to-red-800 text-white font-semibold px-6 py-2 rounded-lg shadow hover:scale-105 transition"
-          onClick={() => fileInputRef?.current.click()}
-        >
-          {resumeFile ? "Change Resume" : "Choose Resume"}
-        </button>
-        {resumeFile && (
-          <div className="text-blue-300 text-sm font-mono">
-            Selected: {resumeFile.name}
+    <div className="min-h-screen bg-vibe-background px-4 py-10 text-vibe-text sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl space-y-6">
+        <section className="rounded-2xl border border-vibe-border bg-vibe-surface p-6 shadow-panel sm:p-8">
+          <p className="text-sm font-semibold uppercase tracking-wide text-vibe-secondary">
+            AI Review
+          </p>
+          <h1 className="mt-3 font-heading text-4xl font-bold text-vibe-text">
+            Resume Reviewer
+          </h1>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-vibe-subtext">
+            Upload a PDF or DOCX resume and get structured feedback on strengths,
+            weaknesses, and practical improvements.
+          </p>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.doc,.docx"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <button
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-4 py-3 text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+              onClick={() => fileInputRef?.current.click()}
+              type="button"
+            >
+              <FiFileText size={16} />
+              {resumeFile ? "Change Resume" : "Choose Resume"}
+            </button>
+            <button
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-3 text-sm font-semibold text-white hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={handleUpload}
+              disabled={hasReview || !resumeFile || loading}
+              type="button"
+            >
+              {loading ? (
+                <>
+                  <Circles height="18" width="18" color="#fff" visible={true} />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <FiUpload size={16} />
+                  Upload & Get Review
+                </>
+              )}
+            </button>
           </div>
-        )}
-        <button
-          className="bg-gradient-to-r from-green-400 to-green-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-60"
-          onClick={handleUpload}
-          disabled={Object.keys(review).length>0  || !resumeFile || loading}
-        >
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <Circles height="20" width="20" color="#fff" visible={true} />
-              Uploading...
-            </span>
-          ) : (
-            "Upload & Get Review"
-          )}
-        </button>
-      </div>
-      <div className="w-full mt-8">
-        <h3 className="text-2xl font-bold text-yellow-300 mb-4">
-          ✨ AI-Powered Resume Review
-        </h3>
 
-        <div className="bg-gray-900/80 border border-yellow-400 rounded-2xl p-6 min-h-[120px] text-gray-100 font-mono shadow-lg transition-all duration-300 ease-in-out scrollbar-thin scrollbar-thumb-yellow-500/50 scrollbar-track-gray-800/50">
-          {loading ? (
-            <div className="text-yellow-400 text-lg animate-pulse">
-              ⏳ Analyzing your resume...
+          {resumeFile && (
+            <div className="mt-4 rounded-xl border border-vibe-border bg-vibe-background px-4 py-3 font-mono text-xs text-vibe-subtext">
+              Selected: {resumeFile.name}
             </div>
-          ) : Object.keys(review).length ? (
-            <div className="space-y-6 text-base leading-relaxed animate-fade-in">
-              <section className="bg-green-1000 p-4 rounded-xl shadow-sm border border-green-300">
-                <h2 className="text-green-700 text-xl font-semibold mb-2">
-                  ✅ Strengths
-                </h2>
-                <ReactMarkdown>
-                  {Array.isArray(review.strengths)
-                    ? review.strengths.join("\n")
-                    : review.strengths || "No strengths found."}
-                </ReactMarkdown>
-              </section>
-
-              <section className="bg-pink-1000 p-4 rounded-xl shadow-sm border border-pink-800">
-                <h2 className="text-pink-700 text-xl font-semibold mb-2">
-                  ⚠️ Weaknesses
-                </h2>
-                <ReactMarkdown>
-                  {Array.isArray(review.weaknesses)
-                    ? review.weaknesses.join("\n")
-                    : review.weaknesses || "No weaknesses found."}
-                </ReactMarkdown>
-              </section>
-
-              <section className="bg-blue-1000 p-4 rounded-xl shadow-sm border border-blue-300">
-                <h2 className="text-blue-700 text-xl font-semibold mb-2">
-                  💡 Recommendations
-                </h2>
-                <ReactMarkdown>
-                  {Array.isArray(review.recommendations)
-                    ? review.recommendations.join("\n")
-                    : review.recommendations || "No recommendations found."}
-                </ReactMarkdown>
-              </section>
-            </div>
-          ) : (
-            <span className="text-gray-400 italic">
-              📄 Upload your resume to generate a detailed review.
-            </span>
           )}
-        </div>
+        </section>
+
+        <section className="rounded-2xl border border-vibe-border bg-vibe-surface p-6 shadow-panel sm:p-8">
+          <h2 className="font-heading text-2xl font-semibold text-vibe-text">
+            AI-Powered Resume Review
+          </h2>
+
+          <div className="mt-5 min-h-40 rounded-2xl border border-vibe-border bg-vibe-background p-5">
+            {loading ? (
+              <div className="flex items-center gap-3 text-sm text-vibe-subtext">
+                <Circles height="20" width="20" color="#6366F1" visible={true} />
+                Analyzing your resume...
+              </div>
+            ) : hasReview ? (
+              <div className="grid gap-4 lg:grid-cols-3">
+                <ReviewSection
+                  title="Strengths"
+                  icon={FiCheckCircle}
+                  tone="success"
+                  content={review.strengths || "No strengths found."}
+                />
+                <ReviewSection
+                  title="Weaknesses"
+                  icon={FiXCircle}
+                  tone="danger"
+                  content={review.weaknesses || "No weaknesses found."}
+                />
+                <ReviewSection
+                  title="Recommendations"
+                  icon={FiUpload}
+                  tone="primary"
+                  content={review.recommendations || "No recommendations found."}
+                />
+              </div>
+            ) : (
+              <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-vibe-border text-center text-sm text-vibe-subtext">
+                Upload your resume to generate a detailed review.
+              </div>
+            )}
+          </div>
+        </section>
       </div>
     </div>
+  );
+};
+
+const ReviewSection = ({ title, icon: Icon, tone, content }) => {
+  const toneClass = {
+    success: "text-vibe-success border-vibe-success/30 bg-vibe-success/10",
+    danger: "text-vibe-danger border-vibe-danger/30 bg-vibe-danger/10",
+    primary: "text-vibe-primary border-vibe-primary/30 bg-vibe-primary/10",
+  }[tone];
+
+  return (
+    <article className={`rounded-2xl border p-4 ${toneClass}`}>
+      <div className="mb-3 flex items-center gap-2 font-semibold">
+        <Icon size={17} />
+        {title}
+      </div>
+      <div className="prose prose-invert max-w-none text-sm leading-7 text-vibe-subtext">
+        <ReactMarkdown>
+          {Array.isArray(content) ? content.join("\n") : content}
+        </ReactMarkdown>
+      </div>
+    </article>
   );
 };
 
