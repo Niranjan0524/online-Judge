@@ -1,26 +1,70 @@
-import { useState } from "react";
-import { useAuth } from "../store/AuthContext";
+import { useEffect, useState } from "react";
+import Editor from "@monaco-editor/react";
+import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
 import { Circles } from "react-loader-spinner";
 import { v4 as uuidv4 } from "uuid";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  FiCheckCircle,
+  FiClock,
+  FiCpu,
+  FiFileText,
+  FiPlay,
+  FiSend,
+  FiTerminal,
+  FiX,
+  FiXCircle,
+} from "react-icons/fi";
+import { useAuth } from "../store/AuthContext";
 import { useProblems } from "../store/ProblemsContext";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import Editor from "@monaco-editor/react";
 import { useTestCases } from "../store/TestCases";
-import ReactMarkdown from "react-markdown";
-import CodeBlock from "./CodeBlock";
 import { useSolutions } from "../store/SolutionContext";
-import { TbXboxX } from "react-icons/tb";
-import { RxCrossCircled } from "react-icons/rx";
-import Discussion from "./Discussion";
 import { useLeaderBoard } from "../store/LeaderBoardContext";
-import { use } from "react";
-import { useRef } from "react";
+import CodeBlock from "./CodeBlock";
+import Discussion from "./Discussion";
 
+const TABS = ["Description", "Result", "Submissions", "Discussions", "Hints"];
 
-const TABS = ["Description","Result", "Submissions", "Discussions", "Hints"];
+const difficultyStyles = {
+  easy: "border-vibe-success/30 bg-vibe-success/10 text-vibe-success",
+  medium: "border-vibe-warning/30 bg-vibe-warning/10 text-vibe-warning",
+  hard: "border-vibe-danger/30 bg-vibe-danger/10 text-vibe-danger",
+};
+
+const statusStyles = {
+  Accepted: "border-vibe-success/30 bg-vibe-success/10 text-vibe-success",
+  "Wrong Answer": "border-vibe-danger/30 bg-vibe-danger/10 text-vibe-danger",
+  Attempted: "border-vibe-primary/30 bg-vibe-primary/10 text-vibe-primary",
+  "Not Attempted": "border-vibe-warning/30 bg-vibe-warning/10 text-vibe-warning",
+};
+
+const renderCaseValue = (value) => {
+  if (value && typeof value === "object") {
+    return Object.entries(value).map(([key, item]) => (
+      <div key={key} className="flex gap-2">
+        <span className="text-vibe-muted">{key}:</span>
+        <span className="text-vibe-text">
+          {Array.isArray(item) ? JSON.stringify(item) : String(item)}
+        </span>
+      </div>
+    ));
+  }
+
+  return <div className="whitespace-pre-wrap text-vibe-text">{String(value)}</div>;
+};
+
+const LoadingIcon = () => (
+  <Circles
+    height="18"
+    width="18"
+    color="#FAFAFA"
+    ariaLabel="loading"
+    wrapperStyle={{}}
+    wrapperClass=""
+    visible={true}
+  />
+);
 
 const SolveProblem = () => {
   const [activeTab, setActiveTab] = useState("Description");
@@ -28,23 +72,23 @@ const SolveProblem = () => {
   const [output, setOutput] = useState("");
   const [input, setInput] = useState("");
   const [testcase, setTestcase] = useState("");
-  const [running ,setRunning]=useState(false);
+  const [running, setRunning] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [className,setClassName]=useState("");
-  const {testCases}=useTestCases();
-  const [correctness, setCorrectness] = useState({correct:0,total:0}); 
+  const [className, setClassName] = useState("");
+  const { testCases } = useTestCases();
+  const [correctness, setCorrectness] = useState({ correct: 0, total: 0 });
   const [lang, setLang] = useState("cpp");
   const [status, setStatus] = useState("Not Attempted");
   const [aiReview, setAiReview] = useState(null);
   const [reviewing, setReviewing] = useState(false);
   const [currSolution, setCurrSolution] = useState();
-  const [viewSubmission, setViewSubmission] = useState(false);  
+  const [viewSubmission, setViewSubmission] = useState(false);
   const [currSubmission, setCurrSubmission] = useState(null);
 
   const { solutions, fetchSolutions } = useSolutions();
   const { problems } = useProblems();
   const navigate = useNavigate();
-  const {  problemId ,contestId} = useParams();
+  const { problemId, contestId } = useParams();
 
   const problem = problems.find((p) => p._id === problemId);
   const currTestCases = testCases.filter((tc) => tc.problemId === problemId);
@@ -53,13 +97,11 @@ const SolveProblem = () => {
   const { token } = useAuth();
 
   const handleLangChange = (value) => {
-
-    
     setLang(value);
     let className;
     if (value === "java") {
       className = uuidv4();
-      
+
       className = "N" + className.replace(/-/g, "_");
       setClassName(className);
       setCode(`public class ${className} {
@@ -70,113 +112,104 @@ const SolveProblem = () => {
     } else {
       setCode("// Write your code here...");
     }
-    
-  }
-  const handleRun = async() => {
+  };
 
-    
-    let data={}
-   if(lang==="java"){
-      data = {
-      lang,
-      code,
-      className,
-      problemId,
-      input:input
-    };
-   }
-   else{
-    if(lang==="javascript"){
-      data = {
-        lang:"js",
-        code,
-        problemId,
-        input:input
-      };
-    }
-    else if(lang==="python"){
-      data = {
-        lang:"py",
-        code,
-        problemId,
-        input:input
-      };
-    }
-    else{
+  const handleRun = async () => {
+    let data = {};
+    if (lang === "java") {
       data = {
         lang,
         code,
+        className,
         problemId,
-        input:input
+        input: input,
       };
+    } else {
+      if (lang === "javascript") {
+        data = {
+          lang: "js",
+          code,
+          problemId,
+          input: input,
+        };
+      } else if (lang === "python") {
+        data = {
+          lang: "py",
+          code,
+          problemId,
+          input: input,
+        };
+      } else {
+        data = {
+          lang,
+          code,
+          problemId,
+          input: input,
+        };
+      }
     }
 
-   }
-
-    if(!token){
+    if (!token) {
       toast.error("Unauthorized, Please login.");
       return;
     }
-    
-  
+
     setRunning(true);
     await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/run`, {
-      method:"POST",
-      headers:{
+      method: "POST",
+      headers: {
         "Content-Type": "application/json",
-        authorization:`Bearer ${token}`
+        authorization: `Bearer ${token}`,
       },
-      body:JSON.stringify(data)
-    }).then(async(res)=>{
-      const data=await res.json();
-      setRunning(false);
-      if(!res.ok){
-
-        if(res.status===401){
-          toast.error("Unauthorized. Please login again.");
-          return;
-        }
-        else if(res.status===400){
-          setOutput(data.message || "Error in running code");
-          toast.error(data.message || "Error in running code");
-          return;
-        }
-        else if(res.status===504){
-          setOutput("Server Timeout, Time Limit Exceeded");
-        
-          toast.error("Server Timeout, Time Limit Exceeded");
-          return;
-        }
-        toast.error(data.message || "Failed to run code");
-        return;
-      }
-
-      if(res.status===201){
-        setOutput(data.error || "Error in code");
-        toast.error(data.message);
-        return;
-      }
-      if(status === "Not Attempted"){
-        setStatus("Attempted");
-      }
-      setOutput(data.output || "No output");
-      toast.success("Code ran successfully");
+      body: JSON.stringify(data),
     })
-    .catch((err) => {
-      setRunning(false);
-      console.error("Error in running code:", err);
-      toast.error("Error in running code");
-    });
- 
-};
+      .then(async (res) => {
+        const data = await res.json();
+        setRunning(false);
+        if (!res.ok) {
+          if (res.status === 401) {
+            toast.error("Unauthorized. Please login again.");
+            return;
+          } else if (res.status === 400) {
+            setOutput(data.message || "Error in running code");
+            toast.error(data.message || "Error in running code");
+            return;
+          } else if (res.status === 504) {
+            setOutput("Server Timeout, Time Limit Exceeded");
+
+            toast.error("Server Timeout, Time Limit Exceeded");
+            return;
+          }
+          toast.error(data.message || "Failed to run code");
+          return;
+        }
+
+        if (res.status === 201) {
+          setOutput(data.error || "Error in code");
+          toast.error(data.message);
+          return;
+        }
+        if (status === "Not Attempted") {
+          setStatus("Attempted");
+        }
+        setOutput(data.output || "No output");
+        toast.success("Code ran successfully");
+      })
+      .catch((err) => {
+        setRunning(false);
+        console.error("Error in running code:", err);
+        toast.error("Error in running code");
+      });
+  };
 
   const handleSubmit = async () => {
- 
-    const url=contestId?`${import.meta.env.VITE_BACKEND_URL}/api/contest/${contestId}/submit`:`${import.meta.env.VITE_BACKEND_URL}/api/code/submit`;
-   
-    if(!token){
+    const url = contestId
+      ? `${import.meta.env.VITE_BACKEND_URL}/api/contest/${contestId}/submit`
+      : `${import.meta.env.VITE_BACKEND_URL}/api/code/submit`;
+
+    if (!token) {
       toast.error("Unauthorized,Please Login");
-      return ;
+      return;
     }
 
     let data = {};
@@ -186,32 +219,31 @@ const SolveProblem = () => {
         code,
         className,
         problemId,
-        
       };
     } else {
       if (lang === "javascript") {
         data = {
           lang: "js",
           code,
-          problemId
+          problemId,
         };
       } else if (lang === "python") {
         data = {
           lang: "py",
           code,
-          problemId
+          problemId,
         };
       } else {
         data = {
           lang,
           code,
-          problemId
+          problemId,
         };
       }
     }
 
     setSubmitting(true);
-    
+
     await fetch(url, {
       method: "POST",
       headers: {
@@ -219,111 +251,101 @@ const SolveProblem = () => {
         "content-type": "application/json",
       },
       body: JSON.stringify(data),
-    }).then(async (res) => {
-      const data = await res.json();
-      setSubmitting(false);
-    
-      if (!res.ok) {
-        if (res.status === 401) {
-          toast.error("Unauthorized. Please login again.");
-          return;
-        } else if (res.status === 400) {
-          toast.error(data.message || "Error in submission");
-          return;
-        } else if (res.status === 406) {
-          toast.error("Wrong code . please check your code");
-          setStatus("Wrong Answer");          
-          return;
-        }
-        else if(res.status===504){
-          toast.error("Server Timeout ,Time Limit Exceeded");
-          setStatus("Wrong Answer");
-          
-          return;
-        }
-        toast.error(data.message || "Failed to submit code");
-        
-        return;
-      }
-
-      if(res.status===201){
-        setOutput(data.error|| "Error in code");
-        return ;
-      }
-      // setActiveTab("Submissions");
-      await fetchSolutions();
-      let c = data.solution.testCasesPassed;
-      let t = data.output.length;
-
-      setStatus(data.solution.status);
-
-      setCorrectness({ correct: c, total: t });
-
-      toast.success("Code submitted Successfully");
-      setActiveTab("Result");
-      fetchLeaderBoardData();      
     })
-    .catch((err) => {
-      setSubmitting(false);
-      console.error("Error in submission:", err);
-      toast.error("Error in submission");
-    });
- 
+      .then(async (res) => {
+        const data = await res.json();
+        setSubmitting(false);
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            toast.error("Unauthorized. Please login again.");
+            return;
+          } else if (res.status === 400) {
+            toast.error(data.message || "Error in submission");
+            return;
+          } else if (res.status === 406) {
+            toast.error("Wrong code . please check your code");
+            setStatus("Wrong Answer");
+            return;
+          } else if (res.status === 504) {
+            toast.error("Server Timeout ,Time Limit Exceeded");
+            setStatus("Wrong Answer");
+
+            return;
+          }
+          toast.error(data.message || "Failed to submit code");
+
+          return;
+        }
+
+        if (res.status === 201) {
+          setOutput(data.error || "Error in code");
+          return;
+        }
+        await fetchSolutions();
+        let c = data.solution.testCasesPassed;
+        let t = data.output.length;
+
+        setStatus(data.solution.status);
+
+        setCorrectness({ correct: c, total: t });
+
+        toast.success("Code submitted Successfully");
+        setActiveTab("Result");
+        fetchLeaderBoardData();
+      })
+      .catch((err) => {
+        setSubmitting(false);
+        console.error("Error in submission:", err);
+        toast.error("Error in submission");
+      });
   };
 
-
-  const handleAIReview=()=>{
-    
-    if(!token){
+  const handleAIReview = () => {
+    if (!token) {
       toast.error("Unauthorized,Please Login");
-      return ;
-    }
-
-    if(!code || code.trim() === ""){
-      toast.error(
-        " please write some code to get AI review.",
-        {
-          duration: 6000,
-        }
-      );
       return;
     }
-    else{
+
+    if (!code || code.trim() === "") {
+      toast.error(" please write some code to get AI review.", {
+        duration: 6000,
+      });
+      return;
+    } else {
       setReviewing(true);
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/aiReview`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ code, problemId }),
-    }).then(async (res) => {
-      setReviewing(false);
-      const data = await res.json();
+      fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/aiReview`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ code, problemId }),
+      })
+        .then(async (res) => {
+          setReviewing(false);
+          const data = await res.json();
 
-      if (!res.ok) {
-        toast.error(data.message || "Error in AI Review");
-        return;
-      }
-      toast.success("AI Review generated successfully");
-      setAiReview(data.output);
-
-    })
-    .catch((err) => {
-      setReviewing(false);
-      console.error("Error in AI Review:", err);
-      toast.error("Error in AI Review");
-    });
+          if (!res.ok) {
+            toast.error(data.message || "Error in AI Review");
+            return;
+          }
+          toast.success("AI Review generated successfully");
+          setAiReview(data.output);
+        })
+        .catch((err) => {
+          setReviewing(false);
+          console.error("Error in AI Review:", err);
+          toast.error("Error in AI Review");
+        });
+    }
   };
-};
 
-
-  const handleSolutionView= (solutionId) => {
-
+  const handleSolutionView = (solutionId) => {
     setViewSubmission(true);
-    const code=solutions.find((sol) => sol._id === solutionId)?.code;
+    const code = solutions.find((sol) => sol._id === solutionId)?.code;
     setCurrSolution(code);
-  }
+  };
 
   const handleSolutionClose = () => {
     setViewSubmission(false);
@@ -346,7 +368,7 @@ const SolveProblem = () => {
       return;
     }
     setCurrSubmission(sub);
-    
+
     if (sub && sub.length > 0) {
       for (const sol of sub) {
         if (sol.status === "Accepted") {
@@ -367,88 +389,93 @@ const SolveProblem = () => {
     }
   }, [problemId, problem]);
 
-
-  useEffect(() => {
-    
-
-  },[solutions]);
-
-  
+  useEffect(() => {}, [solutions]);
 
   return (
-    <div  className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] text-white flex flex-col md:flex-row gap-6 px-4 py-8 md:px-12 ">
-      {/* Left: Problem Details */}
-      {/* <div className="md:w-2/5  w-fit h-auto bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col"> */}
-      <div className="md:w-2/5 w-fit h-auto bg-gray-900/80 rounded-2xl shadow-lg p-6 flex flex-col">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-2xl font-bold text-gray-100">
-            {problem && problem.title}
-            <div
-              className={`px-2 py-1 rounded-lg text-sm font-semibold shadow mr-2 mb-3 max-w-[70px]
-      ${
-        problem?.difficulty === "hard"
-          ? "bg-red-800 text-red-200 border border-red-400"
-          : problem?.difficulty === "medium"
-          ? "bg-yellow-800 text-yellow-300 border border-yellow-400"
-          : "bg-green-800 text-green-300 border border-green-400"
-      }`}
-            >
-              {problem?.difficulty.toUpperCase()}
+    <div className="min-h-screen bg-vibe-background px-4 py-6 text-vibe-text sm:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-[1800px] gap-5 xl:grid-cols-[minmax(420px,0.9fr)_minmax(0,1.25fr)]">
+        <section className="flex min-h-[calc(100vh-7rem)] flex-col rounded-2xl border border-vibe-border bg-vibe-surface shadow-panel">
+          <div className="border-b border-vibe-border p-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold uppercase tracking-wide text-vibe-secondary">
+                  Problem
+                </p>
+                <h1 className="mt-2 font-heading text-2xl font-bold text-vibe-text sm:text-3xl">
+                  {problem?.title || "Loading problem"}
+                </h1>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold capitalize ${
+                      difficultyStyles[problem?.difficulty] ||
+                      "border-vibe-border bg-vibe-background text-vibe-subtext"
+                    }`}
+                  >
+                    {problem?.difficulty || "unknown"}
+                  </span>
+                  <span
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                      statusStyles[status] ||
+                      "border-vibe-border bg-vibe-background text-vibe-subtext"
+                    }`}
+                  >
+                    Best Status: {status}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-vibe-border bg-vibe-background px-3 py-1 text-xs font-semibold text-vibe-subtext">
+                    <FiClock size={13} />
+                    {problem?.timeLimit || 1000} ms
+                  </span>
+                </div>
+              </div>
             </div>
-          </h2>
 
-          <div className="ml-4 display-flex items-center gap-2">
-            <div
-              className={`px-3 py-1 rounded-lg text-sm font-semibold shadow
-      ${
-        status === "Wrong Answer"
-          ? "bg-red-800 text-red-200 border border-red-400"
-          : status === "Not Attempted"
-          ? "bg-yellow-800 text-yellow-300 border border-yellow-400"
-          : status === "Attempted"
-          ? "bg-blue-800 text-blue-300 border border-blue-400"
-          : "bg-green-800 text-green-300 border border-green-400"
-      }`}
-            >
-              Best Status : {status}
+            <div className="mt-5 flex gap-2 overflow-x-auto">
+              {TABS.map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  className={`shrink-0 rounded-xl px-3 py-2 text-sm font-semibold ${
+                    activeTab === tab
+                      ? "bg-vibe-primary text-white"
+                      : "border border-vibe-border bg-vibe-background text-vibe-subtext hover:border-vibe-primary/60 hover:text-vibe-text"
+                  }`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-4 border-b border-gray-700">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              className={`px-3 py-1 text-sm font-semibold rounded-t ${
-                activeTab === tab
-                  ? "bg-gray-800 text-red-400 border-b-2 border-red-400"
-                  : "text-blue-200 hover:text-red-300"
-              }`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-        {/* Tab Content */}
-        <div className="flex-1 h-auto overflow-y-auto">
-          {activeTab === "Description" && (
-            <div>
-              <p className="text-gray-200 font-mono text-lg mb-4">
-                {problem && problem.description}
-              </p>
+          <div className="flex-1 overflow-y-auto p-5">
+            {activeTab === "Description" && (
+              <div className="space-y-5">
+                <div className="rounded-2xl border border-vibe-border bg-vibe-background p-4">
+                  <p className="whitespace-pre-wrap text-sm leading-7 text-vibe-subtext">
+                    {problem?.description || "Problem description is loading."}
+                  </p>
+                </div>
 
-              {/* Modern Input/Output Format & Time Limit Display */}
-              <div className="flex flex-col gap-4 mb-4">
-                {/* Input Format */}
+                {problem?.tags?.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {problem.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-lg border border-vibe-border bg-vibe-background px-2.5 py-1 text-xs font-medium text-vibe-subtext"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 {problem?.inputFormat && problem.inputFormat.length > 0 && (
-                  <div className="bg-gradient-to-r from-grey-900 via-grey-800 to-grey-900 rounded-xl p-4 border border-blue-400 shadow">
-                    <div className="text-blue-300 font-bold text-base mb-2 flex items-center gap-2">
-                     
+                  <div className="rounded-2xl border border-vibe-border bg-vibe-background p-4">
+                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-vibe-text">
+                      <FiTerminal className="text-vibe-secondary" size={16} />
                       Input Format
                     </div>
-                    <ul className="list-disc list-inside text-blue-100 text-sm pl-2">
+                    <ul className="space-y-2 text-sm leading-6 text-vibe-subtext">
                       {problem.inputFormat.map((line, idx) => (
                         <li key={idx}>{line}</li>
                       ))}
@@ -456,14 +483,13 @@ const SolveProblem = () => {
                   </div>
                 )}
 
-                {/* Output Format */}
                 {problem?.outputFormat && problem.outputFormat.length > 0 && (
-                  <div className="bg-gradient-to-r from-grey-900 via-grey-800 to-grey-900 rounded-xl p-4 border border-green-400 shadow">
-                    <div className="text-green-300 font-bold text-base mb-2 flex items-center gap-2">
-                     
+                  <div className="rounded-2xl border border-vibe-border bg-vibe-background p-4">
+                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-vibe-text">
+                      <FiFileText className="text-vibe-success" size={16} />
                       Output Format
                     </div>
-                    <ul className="list-disc list-inside text-green-100 text-sm pl-2">
+                    <ul className="space-y-2 text-sm leading-6 text-vibe-subtext">
                       {problem.outputFormat.map((line, idx) => (
                         <li key={idx}>{line}</li>
                       ))}
@@ -471,385 +497,317 @@ const SolveProblem = () => {
                   </div>
                 )}
 
-                {/* Time Limit */}
-                <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-900 via-yellow-800 to-yellow-900 rounded-xl p-3 border border-yellow-400 shadow w-fit">
-                  <span className="text-yellow-200 font-semibold text-sm">
-                    Time Limit: {problem?.timeLimit || 1000} ms
-                  </span>
-                </div>
-                {/* Sample Test Cases */}
-                <div>
-                  {currTestCases &&
-                    currTestCases.slice(0, 2).map((tc) => (
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-vibe-text">
+                    Sample test cases
+                  </p>
+                  {currTestCases && currTestCases.length > 0 ? (
+                    currTestCases.slice(0, 2).map((tc, index) => (
                       <div
                         key={tc._id}
-                        className="font-mono glass-card mt-2 p-2 rounded bg-gray-800 border border-gray-300 mb-4"
+                        className="rounded-2xl border border-vibe-border bg-vibe-background p-4"
                       >
-                        <div className="text-blue-300 font-semibold">
-                          Sample Input:
-                        </div>
-                        {tc.input && typeof tc.input === "object" ? (
-                          Object.entries(tc.input).map(([key, value]) => (
-                            <div key={key} className="ml-2">
-                              <span className="text-gray-300">{key}:</span>{" "}
-                              <span className="text-gray-100">
-                                {Array.isArray(value)
-                                  ? JSON.stringify(value)
-                                  : String(value)}
-                              </span>
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-vibe-muted">
+                          Sample {index + 1}
+                        </p>
+                        <div className="grid gap-4 lg:grid-cols-2">
+                          <div>
+                            <p className="mb-2 text-sm font-semibold text-vibe-secondary">
+                              Input
+                            </p>
+                            <div className="rounded-xl border border-vibe-border bg-vibe-surface p-3 font-mono text-sm">
+                              {renderCaseValue(tc.input)}
                             </div>
-                          ))
-                        ) : (
-                          <div className="ml-2 text-gray-100">
-                            {String(tc.input)}
                           </div>
-                        )}
-                        <div className="text-green-300 font-semibold mt-1">
-                          Expected Output:
-                        </div>
-                        <div className="ml-2 text-gray-100">
-                          {String(tc.output)}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-
-              {aiReview && (
-                <div
-                  className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-2 border-yellow-400 rounded-2xl shadow-lg p-4 mb-4 transition-all duration-300"
-                  style={{
-                    minHeight: "160px",
-                    maxHeight: "160px",
-                    overflowY: "auto",
-                    scrollbarWidth: "none",
-                  }}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg font-bold bg-gradient-to-r from-yellow-400 via-red-400 to-pink-400 bg-clip-text text-transparent">
-                      AI Review
-                    </span>
-                  </div>
-                  <div
-                    className="prose prose-invert max-w-none text-gray-100 text-sm"
-                    style={{ scrollbarWidth: "none" }}
-                  >
-                    <ReactMarkdown
-                      components={{
-                        code({ node, inline, className, children, ...props }) {
-                          const match = /language-(\w+)/.exec(className || "");
-                          const code = String(children).replace(/\n$/, "");
-                          return !inline && match ? (
-                            <CodeBlock code={code} language={match[1]} />
-                          ) : (
-                            <code className={className} {...props}>
-                              {children}
-                            </code>
-                          );
-                        },
-                      }}
-                    >
-                      {aiReview}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-          {activeTab === "Submissions" && (
-            <div className="flex flex-col gap-2">
-              {!viewSubmission && solutions && (
-                // ...inside the Submissions tab...
-                <div className="flex flex-col gap-3">
-                  {currSubmission && currSubmission.length > 0 ? (
-                    currSubmission.map((sol) => (
-                      <div
-                        key={sol._id}
-                        className="flex items-center justify-between bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-3 shadow hover:shadow-lg transition-all cursor-pointer hover:bg-gray-700/50 hover:text-gray-100 transition"
-                        onClick={() => handleSolutionView(sol._id)}
-                      >
-                        <div className="flex-1">
-                          <div className="text-base font-semibold text-gray-100">
-                            {sol.titleName}
+                          <div>
+                            <p className="mb-2 text-sm font-semibold text-vibe-success">
+                              Expected Output
+                            </p>
+                            <div className="rounded-xl border border-vibe-border bg-vibe-surface p-3 font-mono text-sm text-vibe-text">
+                              {String(tc.output)}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-400">
-                            {sol.submittedAt
-                              ? new Date(sol.submittedAt).toLocaleString()
-                              : "Not submitted"}
-                          </div>
-                        </div>
-                        {/* Test Cases Passed */}
-                        <div className="mx-4 flex flex-col items-center">
-                          <span className="text-sm font-mono text-blue-300">
-                            {sol.testCasesPassed ?? 0} /{" "}
-                            {currTestCases.length ?? "-"}
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            Testcases
-                          </span>
-                        </div>
-                        <div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-bold
-        ${
-          sol.status === "Accepted"
-            ? "bg-green-900 text-green-300 border border-green-400"
-            : sol.status === "Wrong Answer"
-            ? "bg-red-900 text-red-200 border border-red-400"
-            : "bg-yellow-900 text-yellow-300 border border-yellow-400"
-        }
-      `}
-                          >
-                            {sol.status}
-                          </span>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-gray-400 italic">
-                      No submissions yet.
+                    <div className="rounded-2xl border border-dashed border-vibe-border bg-vibe-background p-6 text-center text-sm text-vibe-subtext">
+                      No sample test cases available.
                     </div>
                   )}
                 </div>
-              )}
-              {viewSubmission && currSolution && (
-                <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-3 shadow ">
-                  <button onClick={handleSolutionClose}>
-                    <RxCrossCircled size={25} />
-                  </button>
-                  <CodeBlock code={currSolution} language={lang} />{" "}
-                </div>
-              )}
-              {!solutions && !currSolution && (
-                <div className="text-gray-400 italic">
-                  No submissions available for this problem.
-                </div>
-              )}
-            </div>
-          )}
-          {activeTab === "Result" && (
-            <div className="flex flex-col items-center justify-center my-6">
-              {status === "Accepted" && (
-                <div className="bg-green-900/80 border border-green-400 rounded-xl px-6 py-4 flex flex-col items-center shadow">
-                  <span className="text-green-300 text-2xl font-bold flex items-center gap-2">
-                    <svg
-                      className="w-6 h-6 inline-block"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Submission Accepted
-                  </span>
-                  <span className="mt-2 text-lg text-gray-100">
-                    
-                    <span className="font-semibold text-yellow-300">
-                      {correctness.correct}
-                    </span>
-                    <span className="text-gray-400"> / </span>
-                    <span className="font-semibold text-yellow-300">
-                      {correctness.total}
-                    </span>{" "}
-                    test cases passed
-                  </span>
-                </div>
-              )}
-              {status === "Wrong Answer" && (
-                <div className="bg-gray-800/80 border border-red-400 rounded-xl px-6 py-4 flex flex-col items-center shadow">
-                  <span className="text-red-400 text-lg font-semibold flex items-center gap-2">
-                    <TbXboxX className="w-5 h-5 inline-block" />
-                    Wrong Answer
-                  </span>
-                  <span className="mt-2 text-lg text-gray-100">
-                    Correctness:{" "}
-                    <span className="font-semibold text-yellow-300">
-                      {correctness.correct}
-                    </span>
-                    <span className="text-gray-400"> / </span>
-                    <span className="font-semibold text-yellow-300">
-                      {correctness.total}
-                    </span>{" "}
-                    test cases passed
-                  </span>
-                </div>
-              )}
-              {status === "Not Attempted" && (
-                <div className="bg-gray-800/80 border border-yellow-400 rounded-xl px-6 py-4 flex flex-col items-center shadow">
-                  <span className="text-yellow-400 text-lg font-semibold flex items-center gap-2">
-                    <svg
-                      className="w-5 h-5 inline-block"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
-                      />
-                    </svg>
-                    Please attempt the problem
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-          {activeTab === "Discussions" && <Discussion problemId={problemId} />}
-          {activeTab === "Hints" && (
-            <div className="text-gray-400 italic">No hints available.</div>
-          )}
-        </div>
-      </div>
 
-      {/* Right: Code Editor & Actions */}
-      <div className="md:w-3/5 w-full flex flex-col gap-4">
-        {/* Code Editor Card */}
-        <div className="bg-gray-900/80 rounded-2xl shadow-lg p-4 flex flex-col">
-          {/* Label and Language Selector in one row */}
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-lg font-semibold text-blue-300">
-              Code Editor
-            </label>
-            <select
-              className="bg-gray-800 text-gray-100 rounded-lg p-2 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-[120px]"
-              value={lang}
-              onClick={()=>toast("More languages coming soon!",{icon:"🚀"})}
-              onChange={(e) => handleLangChange(e.target.value)}
-            >
-              <option value="cpp">c++</option>
-              {/* <option value="java">java </option>
-              <option value="python">python</option>
-              <option value="javascript">javascript</option> */}
-            </select>
+                {aiReview && (
+                  <div className="rounded-2xl border border-vibe-primary/30 bg-vibe-primary/10 p-4">
+                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-vibe-text">
+                      <FiCpu className="text-vibe-primary" size={16} />
+                      AI Review
+                    </div>
+                    <div className="max-h-64 overflow-y-auto text-sm leading-7 text-vibe-subtext">
+                      <ReactMarkdown
+                        components={{
+                          code({
+                            node,
+                            inline,
+                            className,
+                            children,
+                            ...props
+                          }) {
+                            const match = /language-(\w+)/.exec(
+                              className || ""
+                            );
+                            const code = String(children).replace(/\n$/, "");
+                            return !inline && match ? (
+                              <CodeBlock code={code} language={match[1]} />
+                            ) : (
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            );
+                          },
+                        }}
+                      >
+                        {aiReview}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "Result" && (
+              <div className="flex min-h-80 items-center justify-center">
+                <div
+                  className={`w-full max-w-md rounded-2xl border p-6 text-center ${
+                    statusStyles[status] ||
+                    "border-vibe-border bg-vibe-background text-vibe-subtext"
+                  }`}
+                >
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-current/20 bg-vibe-background/40">
+                    {status === "Accepted" ? (
+                      <FiCheckCircle size={24} />
+                    ) : status === "Wrong Answer" ? (
+                      <FiXCircle size={24} />
+                    ) : (
+                      <FiClock size={24} />
+                    )}
+                  </div>
+                  <p className="font-heading text-2xl font-bold">
+                    {status === "Accepted"
+                      ? "Submission Accepted"
+                      : status === "Wrong Answer"
+                      ? "Wrong Answer"
+                      : "Please attempt the problem"}
+                  </p>
+                  {status !== "Not Attempted" && (
+                    <p className="mt-3 text-sm">
+                      {correctness.correct} / {correctness.total} test cases
+                      passed
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "Submissions" && (
+              <div className="space-y-3">
+                {!viewSubmission && solutions && (
+                  <>
+                    {currSubmission && currSubmission.length > 0 ? (
+                      currSubmission.map((sol) => (
+                        <button
+                          key={sol._id}
+                          className="flex w-full flex-col gap-3 rounded-2xl border border-vibe-border bg-vibe-background p-4 text-left hover:border-vibe-primary/60 hover:bg-vibe-elevated sm:flex-row sm:items-center sm:justify-between"
+                          onClick={() => handleSolutionView(sol._id)}
+                          type="button"
+                        >
+                          <span className="min-w-0">
+                            <span className="block truncate font-medium text-vibe-text">
+                              {sol.titleName}
+                            </span>
+                            <span className="mt-1 block text-xs text-vibe-muted">
+                              {sol.submittedAt
+                                ? new Date(sol.submittedAt).toLocaleString()
+                                : "Not submitted"}
+                            </span>
+                          </span>
+                          <span className="flex items-center gap-3">
+                            <span className="font-mono text-xs text-vibe-subtext">
+                              {sol.testCasesPassed ?? 0} /{" "}
+                              {currTestCases.length ?? "-"} tests
+                            </span>
+                            <span
+                              className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${
+                                statusStyles[sol.status] ||
+                                "border-vibe-border bg-vibe-surface text-vibe-subtext"
+                              }`}
+                            >
+                              {sol.status}
+                            </span>
+                          </span>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-vibe-border bg-vibe-background p-8 text-center text-sm text-vibe-subtext">
+                        No submissions yet.
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {viewSubmission && currSolution && (
+                  <div className="rounded-2xl border border-vibe-border bg-vibe-background p-4">
+                    <button
+                      onClick={handleSolutionClose}
+                      className="mb-3 inline-flex items-center gap-2 rounded-xl border border-vibe-border bg-vibe-surface px-3 py-2 text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+                      type="button"
+                    >
+                      <FiX size={16} />
+                      Close submission
+                    </button>
+                    <CodeBlock code={currSolution} language={lang} />
+                  </div>
+                )}
+
+                {!solutions && !currSolution && (
+                  <div className="rounded-2xl border border-dashed border-vibe-border bg-vibe-background p-8 text-center text-sm text-vibe-subtext">
+                    No submissions available for this problem.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "Discussions" && (
+              <div className="overflow-hidden rounded-2xl border border-vibe-border bg-vibe-background p-3">
+                <Discussion problemId={problemId} />
+              </div>
+            )}
+
+            {activeTab === "Hints" && (
+              <div className="rounded-2xl border border-dashed border-vibe-border bg-vibe-background p-8 text-center text-sm text-vibe-subtext">
+                No hints available.
+              </div>
+            )}
           </div>
-          <div
-            style={{ height: "60vh", width: "100%" }}
-            className="flex flex-row items-start"
-          >
-            <Editor
-              height="100%"
-              defaultLanguage={lang}
-              theme="vs-dark"
-              value={code}
-              onChange={(value) => setCode(value)}
-            />
-          </div>
-          <div className="flex gap-4 mt-4 justify-between items-center">
-            <div className="flex gap-4">
-              {running ? (
-                <button disabled={true} className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
-                  <Circles
-                    height="24"
-                    width="24"
-                    color="#fff"
-                    ariaLabel="loading"
-                    wrapperStyle={{}}
-                    wrapperClass=""
-                    visible={true}
-                  />
-                </button>
-              ) : (
+        </section>
+
+        <section className="flex min-h-[calc(100vh-7rem)] flex-col gap-4">
+          <div className="flex min-h-[560px] flex-1 flex-col rounded-2xl border border-vibe-border bg-vibe-surface shadow-panel">
+            <div className="flex flex-col gap-3 border-b border-vibe-border p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-vibe-text">
+                  Code Editor
+                </p>
+                <p className="mt-1 text-xs text-vibe-subtext">
+                  Write, run, submit, and review your solution.
+                </p>
+              </div>
+              <select
+                className="min-w-32 rounded-xl border border-vibe-border bg-vibe-background px-3 py-2 text-sm text-vibe-text hover:border-vibe-primary/60 focus:border-vibe-primary"
+                value={lang}
+                onClick={() => toast("More languages coming soon!")}
+                onChange={(e) => handleLangChange(e.target.value)}
+              >
+                <option value="cpp">C++</option>
+              </select>
+            </div>
+
+            <div className="min-h-[420px] flex-1 overflow-hidden">
+              <Editor
+                height="100%"
+                defaultLanguage={lang}
+                theme="vs-dark"
+                value={code}
+                onChange={(value) => setCode(value)}
+                options={{
+                  minimap: { enabled: false },
+                  fontFamily: "JetBrains Mono",
+                  fontSize: 14,
+                  padding: { top: 16 },
+                  scrollBeyondLastLine: false,
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 border-t border-vibe-border p-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <button
-                  className="bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-vibe-warning/30 bg-vibe-warning/10 px-4 py-2.5 text-sm font-semibold text-vibe-warning hover:bg-vibe-warning/15 disabled:cursor-not-allowed disabled:opacity-60"
                   onClick={handleRun}
-                  disabled={reviewing || submitting}
+                  disabled={reviewing || submitting || running}
+                  type="button"
                 >
-                  Run
+                  {running ? <LoadingIcon /> : <FiPlay size={16} />}
+                  {running ? "Running..." : "Run"}
                 </button>
-              )}
-              {submitting ? (
-                <button disabled={true} className="bg-gradient-to-r from-green-400 to-green-600 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
-                  <Circles
-                    height="24"
-                    width="24"
-                    color="#fff"
-                    ariaLabel="loading"
-                    wrapperStyle={{}}
-                    wrapperClass=""
-                    visible={true}
-                  />
-                </button>
-              ) : (
                 <button
-                  className="bg-gradient-to-r from-green-400 to-green-600 text-black font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-success px-4 py-2.5 text-sm font-semibold text-vibe-background hover:bg-vibe-success/90 disabled:cursor-not-allowed disabled:opacity-60"
                   onClick={handleSubmit}
-                  disabled={reviewing || running}
+                  disabled={reviewing || running || submitting}
+                  type="button"
                 >
-                  Submit
+                  {submitting ? <LoadingIcon /> : <FiSend size={16} />}
+                  {submitting ? "Submitting..." : "Submit"}
+                </button>
+              </div>
+
+              {!contestId && (
+                <button
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-vibe-primary/40 bg-vibe-primary/10 px-4 py-2.5 text-sm font-semibold text-vibe-primary hover:bg-vibe-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={handleAIReview}
+                  disabled={running || submitting || reviewing}
+                  type="button"
+                >
+                  {reviewing ? <LoadingIcon /> : <FiCpu size={16} />}
+                  {reviewing ? "Reviewing..." : "AI Review"}
                 </button>
               )}
-            </div>
-            <div>
-              {reviewing ? (
-                <button disabled={true} className="bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 text-white font-bold px-6 py-2 rounded-lg shadow hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
-                  <Circles
-                    height="24"
-                    width="24"
-                    color="#fff"
-                    ariaLabel="loading"
-                    wrapperStyle={{}}
-                    wrapperClass=""
-                    visible={true}
-                  />
-                </button>
-              ) : !contestId ? (
-                <button
-                  className="bg-gray-900/80 border border-red-300 px-6 py-2 rounded-lg shadow hover:scale-105 transition font-bold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                  onClick={handleAIReview}
-                  disabled={running || submitting}
-                >
-                  <span className="bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 bg-clip-text text-transparent text-lg flex items-center gap-2">
-                    AI Review
-                  </span>
-                </button>
-              ) : (
-                <div></div>
-              ) }
             </div>
           </div>
-        </div>
 
-        <div className="bg-gray-900/80 rounded-2xl shadow-lg p-4">
-          <label className="text-lg font-semibold  text-red-300 mb-2">
-            Input
-          </label>
-          <div className="bg-gray-800 text-gray-100 rounded-lg p-3 min-h-[48px] font-mono text-sm">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="rounded-2xl border border-vibe-border bg-vibe-surface p-4 shadow-panel">
+              <label
+                htmlFor="custom-input"
+                className="text-sm font-semibold text-vibe-text"
+              >
+                Input
+              </label>
+              <textarea
+                id="custom-input"
+                className="mt-3 h-24 w-full resize-none rounded-xl border border-vibe-border bg-vibe-background p-3 font-mono text-sm text-vibe-text placeholder:text-vibe-muted hover:border-vibe-primary/60 focus:border-vibe-primary"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Enter input here..."
+              />
+            </div>
+
+            <div className="rounded-2xl border border-vibe-border bg-vibe-surface p-4 shadow-panel">
+              <p className="text-sm font-semibold text-vibe-text">Output</p>
+              <div className="mt-3 min-h-24 rounded-xl border border-vibe-border bg-vibe-background p-3 font-mono text-sm text-vibe-subtext">
+                <pre className="whitespace-pre-wrap">
+                  {output || "Output will appear here."}
+                </pre>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-vibe-border bg-vibe-surface p-4 shadow-panel">
+            <label
+              htmlFor="custom-testcase"
+              className="text-sm font-semibold text-vibe-text"
+            >
+              Custom Testcase
+            </label>
             <textarea
-              className="w-full h-full bg-transparent text-gray-100 font-mono text-sm outline-none resize-none"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Enter input here..."
-              rows={2}
+              id="custom-testcase"
+              className="mt-3 h-20 w-full resize-y rounded-xl border border-vibe-border bg-vibe-background p-3 font-mono text-sm text-vibe-text placeholder:text-vibe-muted hover:border-vibe-primary/60 focus:border-vibe-primary"
+              value={testcase}
+              onChange={(e) => setTestcase(e.target.value)}
+              placeholder="Enter custom input here..."
             />
           </div>
-        </div>
-        <div className="bg-gray-900/80 rounded-2xl shadow-lg p-4">
-          <label className="text-lg font-semibold text-green-300 mb-2">
-            Output
-          </label>
-          <div className="bg-gray-800 text-gray-100 rounded-lg p-3 min-h-[48px] font-mono text-sm">
-            {output || "Output will appear here."}
-          </div>
-        </div>
-        {/* Testcase Area */}
-        <div className="bg-gray-900/80 rounded-2xl shadow-lg p-4">
-          <label className="text-lg font-semibold text-pink-300 mb-2">
-            Custom Testcase
-          </label>
-          <textarea
-            className="w-full h-16 bg-gray-800 text-gray-100 rounded-lg p-3 font-mono text-sm resize-y border border-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-400"
-            value={testcase}
-            onChange={(e) => setTestcase(e.target.value)}
-            placeholder="Enter custom input here..."
-          />
-        </div>
+        </section>
       </div>
     </div>
   );

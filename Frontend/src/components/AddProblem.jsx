@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { FiPlus, FiTrash2, FiX } from "react-icons/fi";
 
 const AddProblem = () => {
   const navigate = useNavigate();
@@ -43,7 +44,6 @@ const AddProblem = () => {
   const [description, setDescription] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
   const [difficulty, setDifficulty] = useState("easy");
-  // Each test case: { inputs: [{ name: "", value: "" }], output: "" }
   const [testCases, setTestCases] = useState([
     { inputs: [{ name: "", value: "" }], output: "" },
   ]);
@@ -104,7 +104,7 @@ const AddProblem = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const problemData={
+    const problemData = {
       title,
       description,
       difficulty,
@@ -117,14 +117,10 @@ const AddProblem = () => {
       })),
       output: tc.output,
     }));
-    
-   
-
-    
 
     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problem/add`, {
       method: "POST",
-      body: JSON.stringify({...problemData, testCases: testCasesData}),
+      body: JSON.stringify({ ...problemData, testCases: testCasesData }),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -144,223 +140,261 @@ const AddProblem = () => {
       });
   };
 
+  const difficultyClass = {
+    easy: "border-vibe-success bg-vibe-success/10 text-vibe-success",
+    medium: "border-vibe-warning bg-vibe-warning/10 text-vibe-warning",
+    hard: "border-vibe-danger bg-vibe-danger/10 text-vibe-danger",
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] flex justify-center items-start py-10 px-2 ">
+    <div className="min-h-screen bg-vibe-background px-4 py-10 text-vibe-text sm:px-6 lg:px-8">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-2xl bg-[#181c2a]/90 rounded-3xl shadow-2xl p-8 border-2 border-[#232946] flex flex-col gap-8"
+        className="mx-auto max-w-5xl space-y-6 rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel sm:p-8"
       >
-        <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 bg-clip-text text-transparent mb-4 tracking-tight">
-          Add New Problem
-        </h1>
-
-        {/* Title */}
         <div>
-          <label className="block text-lg font-semibold text-yellow-300 mb-2">
-            Title
-          </label>
-          <input
-            type="text"
-            className="w-full px-4 py-2 rounded-lg bg-[#232946] text-white border border-[#334155] focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            placeholder="Enter problem title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
+          <p className="text-sm font-semibold uppercase tracking-wide text-vibe-secondary">
+            Admin
+          </p>
+          <h1 className="mt-3 font-heading text-4xl font-bold text-vibe-text">
+            Add New Problem
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-vibe-subtext">
+            Create the problem statement, classify it with tags, and attach test cases.
+          </p>
         </div>
 
-        {/* Description */}
-        <div>
-          <label className="block text-lg font-semibold text-yellow-300 mb-2">
-            Description
-          </label>
-          <textarea
-            className="w-full px-4 py-2 rounded-lg bg-[#232946] text-white border border-[#334155] focus:outline-none focus:ring-2 focus:ring-yellow-400 min-h-[100px]"
-            placeholder="Enter problem description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-        </div>
+        <section className="grid gap-5 lg:grid-cols-[1fr_0.45fr]">
+          <div className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-vibe-subtext">
+                Title
+              </label>
+              <input
+                type="text"
+                className="mt-2 w-full rounded-xl border border-vibe-border bg-vibe-background px-4 py-3 text-sm text-vibe-text placeholder:text-vibe-muted hover:border-vibe-primary/60 focus:border-vibe-primary"
+                placeholder="Enter problem title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
 
-        {/* Tags */}
-        <div>
-          <label className="block text-lg font-semibold text-yellow-300 mb-2">
-            Tags
-          </label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {selectedTags.map((tag) => (
-              <span
-                key={tag}
-                className="flex items-center bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 text-black px-3 py-1 rounded-full font-semibold text-xs shadow cursor-pointer hover:scale-105 transition"
-              >
-                {tag}
-                <button
-                  type="button"
-                  className="ml-2 text-black hover:text-red-600"
-                  onClick={() => handleTagRemove(tag)}
-                  title="Remove tag"
-                >
-                  &times;
-                </button>
-              </span>
-            ))}
+            <div>
+              <label className="block text-sm font-medium text-vibe-subtext">
+                Description
+              </label>
+              <textarea
+                className="mt-2 min-h-40 w-full rounded-xl border border-vibe-border bg-vibe-background px-4 py-3 text-sm leading-6 text-vibe-text placeholder:text-vibe-muted hover:border-vibe-primary/60 focus:border-vibe-primary"
+                placeholder="Enter problem description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+              />
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
+
+          <aside className="space-y-5 rounded-2xl border border-vibe-border bg-vibe-background p-4">
+            <div>
+              <p className="text-sm font-medium text-vibe-subtext">Difficulty</p>
+              <div className="mt-3 grid gap-2">
+                {["easy", "medium", "hard"].map((level) => (
+                  <label
+                    key={level}
+                    className={`cursor-pointer rounded-xl border px-4 py-3 text-sm font-semibold capitalize ${
+                      difficulty === level
+                        ? difficultyClass[level]
+                        : "border-vibe-border bg-vibe-surface text-vibe-subtext hover:border-vibe-primary/60 hover:text-vibe-text"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="difficulty"
+                      value={level}
+                      checked={difficulty === level}
+                      onChange={() => setDifficulty(level)}
+                      className="sr-only"
+                    />
+                    {level}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section className="rounded-2xl border border-vibe-border bg-vibe-background p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-heading text-xl font-semibold text-vibe-text">
+                Tags
+              </h2>
+              <p className="mt-1 text-sm text-vibe-subtext">
+                Pick topics that describe this problem.
+              </p>
+            </div>
+            <span className="rounded-full border border-vibe-border bg-vibe-surface px-3 py-1 text-xs font-semibold text-vibe-subtext">
+              {selectedTags.length} selected
+            </span>
+          </div>
+
+          {selectedTags.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {selectedTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-2 rounded-xl border border-vibe-primary/30 bg-vibe-primary/10 px-3 py-2 text-xs font-semibold text-vibe-primary"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    className="text-vibe-primary hover:text-vibe-text"
+                    onClick={() => handleTagRemove(tag)}
+                    title="Remove tag"
+                  >
+                    <FiX size={14} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-4 flex max-h-48 flex-wrap gap-2 overflow-y-auto">
             {tags
               .filter((tag) => !selectedTags.includes(tag))
               .map((tag) => (
                 <button
                   type="button"
                   key={tag}
-                  className="bg-[#232946] border border-yellow-400 text-yellow-300 px-3 py-1 rounded-full text-xs font-semibold hover:bg-yellow-400 hover:text-[#232946] transition"
+                  className="rounded-xl border border-vibe-border bg-vibe-surface px-3 py-2 text-xs font-semibold text-vibe-subtext hover:border-vibe-primary/60 hover:text-vibe-text"
                   onClick={() => handleTagSelect(tag)}
                 >
                   {tag}
                 </button>
               ))}
           </div>
-        </div>
+        </section>
 
-        {/* Difficulty */}
-        <div>
-          <label className="block text-lg font-semibold text-yellow-300 mb-2">
-            Difficulty
-          </label>
-          <div className="flex gap-4">
-            {["easy", "medium", "hard"].map((level) => (
-              <label
-                key={level}
-                className={`px-4 py-2 rounded-lg cursor-pointer font-semibold capitalize transition border-2 ${
-                  difficulty === level
-                    ? level === "easy"
-                      ? "bg-green-500/20 border-green-400 text-green-300"
-                      : level === "medium"
-                      ? "bg-yellow-500/20 border-yellow-400 text-yellow-300"
-                      : "bg-red-500/20 border-red-400 text-red-300"
-                    : "bg-[#232946] border-[#334155] text-gray-300"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="difficulty"
-                  value={level}
-                  checked={difficulty === level}
-                  onChange={() => setDifficulty(level)}
-                  className="hidden"
-                />
-                {level}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Test Cases */}
-        <div>
-          <label className="block text-lg font-semibold text-yellow-300 mb-2">
-            Test Cases
-          </label>
-          <div className="flex flex-col gap-4">
-            {testCases.map((tc, tcIdx) => (
-              <div
-                key={tcIdx}
-                className="bg-[#232946] rounded-xl p-4 flex flex-col gap-4 border border-yellow-900 relative"
-              >
-                <button
-                  type="button"
-                  className="absolute top-2 right-2 text-red-400 hover:text-red-600 text-lg"
-                  onClick={() => removeTestCase(tcIdx)}
-                  disabled={testCases.length === 1}
-                  title="Remove test case"
-                >
-                  &times;
-                </button>
-                <div className="flex flex-col gap-2">
-                  <label className="text-yellow-200 text-sm font-semibold mb-1">
-                    Inputs
-                  </label>
-                  {tc.inputs.map((inp, inputIdx) => (
-                    <div key={inputIdx} className="flex gap-2 mb-1">
-                      <input
-                        type="text"
-                        className="w-1/3 px-3 py-2 rounded bg-[#181c2a] text-white border border-[#334155] focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                        placeholder="Name (e.g. capacity)"
-                        value={inp.name}
-                        onChange={(e) =>
-                          handleTestCaseInputChange(
-                            tcIdx,
-                            inputIdx,
-                            "name",
-                            e.target.value
-                          )
-                        }
-                        required
-                      />
-                      <input
-                        type="text"
-                        className="w-2/3 px-3 py-2 rounded bg-[#181c2a] text-white border border-[#334155] focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                        placeholder="Value (e.g. 2 or [1,2,3])"
-                        value={inp.value}
-                        onChange={(e) =>
-                          handleTestCaseInputChange(
-                            tcIdx,
-                            inputIdx,
-                            "value",
-                            e.target.value
-                          )
-                        }
-                        required
-                      />
-                      <button
-                        type="button"
-                        className="text-red-400 hover:text-red-600 text-xl px-2"
-                        onClick={() => removeTestCaseInput(tcIdx, inputIdx)}
-                        disabled={tc.inputs.length === 1}
-                        title="Remove input"
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    className="mt-1 bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 text-black px-3 py-1 rounded font-semibold text-xs shadow hover:scale-105 transition"
-                    onClick={() => addTestCaseInput(tcIdx)}
-                  >
-                    + Add Input
-                  </button>
-                </div>
-                <div className="flex flex-col gap-2 mt-2">
-                  <label className="text-yellow-200 text-sm font-semibold mb-1">
-                    Output
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 rounded bg-[#181c2a] text-white border border-[#334155] focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                    placeholder="Expected Output"
-                    value={tc.output}
-                    onChange={(e) =>
-                      handleTestCaseChange(tcIdx, "output", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-              </div>
-            ))}
+        <section className="space-y-4 rounded-2xl border border-vibe-border bg-vibe-background p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-heading text-xl font-semibold text-vibe-text">
+                Test Cases
+              </h2>
+              <p className="mt-1 text-sm text-vibe-subtext">
+                Define named inputs and expected output.
+              </p>
+            </div>
             <button
               type="button"
-              className="self-start mt-2 bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 text-black px-4 py-2 rounded-lg font-semibold shadow hover:scale-105 transition"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90"
               onClick={addTestCase}
             >
-              + Add Test Case
+              <FiPlus size={16} />
+              Add Test Case
             </button>
           </div>
-        </div>
 
-        {/* Submit Button */}
+          {testCases.map((tc, tcIdx) => (
+            <article
+              key={tcIdx}
+              className="rounded-2xl border border-vibe-border bg-vibe-surface p-4"
+            >
+              <div className="mb-4 flex items-center justify-between gap-4">
+                <h3 className="font-semibold text-vibe-text">
+                  Test Case {tcIdx + 1}
+                </h3>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-xl border border-vibe-danger/30 bg-vibe-danger/10 px-3 py-2 text-sm font-semibold text-vibe-danger hover:bg-vibe-danger/15 disabled:cursor-not-allowed disabled:opacity-40"
+                  onClick={() => removeTestCase(tcIdx)}
+                  disabled={testCases.length === 1}
+                >
+                  <FiTrash2 size={15} />
+                  Remove
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-vibe-subtext">Inputs</p>
+                {tc.inputs.map((inp, inputIdx) => (
+                  <div
+                    key={inputIdx}
+                    className="grid gap-2 sm:grid-cols-[0.5fr_1fr_auto]"
+                  >
+                    <input
+                      type="text"
+                      className="rounded-xl border border-vibe-border bg-vibe-background px-3 py-2.5 text-sm text-vibe-text placeholder:text-vibe-muted hover:border-vibe-primary/60 focus:border-vibe-primary"
+                      placeholder="Name"
+                      value={inp.name}
+                      onChange={(e) =>
+                        handleTestCaseInputChange(
+                          tcIdx,
+                          inputIdx,
+                          "name",
+                          e.target.value
+                        )
+                      }
+                      required
+                    />
+                    <input
+                      type="text"
+                      className="rounded-xl border border-vibe-border bg-vibe-background px-3 py-2.5 text-sm text-vibe-text placeholder:text-vibe-muted hover:border-vibe-primary/60 focus:border-vibe-primary"
+                      placeholder="Value, e.g. 2 or [1,2,3]"
+                      value={inp.value}
+                      onChange={(e) =>
+                        handleTestCaseInputChange(
+                          tcIdx,
+                          inputIdx,
+                          "value",
+                          e.target.value
+                        )
+                      }
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center rounded-xl border border-vibe-border bg-vibe-background px-3 py-2.5 text-vibe-subtext hover:border-vibe-danger/60 hover:text-vibe-danger disabled:cursor-not-allowed disabled:opacity-40"
+                      onClick={() => removeTestCaseInput(tcIdx, inputIdx)}
+                      disabled={tc.inputs.length === 1}
+                      title="Remove input"
+                    >
+                      <FiX size={16} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-3 py-2 text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+                  onClick={() => addTestCaseInput(tcIdx)}
+                >
+                  <FiPlus size={15} />
+                  Add Input
+                </button>
+              </div>
+
+              <div className="mt-5">
+                <label className="block text-sm font-medium text-vibe-subtext">
+                  Output
+                </label>
+                <input
+                  type="text"
+                  className="mt-2 w-full rounded-xl border border-vibe-border bg-vibe-background px-3 py-2.5 text-sm text-vibe-text placeholder:text-vibe-muted hover:border-vibe-primary/60 focus:border-vibe-primary"
+                  placeholder="Expected Output"
+                  value={tc.output}
+                  onChange={(e) =>
+                    handleTestCaseChange(tcIdx, "output", e.target.value)
+                  }
+                  required
+                />
+              </div>
+            </article>
+          ))}
+        </section>
+
         <button
           type="submit"
-          className="w-full mt-4 bg-gradient-to-r from-red-400 via-gray-400 to-yellow-400 text-black font-bold py-3 rounded-xl shadow-lg hover:scale-105 transition text-lg"
+          className="w-full rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-white shadow-panel hover:bg-vibe-primary/90"
         >
           Add Problem
         </button>

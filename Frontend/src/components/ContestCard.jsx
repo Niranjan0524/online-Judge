@@ -1,12 +1,7 @@
-import {
-  FaRegClock,
-  FaCheckCircle,
-  FaPlayCircle,
-  FaHistory,
-} from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import  {useAuth}  from "../store/AuthContext";
+import { FiCheckCircle, FiClock, FiPlayCircle, FiUsers } from "react-icons/fi";
+import { useAuth } from "../store/AuthContext";
 
 const getStatus = (contest) => {
   const now = new Date();
@@ -16,33 +11,24 @@ const getStatus = (contest) => {
   if (now >= start && now <= end) return "ongoing";
   if (now > end) return "past";
   return "unknown";
-};  
+};
 
-  
+const statusStyles = {
+  future: "border-vibe-secondary/30 bg-vibe-secondary/10 text-vibe-secondary",
+  ongoing: "border-vibe-success/30 bg-vibe-success/10 text-vibe-success",
+  past: "border-vibe-border bg-vibe-background text-vibe-subtext",
+};
 
 const ContestCard = ({ contest, onRegister, onUnregister, userId }) => {
   const [status, setStatus] = useState(getStatus(contest));
-
-  // ✅ Safe initialization with fallback
   const [isRegistered, setIsRegistered] = useState(
     contest.registeredUsers?.includes(userId) || false
   );
-  
-
-  
-const { token } = useAuth();
-  let statusColor =
-    status === "future"
-      ? "bg-blue-800 text-blue-200 border-blue-400"
-      : status === "ongoing"
-      ? "bg-green-800 text-green-300 border-green-400"
-      : "bg-gray-800 text-gray-300 border-gray-400";
-
+  const { token } = useAuth();
   const navigate = useNavigate();
 
   const handleContestClick = () => {
     if (isRegistered && status === "ongoing") {
-      
       navigate(`/contest/${contest._id}`);
     }
   };
@@ -50,13 +36,13 @@ const { token } = useAuth();
   const handleRegisterClick = (e) => {
     e.stopPropagation();
     onRegister(contest._id);
-    setIsRegistered(true); // ✅ Update local state immediately for UI feedback
+    setIsRegistered(true);
   };
 
   const handleUnregisterClick = (e) => {
     e.stopPropagation();
     onUnregister(contest._id);
-    setIsRegistered(false); // ✅ Update local state immediately for UI feedback
+    setIsRegistered(false);
   };
 
   const handleParticipateClick = (e) => {
@@ -64,7 +50,6 @@ const { token } = useAuth();
     handleContestClick();
   };
 
-  // ✅ Fixed useEffect with proper dependencies
   useEffect(() => {
     const fetchContestData = async () => {
       try {
@@ -73,16 +58,15 @@ const { token } = useAuth();
             contest._id
           }`,
           {
-            headers:{
+            headers: {
               "Content-Type": "application/json",
               authorization: `Bearer ${token}`,
-            }
+            },
           }
         );
         const data = await response.json();
         if (response.ok) {
           setStatus(getStatus(data.contest));
-          // ✅ Safe check for registeredUsers
           if (userId && data.contest.registeredUsers) {
             setIsRegistered(data.contest.registeredUsers.includes(userId));
           }
@@ -95,9 +79,8 @@ const { token } = useAuth();
     fetchContestData();
     const interval = setInterval(fetchContestData, 30000);
     return () => clearInterval(interval);
-  }, [contest._id, userId]); // ✅ Added proper dependencies
+  }, [contest._id, userId, token]);
 
-  // ✅ Update local state when props change
   useEffect(() => {
     if (contest.registeredUsers && userId) {
       setIsRegistered(contest.registeredUsers.includes(userId));
@@ -105,69 +88,88 @@ const { token } = useAuth();
   }, [contest.registeredUsers, userId]);
 
   return (
-    <div
-      className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg p-6 flex flex-col gap-2 hover:scale-[1.02] hover:shadow-xl transition-all duration-200 cursor-pointer"
+    <article
+      className={`rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel hover:border-vibe-primary/60 hover:bg-vibe-elevated ${
+        isRegistered && status === "ongoing" ? "cursor-pointer" : ""
+      }`}
       onClick={handleContestClick}
     >
-      <div className="flex items-center justify-between">
-        <h3 className="text-xl font-bold text-white">{contest.title}</h3>
-        <span
-          className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusColor}`}
-        >
-          {status === "future"
-            ? "Upcoming"
-            : status === "ongoing"
-            ? "Ongoing"
-            : "Past"}
-        </span>
-      </div>
-
-      <p className="text-gray-200 text-sm mb-2">{contest.description}</p>
-
-      <div className="flex gap-4 text-xs text-gray-300 font-mono">
-        <span>
-          <FaRegClock className="inline mr-1 text-yellow-300" />
-          {new Date(contest.startTime).toLocaleString()} -{" "}
-          {new Date(contest.endTime).toLocaleTimeString()}
-        </span>
-        {contest.attempted && (
-          <span className="flex items-center gap-1 text-green-300">
-            <FaCheckCircle /> Attempted
-          </span>
-        )}
-      </div>
-
-      {isRegistered && status === "ongoing" && (
-        <div className="flex items-center gap-2 mt-3">
-          <button
-            className="px-5 py-2 bg-gradient-to-r from-red-500 to-yellow-500 text-white font-semibold rounded-full shadow hover:scale-105 hover:bg-red-600 transition"
-            onClick={handleParticipateClick}
-          >
-            Participate in Contest
-          </button>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
+            <h3 className="font-heading text-xl font-semibold text-vibe-text">
+              {contest.title}
+            </h3>
+            <span
+              className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                statusStyles[status] || statusStyles.past
+              }`}
+            >
+              {status === "future"
+                ? "Upcoming"
+                : status === "ongoing"
+                ? "Ongoing"
+                : "Past"}
+            </span>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-vibe-subtext">
+            {contest.description}
+          </p>
         </div>
-      )}
+      </div>
 
-      {status === "future" && (
-        <div className="mt-3">
-          {isRegistered ? (
+      <div className="mt-5 grid gap-3 text-sm text-vibe-subtext sm:grid-cols-2">
+        <div className="flex items-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-3 py-2">
+          <FiClock className="text-vibe-secondary" size={16} />
+          <span>
+            {new Date(contest.startTime).toLocaleString()} -{" "}
+            {new Date(contest.endTime).toLocaleTimeString()}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-3 py-2">
+          <FiUsers className="text-vibe-primary" size={16} />
+          <span>{contest.registeredUsers?.length || 0} registered</span>
+          {contest.attempted && (
+            <span className="ml-auto inline-flex items-center gap-1 text-vibe-success">
+              <FiCheckCircle size={15} />
+              Attempted
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-3">
+        {isRegistered && status === "ongoing" && (
+          <button
+            className="inline-flex items-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+            onClick={handleParticipateClick}
+            type="button"
+          >
+            <FiPlayCircle size={16} />
+            Participate
+          </button>
+        )}
+
+        {status === "future" &&
+          (isRegistered ? (
             <button
-              className="px-5 py-2 bg-gradient-to-r from-red-500 to-yellow-500 text-white font-semibold rounded-full shadow hover:scale-105 hover:bg-red-600 transition"
-              onClick={handleUnregisterClick} // ✅ Fixed - pass event, not ID
+              className="rounded-xl border border-vibe-danger/30 bg-vibe-danger/10 px-4 py-2.5 text-sm font-semibold text-vibe-danger hover:bg-vibe-danger/15"
+              onClick={handleUnregisterClick}
+              type="button"
             >
               Unregister
             </button>
           ) : (
             <button
-              className="px-5 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-full shadow hover:scale-105 hover:bg-cyan-600 transition"
-              onClick={handleRegisterClick} // ✅ Fixed - pass event, not ID
+              className="rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+              onClick={handleRegisterClick}
+              type="button"
             >
               Register
             </button>
-          )}
-        </div>
-      )}
-    </div>
+          ))}
+      </div>
+    </article>
   );
 };
 

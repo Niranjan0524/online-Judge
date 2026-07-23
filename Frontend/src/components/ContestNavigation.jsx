@@ -1,50 +1,36 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  FaChevronLeft,
-  FaChevronRight,
-  FaTrophy,
-  FaList,
-  FaClock,
-  FaPlay,
-  FaPause,
-  FaStop,
-  FaCheck,
-  FaTimes,
-} from "react-icons/fa";
-import { useAuth } from "../store/AuthContext";
-import { useProblems } from "../store/ProblemsContext";
-import toast from "react-hot-toast";
+  FiChevronLeft,
+  FiChevronRight,
+  FiCheck,
+  FiClock,
+  FiList,
+  FiTrophy,
+} from "react-icons/fi";
 import { FallingLines } from "react-loader-spinner";
-
+import toast from "react-hot-toast";
+import { useAuth } from "../store/AuthContext";
 
 const ContestNavigation = () => {
   const navigate = useNavigate();
   const { contestId, problemId } = useParams();
   const { token } = useAuth();
- 
 
-  // Timer states
   const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [isRunning, setIsRunning] = useState(true);
   const [contestEndTime, setContestEndTime] = useState(null);
-
-  // Contest states
   const [contestProblems, setContestProblems] = useState([]);
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
   const [solvedProblems, setSolvedProblems] = useState(0);
   const [solvedProblemsLoading, setSolvedProblemsLoading] = useState(false);
-  const [attemptedProblems, setAttemptedProblems] = useState(new Set());
   const [contestData, setContestData] = useState(null);
 
-  // Fetch contest data
   useEffect(() => {
     const fetchContestData = async () => {
       try {
         const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/contest/getContestById/${contestId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/contest/getContestById/${contestId}`,
           {
             headers: {
               authorization: `Bearer ${token}`,
@@ -57,7 +43,6 @@ const ContestNavigation = () => {
           setContestProblems(data.contest.problems || []);
           setContestEndTime(new Date(data.contest.endTime));
 
-          // Find current problem index
           const index = data.contest.problems.indexOf(problemId);
           setCurrentProblemIndex(index >= 0 ? index : 0);
         }
@@ -65,8 +50,6 @@ const ContestNavigation = () => {
         console.error("Error fetching contest data:", error);
         toast.error("Failed to load contest data");
       }
-
-      
     };
 
     if (contestId && token) {
@@ -74,42 +57,36 @@ const ContestNavigation = () => {
     }
   }, [contestId, token, problemId]);
 
+  useEffect(() => {
+    const fetchSolvedProblems = async () => {
+      try {
+        setSolvedProblemsLoading(true);
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/contest/${contestId}/getTotalSolvedProblems`,
+          {
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
 
-//getting no of solved problems:
-  useEffect(()=>{
-    const fetchSolvedProblems=async()=>{
-    try{
-      setSolvedProblemsLoading(true);
-      const response=await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contest/${contestId}/getTotalSolvedProblems`,{
-        headers:{
-          authorization:`Bearer ${token}`
+        if (response.ok) {
+          setSolvedProblems(data.totalSolved || 0);
         }
-      });
-      const data=await response.json();
-      
-
-      if(response.ok){
-        setSolvedProblems(data.totalSolved || 0);
-        
+      } catch (error) {
+        console.error("Error fetching total solved problems:", error);
+        toast.error("Failed to load total solved problems");
+      } finally {
+        setSolvedProblemsLoading(false);
       }
-    }catch(error){
-      console.error("Error fetching total solved problems:",error);
-      toast.error("Failed to load total solved problems");
+    };
+
+    if (contestId && token) {
+      fetchSolvedProblems();
     }
-    finally{
-      setSolvedProblemsLoading(false);
-    }
-  };
+  }, [contestId, token]);
 
-  if (contestId && token) {
-    fetchSolvedProblems();
-  }
-
-  },[contestId, token]);
-
-
-
-  // Timer logic
   useEffect(() => {
     let interval = null;
 
@@ -131,7 +108,7 @@ const ContestNavigation = () => {
           setIsRunning(false);
           toast.error("Contest has ended!");
         }
-      }, 1000); // Update every second
+      }, 1000);
     }
 
     return () => {
@@ -139,35 +116,18 @@ const ContestNavigation = () => {
     };
   }, [isRunning, contestEndTime]);
 
-  // Navigation functions
   const handlePrevProblem = () => {
     if (currentProblemIndex > 0) {
       const prevProblem = contestProblems[currentProblemIndex - 1];
-      
       navigate(`/contest/${contestId}/solve/${prevProblem}`);
-      
     }
   };
 
   const handleNextProblem = () => {
     if (currentProblemIndex < contestProblems.length - 1) {
       const nextProblem = contestProblems[currentProblemIndex + 1];
-      
       navigate(`/contest/${contestId}/solve/${nextProblem}`);
-      
     }
-  };
-
-  const handleLeaderboard = () => {
-    navigate(`/contest/${contestId}/leaderboard`);
-  };
-
-  const handleSubmissions = () => {
-    navigate(`/contest/${contestId}/submissions`);
-  };
-
-  const toggleTimer = () => {
-    setIsRunning(!isRunning);
   };
 
   const formatTime = (time) => {
@@ -178,155 +138,90 @@ const ContestNavigation = () => {
 
   if (!contestData) {
     return (
-      <div className="bg-gray-900/80 backdrop-blur-md border-b border-gray-700 px-6 py-4 pt-24">
-        <div className="flex items-center justify-center">
-          <div className="text-gray-400">Loading contest...</div>
+      <div className="border-b border-vibe-border bg-vibe-surface px-4 py-4 text-vibe-subtext">
+        <div className="mx-auto max-w-7xl text-center text-sm">
+          Loading contest...
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-r from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-md border-b border-gray-700/50 shadow-lg pt-24">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Left Section - Navigation & Contest Info */}
-          <div className="flex items-center gap-6">
-            {/* Problem Navigation */}
-            <div className="flex items-center gap-3">
+    <div className="border-b border-vibe-border bg-vibe-surface text-vibe-text shadow-panel">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="flex items-center gap-2">
               <button
                 onClick={handlePrevProblem}
                 disabled={currentProblemIndex === 0}
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  currentProblemIndex === 0
-                    ? "bg-gray-800/50 text-gray-500 cursor-not-allowed"
-                    : "bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 hover:text-blue-300"
-                }`}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-text hover:border-vibe-primary/60 disabled:cursor-not-allowed disabled:opacity-40"
+                type="button"
               >
-                <FaChevronLeft className="w-4 h-4" />
+                <FiChevronLeft size={18} />
               </button>
 
-              <div className="bg-gray-800/60 rounded-lg px-4 py-2 border border-gray-600/50">
-                <span className="text-gray-300 text-sm font-medium">
-                  Problem {currentProblemIndex + 1} of {contestProblems.length}
-                </span>
+              <div className="rounded-xl border border-vibe-border bg-vibe-background px-4 py-2 text-sm font-medium text-vibe-subtext">
+                Problem {currentProblemIndex + 1} of {contestProblems.length}
               </div>
 
               <button
                 onClick={handleNextProblem}
                 disabled={currentProblemIndex === contestProblems.length - 1}
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  currentProblemIndex === contestProblems.length - 1
-                    ? "bg-gray-800/50 text-gray-500 cursor-not-allowed"
-                    : "bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 hover:text-blue-300"
-                }`}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-text hover:border-vibe-primary/60 disabled:cursor-not-allowed disabled:opacity-40"
+                type="button"
               >
-                <FaChevronRight className="w-4 h-4" />
+                <FiChevronRight size={18} />
               </button>
             </div>
 
-            {/* Contest Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap gap-2">
               <button
-                onClick={handleLeaderboard}
-                className="flex items-center gap-2 bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 hover:text-yellow-300 px-4 py-2 rounded-lg transition-all duration-200 border border-yellow-600/30"
+                onClick={() => navigate(`/contest/${contestId}/leaderboard`)}
+                className="inline-flex items-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-4 py-2 text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+                type="button"
               >
-                <FaTrophy className="w-4 h-4" />
-                <span className="text-sm font-medium">Leaderboard</span>
+                <FiTrophy size={16} />
+                Leaderboard
               </button>
-
               <button
-                onClick={handleSubmissions}
-                className="flex items-center gap-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 hover:text-purple-300 px-4 py-2 rounded-lg transition-all duration-200 border border-purple-600/30"
+                onClick={() => navigate(`/contest/${contestId}/submissions`)}
+                className="inline-flex items-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-4 py-2 text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+                type="button"
               >
-                <FaList className="w-4 h-4" />
-                <span className="text-sm font-medium">Submissions</span>
+                <FiList size={16} />
+                Submissions
               </button>
             </div>
           </div>
 
-          {/* Right Section - Timer & Stats */}
-          <div className="flex items-center gap-6">
-            {/* Problem Stats */}
-            <div className="flex items-center gap-4">
-              <div className="bg-green-600/20 rounded-lg px-3 py-2 border border-green-600/30">
-                <div className="flex items-center gap-2">
-                  <FaCheck className="w-4 h-4 text-green-400" />
-                  <span className="text-green-400 text-sm font-medium">
-                    {solvedProblemsLoading ? (
-                      <FallingLines
-                        color="#4fa94d"
-                        width="20"
-                        visible={true}
-                        ariaLabel="falling-circles-loading"
-                      />
-                    ) : (
-                      solvedProblems
-                    )}
-                  </span>
-                  <span className="text-gray-400 text-sm">solved</span>
-                </div>
-              </div>
-
-              <div className="bg-gray-600/20 rounded-lg px-3 py-2 border border-gray-600/30">
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400 text-sm font-medium">
-                    {contestProblems.length}
-                  </span>
-                  <span className="text-gray-400 text-sm">total</span>
-                </div>
-              </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex items-center gap-2 rounded-xl border border-vibe-success/30 bg-vibe-success/10 px-3 py-2 text-sm text-vibe-success">
+              <FiCheck size={16} />
+              {solvedProblemsLoading ? (
+                <FallingLines color="#22C55E" width="20" visible={true} />
+              ) : (
+                solvedProblems
+              )}
+              <span className="text-vibe-subtext">solved</span>
             </div>
-
-            {/* Timer */}
-            <div className="flex items-center gap-3">
-              <div className="bg-red-600/20 rounded-lg px-4 py-2 border border-red-600/30">
-                <div className="flex items-center gap-2">
-                  <FaClock className="w-4 h-4 text-red-400" />
-                  <span className="text-red-400 text-lg font-mono font-bold">
-                    {formatTime(time)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex gap-1">
-                {/* <button
-                  onClick={toggleTimer}
-                  className="p-2 rounded-lg bg-gray-700/50 hover:bg-gray-700/70 text-gray-300 hover:text-white transition-all duration-200"
-                >
-                  {isRunning ? (
-                    <FaPause className="w-3 h-3" />
-                  ) : (
-                    <FaPlay className="w-3 h-3" />
-                  )}
-                </button> */}
-
-                {/* <button
-                  onClick={() => {
-                    setIsRunning(false);
-                    setTime({ hours: 0, minutes: 0, seconds: 0 });
-                  }}
-                  className="p-2 rounded-lg bg-gray-700/50 hover:bg-gray-700/70 text-gray-300 hover:text-white transition-all duration-200"
-                >
-                  <FaStop className="w-3 h-3" />
-                </button> */}
-              </div>
+            <div className="rounded-xl border border-vibe-border bg-vibe-background px-3 py-2 text-sm text-vibe-subtext">
+              {contestProblems.length} total
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-xl border border-vibe-danger/30 bg-vibe-danger/10 px-4 py-2 text-vibe-danger">
+              <FiClock size={16} />
+              <span className="font-mono text-lg font-bold">{formatTime(time)}</span>
             </div>
           </div>
         </div>
 
-        {/* Contest Title Bar */}
-        <div className="mt-3 pt-3 border-t border-gray-700/50">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-white">
-                {contestData.title}
-              </h1>
-              <p className="text-sm text-gray-400 mt-1">
-                {contestData.description}
-              </p>
-            </div>
-          </div>
+        <div className="mt-4 border-t border-vibe-border pt-4">
+          <h1 className="font-heading text-xl font-semibold text-vibe-text">
+            {contestData.title}
+          </h1>
+          <p className="mt-1 text-sm text-vibe-subtext">
+            {contestData.description}
+          </p>
         </div>
       </div>
     </div>

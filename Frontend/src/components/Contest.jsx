@@ -1,20 +1,14 @@
-import { useState, useEffect } from "react";
-import ContestCard from "./ContestCard";
-import {
-  FaRegClock,
-  FaCheckCircle,
-  FaPlayCircle,
-  FaHistory,
-} from "react-icons/fa";
-import { useSocketContext } from "../store/SocketContext";
-import { useAuth } from "../store/AuthContext";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { FiCheckCircle, FiClock, FiPlayCircle, FiRotateCcw } from "react-icons/fi";
+import { useAuth } from "../store/AuthContext";
+import ContestCard from "./ContestCard";
 
 const NAV_OPTIONS = [
-  { label: "Future Contests", icon: <FaRegClock /> },
-  { label: "Ongoing Contests", icon: <FaPlayCircle /> },
-  { label: "Past Contests", icon: <FaHistory /> },
-  { label: "Attempted Contests", icon: <FaCheckCircle /> },
+  { label: "Future", icon: FiClock },
+  { label: "Ongoing", icon: FiPlayCircle },
+  { label: "Past", icon: FiRotateCcw },
+  { label: "Attempted", icon: FiCheckCircle },
 ];
 
 const Contest = () => {
@@ -22,41 +16,24 @@ const Contest = () => {
   const [contests, setContests] = useState([]);
   const { user, token } = useAuth();
 
-  // Filter contests for each tab
   const now = new Date();
   const futureContests = contests.filter((c) => new Date(c.startTime) > now);
- const ongoingContests = contests.filter((c) => {
-   const startTime = new Date(c.startTime);
-   const endTime = new Date(c.endTime);
-   return startTime <= now && endTime >= now; // ✅ All Date objects now
- });
+  const ongoingContests = contests.filter((c) => {
+    const startTime = new Date(c.startTime);
+    const endTime = new Date(c.endTime);
+    return startTime <= now && endTime >= now;
+  });
   const pastContests = contests.filter((c) => new Date(c.endTime) < now);
   const attemptedContests = contests.filter((c) => c.attempted);
 
- 
-
- 
   const tabContent = [
-    {
-      data: futureContests,
-      empty: "No future contests available.",
-    },
-    {
-      data: ongoingContests,
-      empty: "No ongoing contests right now.",
-    },
-    {
-      data: pastContests,
-      empty: "No past contests found.",
-    },
-    {
-      data: attemptedContests,
-      empty: "You haven't attempted any contests yet.",
-    },
+    { data: futureContests, empty: "No future contests available." },
+    { data: ongoingContests, empty: "No ongoing contests right now." },
+    { data: pastContests, empty: "No past contests found." },
+    { data: attemptedContests, empty: "You have not attempted any contests yet." },
   ];
 
   const handleRegister = async (id) => {
-   
     if (!id) return;
 
     try {
@@ -73,19 +50,13 @@ const Contest = () => {
 
       const data = await response.json();
       if (response.ok) {
-       
         toast.success("Successfully joined contest!");
-
-        // ✅ Update the contests state to reflect registration
         setContests((prev) =>
           prev.map((contest) =>
             contest._id === id
               ? {
                   ...contest,
-                  registeredUsers: [
-                    ...(contest.registeredUsers || []),
-                    user._id,
-                  ],
+                  registeredUsers: [...(contest.registeredUsers || []), user._id],
                 }
               : contest
           )
@@ -101,7 +72,6 @@ const Contest = () => {
   };
 
   const handleUnregister = async (id) => {
-   
     if (!id) return;
 
     try {
@@ -118,10 +88,7 @@ const Contest = () => {
 
       const data = await response.json();
       if (response.ok) {
-       
         toast.success("Successfully left contest!");
-
-        // ✅ Update the contests state to reflect unregistration
         setContests((prev) =>
           prev.map((contest) =>
             contest._id === id
@@ -160,7 +127,6 @@ const Contest = () => {
         const data = await response.json();
         if (response.ok) {
           setContests(data.contests);
-          
         } else {
           console.error("Failed to fetch contests:", data.message);
         }
@@ -170,55 +136,71 @@ const Contest = () => {
     };
 
     fetchContests();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      // Force re-render every minute to update contest status
       setContests((prev) => [...prev]);
-    }, 60000); // Update every minute
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] px-4 py-10 flex flex-col items-center ">
-      {/* Centered Nav Bar */}
-      <div className="w-full max-w-3xl mx-auto mb-10">
-        <div className="flex justify-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl shadow-lg border border-white/20 py-2 px-2">
-          {NAV_OPTIONS.map((opt, idx) => (
-            <button
-              key={opt.label}
-              className={`flex items-center gap-2 px-6 py-2 rounded-xl font-semibold text-base transition-all duration-200 ${
-                activeTab === idx
-                  ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg scale-105"
-                  : "text-cyan-200 hover:bg-cyan-900/30 hover:text-white"
-              }`}
-              onClick={() => setActiveTab(idx)}
-            >
-              {opt.icon}
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Tab Content */}
-      <div className="w-full max-w-3xl flex flex-col gap-6">
-        {tabContent[activeTab].data.length > 0 ? (
-          tabContent[activeTab].data.map((contest) => (
-            <ContestCard
-              contest={contest}
-              key={contest._id}
-              onRegister={handleRegister}
-              onUnregister={handleUnregister}
-              userId={user?._id}
-            />
-          ))
-        ) : (
-          <div className="text-center text-gray-400 text-lg py-12 bg-white/10 rounded-2xl shadow border border-white/20">
-            {tabContent[activeTab].empty}
+  return (
+    <div className="min-h-screen bg-vibe-background px-4 py-10 text-vibe-text sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl space-y-8">
+        <section>
+          <p className="text-sm font-semibold uppercase tracking-wide text-vibe-secondary">
+            Contests
+          </p>
+          <h1 className="mt-3 font-heading text-4xl font-bold text-vibe-text">
+            Competitive rounds
+          </h1>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-vibe-subtext">
+            Register for upcoming contests, jump into live rounds, and revisit your competitive history.
+          </p>
+        </section>
+
+        <div className="rounded-2xl border border-vibe-border bg-vibe-surface p-2 shadow-panel">
+          <div className="grid gap-2 sm:grid-cols-4">
+            {NAV_OPTIONS.map((opt, idx) => {
+              const Icon = opt.icon;
+              return (
+                <button
+                  key={opt.label}
+                  className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${
+                    activeTab === idx
+                      ? "bg-vibe-primary text-white"
+                      : "text-vibe-subtext hover:bg-vibe-elevated hover:text-vibe-text"
+                  }`}
+                  onClick={() => setActiveTab(idx)}
+                  type="button"
+                >
+                  <Icon size={16} />
+                  {opt.label}
+                </button>
+              );
+            })}
           </div>
-        )}
+        </div>
+
+        <div className="space-y-4">
+          {tabContent[activeTab].data.length > 0 ? (
+            tabContent[activeTab].data.map((contest) => (
+              <ContestCard
+                contest={contest}
+                key={contest._id}
+                onRegister={handleRegister}
+                onUnregister={handleUnregister}
+                userId={user?._id}
+              />
+            ))
+          ) : (
+            <div className="rounded-2xl border border-dashed border-vibe-border bg-vibe-surface p-10 text-center text-sm text-vibe-subtext shadow-panel">
+              {tabContent[activeTab].empty}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
