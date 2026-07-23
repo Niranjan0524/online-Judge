@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FiArrowLeft, FiTrophy } from "react-icons/fi";
+import { FiArrowLeft} from "react-icons/fi";
+import { GiTrophy } from "react-icons/gi";
 import { useSocketContext } from "../store/SocketContext";
 import { useAuth } from "../store/AuthContext";
 
@@ -55,7 +56,7 @@ const ContestLeaderboard = () => {
               </p>
             </div>
             <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-primary">
-              <FiTrophy size={20} />
+              <GiTrophy size={20}/>
             </div>
           </div>
 
