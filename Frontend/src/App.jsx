@@ -8,7 +8,7 @@ import { TestCaseProvider } from "./store/TestCases";
 import { SolutionContextProvider } from "./store/SolutionContext";
 import { LeaderBoardProvider } from "./store/LeaderBoardContext";
 import { SocketContextProvider } from "./store/SocketContext";
-import LoadingState from "./components/loadingState";
+import LoadingState from "./components/LoadingState";
 import "./index.css";
 
 // Lazy load components
