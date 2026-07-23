@@ -44,7 +44,9 @@ const Problems = () => {
     navigate("/problem/add");
   };
 
-  const handleEditProblem = () => {};
+  const handleEditProblem = () => {
+    navigate("/problem/add");
+  };
 
   return (
     <div className="rounded-2xl border border-vibe-border bg-vibe-surface shadow-panel">

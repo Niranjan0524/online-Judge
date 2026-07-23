@@ -1,44 +1,42 @@
-import SolveProblem from "./SolveProblem";
-import ContestNavigation from "./ContestNavigation";
+import { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import ContestNavigation from "./ContestNavigation";
+import SolveProblem from "./SolveProblem";
 import { useSocketContext } from "../store/SocketContext";
 import { useAuth } from "../store/AuthContext";
-import { useEffect ,useRef} from "react";
-import toast from "react-hot-toast";
 
 const SolveContest = () => {
-  const {contestId, problemId} = useParams();
+  const { contestId, problemId } = useParams();
   const { joinContestLeaderboard } = useSocketContext();
   const { user } = useAuth();
   const fullScreen = useRef(null);
 
-
   useEffect(() => {
     let element = fullScreen.current;
 
-    const fullScreenHandler=()=>{
-      console.log("Requesting fullscreen for element:", element);
+    const fullScreenHandler = () => {
       if (element && element.requestFullscreen) {
         element.requestFullscreen().catch((err) => {
           console.error("Error in fullscreen request:", err);
         });
       }
-    }
+    };
 
     const handleFullscreenChange = () => {
       element = fullScreen.current;
-      console.log("fullscreen changed", element);
       if (!document.fullscreenElement) {
         toast(
           (t) => (
-            <span>
-              You have exited fullscreen mode.
+            <span className="flex items-center gap-3">
+              <span>You have exited fullscreen mode.</span>
               <button
                 onClick={() => {
                   toast.dismiss(t.id);
-                  fullScreenHandler(); // ✅ User click = valid gesture
+                  fullScreenHandler();
                 }}
-                style={{ marginLeft: "10px", cursor: "pointer" }}
+                className="rounded-lg bg-vibe-primary px-3 py-1 text-xs font-semibold text-white"
+                type="button"
               >
                 Re-enter Fullscreen
               </button>
@@ -50,7 +48,7 @@ const SolveContest = () => {
           }
         );
       } else {
-        toast.dismiss("fullscreen-warning"); // Dismiss when back in fullscreen
+        toast.dismiss("fullscreen-warning");
       }
     };
 
@@ -68,20 +66,17 @@ const SolveContest = () => {
   }, []);
 
   useEffect(() => {
-
-    if(contestId && problemId){
+    if (contestId && problemId) {
       joinContestLeaderboard(contestId, user?._id);
     }
-  }, [contestId, problemId, user?._id]);
+  }, [contestId, problemId, user?._id, joinContestLeaderboard]);
+
   return (
-    <div ref={fullScreen}>
+    <div ref={fullScreen} className="bg-vibe-background">
       <ContestNavigation />
- 
       <SolveProblem />
-      
     </div>
   );
 };
 
 export default SolveContest;
-  

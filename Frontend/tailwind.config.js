@@ -1,12 +1,3 @@
-// /** @type {import('tailwindcss').Config} */
-// export default {
-//   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
-//   theme: {
-//     extend: {},
-//   },
-//   plugins: [],
-// };
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -40,15 +31,6 @@ export default {
       boxShadow: {
         subtle: "0 16px 50px rgba(0, 0, 0, 0.22)",
         panel: "0 10px 30px rgba(0, 0, 0, 0.18)",
-      },
-      keyframes: {
-        'fade-in': {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-      },
-      animation: {
-        'fade-in': 'fade-in 0.6s ease-out both',
       },
     },
   },

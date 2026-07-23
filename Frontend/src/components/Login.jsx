@@ -56,7 +56,7 @@ const Login = () => {
         }
       })
       .catch((err) => {
-        console.log("Error:", err);
+        console.error("Error:", err);
         setError(err.message);
         toast.dismiss(toastId);
         toast.error(err.message);

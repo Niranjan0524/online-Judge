@@ -389,8 +389,6 @@ const SolveProblem = () => {
     }
   }, [problemId, problem]);
 
-  useEffect(() => {}, [solutions]);
-
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-6 text-vibe-text sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-[1800px] gap-5 xl:grid-cols-[minmax(420px,0.9fr)_minmax(0,1.25fr)]">

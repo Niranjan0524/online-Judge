@@ -6,7 +6,7 @@ import {
   FiCheck,
   FiClock,
   FiList,
-  FiTrophy,
+  FiAward,
 } from "react-icons/fi";
 import { FallingLines } from "react-loader-spinner";
 import toast from "react-hot-toast";
@@ -181,7 +181,7 @@ const ContestNavigation = () => {
                 className="inline-flex items-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-4 py-2 text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
                 type="button"
               >
-                <FiTrophy size={16} />
+                <FiAward size={16} />
                 Leaderboard
               </button>
               <button
