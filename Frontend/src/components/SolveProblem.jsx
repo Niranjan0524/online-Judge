@@ -282,7 +282,7 @@ const SolveProblem = () => {
           setOutput(data.error || "Error in code");
           return;
         }
-        await fetchSolutions();
+
         let c = data.solution.testCasesPassed;
         let t = data.output.length;
 
@@ -351,6 +351,14 @@ const SolveProblem = () => {
     setViewSubmission(false);
   };
 
+  const handleTabChange=async(newTab)=>{
+    if(newTab==="Submissions"){
+      await fetchSolutions();
+    }
+
+    setActiveTab(newTab);
+  }
+
   useEffect(() => {
     window.scrollTo(0, 0);
     setActiveTab("Description");
@@ -395,7 +403,7 @@ const SolveProblem = () => {
         <section className="flex min-h-[calc(100vh-7rem)] flex-col rounded-2xl border border-vibe-border bg-vibe-surface shadow-panel">
           <div className="border-b border-vibe-border p-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div className="min-w-0">
+              <div className="min-w-0 w-full">
                 <p className="text-sm font-semibold uppercase tracking-wide text-vibe-secondary">
                   Problem
                 </p>
@@ -411,17 +419,18 @@ const SolveProblem = () => {
                   >
                     {problem?.difficulty || "unknown"}
                   </span>
+                  
+                  <span className="inline-flex items-center gap-1 rounded-full border border-vibe-border bg-vibe-background px-3 py-1 text-xs font-semibold text-vibe-subtext">
+                    <FiClock size={13} />
+                    {problem?.timeLimit || 1000} ms
+                  </span>
                   <span
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                    className={`ml-auto rounded-full border px-3 py-1 text-xs font-semibold ${
                       statusStyles[status] ||
                       "border-vibe-border bg-vibe-background text-vibe-subtext"
                     }`}
                   >
-                    Best Status: {status}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-vibe-border bg-vibe-background px-3 py-1 text-xs font-semibold text-vibe-subtext">
-                    <FiClock size={13} />
-                    {problem?.timeLimit || 1000} ms
+                    {status==="Accepted" ? "Solved":status}
                   </span>
                 </div>
               </div>
@@ -437,7 +446,7 @@ const SolveProblem = () => {
                       ? "bg-vibe-primary text-white"
                       : "border border-vibe-border bg-vibe-background text-vibe-subtext hover:border-vibe-primary/60 hover:text-vibe-text"
                   }`}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => handleTabChange(tab)}
                 >
                   {tab}
                 </button>
@@ -611,8 +620,8 @@ const SolveProblem = () => {
               <div className="space-y-3">
                 {!viewSubmission && solutions && (
                   <>
-                    {currSubmission && currSubmission.length > 0 ? (
-                      currSubmission.map((sol) => (
+                    {solutions && solutions.length > 0 ? (
+                      solutions.map((sol) => (
                         <button
                           key={sol._id}
                           className="flex w-full flex-col gap-3 rounded-2xl border border-vibe-border bg-vibe-background p-4 text-left hover:border-vibe-primary/60 hover:bg-vibe-elevated sm:flex-row sm:items-center sm:justify-between"
