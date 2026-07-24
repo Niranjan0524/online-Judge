@@ -2,12 +2,20 @@ import { useRef, useState } from "react";
 import { Circles } from "react-loader-spinner";
 import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
-import { FiCheckCircle, FiFileText, FiUpload, FiXCircle } from "react-icons/fi";
+import {
+  FiCheckCircle,
+  FiFileText,
+  FiLock,
+  FiUpload,
+  FiX,
+  FiXCircle,
+} from "react-icons/fi";
 
 const ResumeReviewer = () => {
   const [resumeFile, setResumeFile] = useState(null);
   const [review, setReview] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
+  const [showResumePaywall, setShowResumePaywall] = useState(false);
   const fileInputRef = useRef();
 
   const handleFileChange = (e) => {
@@ -15,37 +23,17 @@ const ResumeReviewer = () => {
     setReview("");
   };
 
-  const handleUpload = async () => {
+  const handleUpload = () => {
     if (!resumeFile) return;
-    setLoading(true);
     setReview("");
-    const formData = new FormData();
-    formData.append("resume", resumeFile);
     const token = localStorage.getItem("token");
     if (!token) {
-      setLoading(false);
       toast.error("You need to be logged in to upload a resume.");
       return;
     }
 
-    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/resume/getReview`, {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: formData,
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        setLoading(false);
-        setReview(data.review);
-      })
-      .catch((error) => {
-        setLoading(false);
-        setReview(error.message);
-      });
+    setShowResumePaywall(true);
+    toast("Subscribe to unlock Resume Review.");
   };
 
   const hasReview = review && typeof review === "object" && Object.keys(review).length > 0;
@@ -94,7 +82,7 @@ const ResumeReviewer = () => {
                 </>
               ) : (
                 <>
-                  <FiUpload size={16} />
+                  <FiLock size={16} />
                   Upload & Get Review
                 </>
               )}
@@ -148,6 +136,60 @@ const ResumeReviewer = () => {
           </div>
         </section>
       </div>
+
+      {showResumePaywall && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-vibe-background/80 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-vibe-border bg-vibe-surface p-6 shadow-subtle">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-vibe-primary/30 bg-vibe-primary/10 text-vibe-primary">
+                  <FiLock size={20} />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-vibe-primary">
+                    Premium feature
+                  </p>
+                  <h2 className="font-heading text-xl font-bold text-vibe-text">
+                    Subscribe to use Resume Review
+                  </h2>
+                </div>
+              </div>
+              <button
+                className="rounded-lg border border-vibe-border bg-vibe-background p-2 text-vibe-subtext hover:border-vibe-primary/60 hover:text-vibe-text"
+                onClick={() => setShowResumePaywall(false)}
+                type="button"
+                aria-label="Close subscription prompt"
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+
+            <p className="text-sm leading-6 text-vibe-subtext">
+              Resume Review is available for subscribed users only. Please
+              subscribe to unlock AI feedback on strengths, weaknesses, and
+              improvements.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                className="inline-flex items-center justify-center rounded-xl border border-vibe-border bg-vibe-background px-4 py-2.5 text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+                onClick={() => setShowResumePaywall(false)}
+                type="button"
+              >
+                Maybe later
+              </button>
+              <button
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-vibe-text hover:bg-vibe-primary/90"
+                onClick={() => setShowResumePaywall(false)}
+                type="button"
+              >
+                <FiLock size={16} />
+                Subscribe
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
