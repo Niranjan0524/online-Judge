@@ -64,6 +64,9 @@ export default function Signup() {
   const signupWithGoogle = () => {
     toast.error("This feature is under development, sorry for the inconvenience");
   };
+  const signupWithGithub = () => {
+    toast.error("This feature is under development, sorry for the inconvenience");
+  };
 
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-10 text-vibe-text sm:px-6 lg:px-8">
@@ -259,6 +262,7 @@ export default function Signup() {
             <button
               className="flex items-center justify-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-4 py-3 text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
               type="button"
+              onClick={signupWithGithub}
             >
               <FiGithub size={18} />
               GitHub

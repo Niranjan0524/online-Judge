@@ -15,7 +15,16 @@ const Login = () => {
   const { login } = useAuth();
 
   const loginWithGoogle = () => {
-    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`;
+    // window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`;
+    // console.log(`${import.meta.env.VITE_BACKEND_URL}/api/auth/google`);
+
+    toast.error("This feature is under development, sorry for the inconvenience");
+    
+  };
+  const loginWithGithub = () => {
+
+    toast.error("This feature is under development, sorry for the inconvenience");
+    
   };
 
   const handleLogin = async (e) => {
@@ -219,6 +228,7 @@ const Login = () => {
             <button
               className="flex items-center justify-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-4 py-3 text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
               type="button"
+              onClick={loginWithGithub}
             >
               <FiGithub size={18} />
               GitHub
