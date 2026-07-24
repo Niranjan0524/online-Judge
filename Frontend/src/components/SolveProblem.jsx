@@ -10,6 +10,7 @@ import {
   FiClock,
   FiCpu,
   FiFileText,
+  FiLock,
   FiPlay,
   FiSend,
   FiTerminal,
@@ -79,11 +80,12 @@ const SolveProblem = () => {
   const [correctness, setCorrectness] = useState({ correct: 0, total: 0 });
   const [lang, setLang] = useState("cpp");
   const [status, setStatus] = useState("Not Attempted");
-  const [aiReview, setAiReview] = useState(null);
-  const [reviewing, setReviewing] = useState(false);
+  const [aiReview] = useState(null);
+  const [reviewing] = useState(false);
+  const [showAiPaywall, setShowAiPaywall] = useState(false);
   const [currSolution, setCurrSolution] = useState();
   const [viewSubmission, setViewSubmission] = useState(false);
-  const [currSubmission, setCurrSubmission] = useState(null);
+  const [, setCurrSubmission] = useState(null);
 
   const { solutions, fetchSolutions } = useSolutions();
   const { problems } = useProblems();
@@ -307,38 +309,8 @@ const SolveProblem = () => {
       return;
     }
 
-    if (!code || code.trim() === "") {
-      toast.error(" please write some code to get AI review.", {
-        duration: 6000,
-      });
-      return;
-    } else {
-      setReviewing(true);
-      fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/aiReview`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ code, problemId }),
-      })
-        .then(async (res) => {
-          setReviewing(false);
-          const data = await res.json();
-
-          if (!res.ok) {
-            toast.error(data.message || "Error in AI Review");
-            return;
-          }
-          toast.success("AI Review generated successfully");
-          setAiReview(data.output);
-        })
-        .catch((err) => {
-          setReviewing(false);
-          console.error("Error in AI Review:", err);
-          toast.error("Error in AI Review");
-        });
-    }
+    setShowAiPaywall(true);
+    toast("Subscribe to unlock AI Review.");
   };
 
   const handleSolutionView = (solutionId) => {
@@ -393,7 +365,6 @@ const SolveProblem = () => {
         correct: sub[0].testCasesPassed,
         total: currTestCases.length,
       });
-    } else {
     }
   }, [problemId, problem]);
 
@@ -554,7 +525,6 @@ const SolveProblem = () => {
                       <ReactMarkdown
                         components={{
                           code({
-                            node,
                             inline,
                             className,
                             children,
@@ -765,7 +735,7 @@ const SolveProblem = () => {
                   disabled={running || submitting || reviewing}
                   type="button"
                 >
-                  {reviewing ? <LoadingIcon /> : <FiCpu size={16} />}
+                  {reviewing ? <LoadingIcon /> : <FiLock size={16} />}
                   {reviewing ? "Reviewing..." : "AI Review"}
                 </button>
               )}
@@ -816,6 +786,60 @@ const SolveProblem = () => {
           </div>
         </section>
       </div>
+
+      {showAiPaywall && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-vibe-background/80 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-vibe-border bg-vibe-surface p-6 shadow-subtle">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-vibe-primary/30 bg-vibe-primary/10 text-vibe-primary">
+                  <FiLock size={20} />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-vibe-primary">
+                    Premium feature
+                  </p>
+                  <h2 className="font-heading text-xl font-bold text-vibe-text">
+                    Subscribe to use AI Review
+                  </h2>
+                </div>
+              </div>
+              <button
+                className="rounded-lg border border-vibe-border bg-vibe-background p-2 text-vibe-subtext hover:border-vibe-primary/60 hover:text-vibe-text"
+                onClick={() => setShowAiPaywall(false)}
+                type="button"
+                aria-label="Close subscription prompt"
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+
+            <p className="text-sm leading-6 text-vibe-subtext">
+              AI Review is available for subscribed users only. Please
+              subscribe to unlock code feedback, scoring, and improvement
+              suggestions.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                className="inline-flex items-center justify-center rounded-xl border border-vibe-border bg-vibe-background px-4 py-2.5 text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+                onClick={() => setShowAiPaywall(false)}
+                type="button"
+              >
+                Maybe later
+              </button>
+              <button
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-vibe-text hover:bg-vibe-primary/90"
+                onClick={() => setShowAiPaywall(false)}
+                type="button"
+              >
+                <FiLock size={16} />
+                Subscribe
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
