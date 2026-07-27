@@ -55,6 +55,11 @@ const renderCaseValue = (value) => {
   return <div className="whitespace-pre-wrap text-vibe-text">{String(value)}</div>;
 };
 
+const getProblemSubmissions = (solutions, problemId) =>
+  (solutions || [])
+    .filter((sol) => String(sol.problemId?._id || sol.problemId) === String(problemId))
+    .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+
 const LoadingIcon = () => (
   <Circles
     height="18"
@@ -85,12 +90,13 @@ const SolveProblem = () => {
   const [showAiPaywall, setShowAiPaywall] = useState(false);
   const [currSolution, setCurrSolution] = useState();
   const [viewSubmission, setViewSubmission] = useState(false);
-  const [, setCurrSubmission] = useState(null);
 
   const { solutions, fetchSolutions } = useSolutions();
+
+  const { problemId, contestId } = useParams();
+  const [currSubmission, setCurrSubmission] = useState([]);
   const { problems } = useProblems();
   const navigate = useNavigate();
-  const { problemId, contestId } = useParams();
 
   const problem = problems.find((p) => p._id === problemId);
   const currTestCases = testCases.filter((tc) => tc.problemId === problemId);
@@ -288,12 +294,19 @@ const SolveProblem = () => {
         let c = data.solution.testCasesPassed;
         let t = data.output.length;
 
-        setStatus(data.solution.status);
+        const submittedSolution = data.solution;
+        setStatus(submittedSolution.status);
 
         setCorrectness({ correct: c, total: t });
+        setCurrSubmission((prev) =>
+          [submittedSolution, ...(prev || [])].sort(
+            (a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)
+          )
+        );
 
         toast.success("Code submitted Successfully");
         setActiveTab("Result");
+        await fetchSolutions();
         fetchLeaderBoardData();
       })
       .catch((err) => {
@@ -315,7 +328,9 @@ const SolveProblem = () => {
 
   const handleSolutionView = (solutionId) => {
     setViewSubmission(true);
-    const code = solutions.find((sol) => sol._id === solutionId)?.code;
+    const code =
+      currSubmission.find((sol) => sol._id === solutionId)?.code ||
+      solutions?.find((sol) => sol._id === solutionId)?.code;
     setCurrSolution(code);
   };
 
@@ -323,13 +338,17 @@ const SolveProblem = () => {
     setViewSubmission(false);
   };
 
-  const handleTabChange=async(newTab)=>{
-    if(newTab==="Submissions"){
-      await fetchSolutions();
+  const handleTabChange = async (newTab) => {
+    if (newTab === "Submissions") {
+      const latestSolutions = await fetchSolutions();
+      if (Array.isArray(latestSolutions)) {
+        setCurrSubmission(getProblemSubmissions(latestSolutions, problemId));
+      }
+      setViewSubmission(false);
     }
 
     setActiveTab(newTab);
-  }
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -338,13 +357,15 @@ const SolveProblem = () => {
       toast.error("Problem not found");
       navigate("/");
     }
+  }, [problemId, problem, problems.length, navigate]);
 
-    const sub = solutions?.filter((sol) => sol.problemId === problemId);
+  useEffect(() => {
+    const sub = getProblemSubmissions(solutions, problemId);
 
     if (!sub || sub.length === 0) {
       setStatus("Not Attempted");
       setCurrSolution(null);
-      setCurrSubmission(null);
+      setCurrSubmission([]);
       return;
     }
     setCurrSubmission(sub);
@@ -366,7 +387,7 @@ const SolveProblem = () => {
         total: currTestCases.length,
       });
     }
-  }, [problemId, problem]);
+  }, [problemId, solutions, currTestCases.length]);
 
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-6 text-vibe-text sm:px-6 lg:px-8">
@@ -590,8 +611,8 @@ const SolveProblem = () => {
               <div className="space-y-3">
                 {!viewSubmission && solutions && (
                   <>
-                    {solutions && solutions.length > 0 ? (
-                      solutions.map((sol) => (
+                    {currSubmission && currSubmission.length > 0 ? (
+                      currSubmission.map((sol) => (
                         <button
                           key={sol._id}
                           className="flex w-full flex-col gap-3 rounded-2xl border border-vibe-border bg-vibe-background p-4 text-left hover:border-vibe-primary/60 hover:bg-vibe-elevated sm:flex-row sm:items-center sm:justify-between"

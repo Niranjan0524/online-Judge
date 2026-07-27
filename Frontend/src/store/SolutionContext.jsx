@@ -5,14 +5,14 @@ const SolutionContext=createContext();
 
 
 export const SolutionContextProvider=({children})=>{
-    const {user,token,isLoggedIn} = useAuth();
+    const {token,isLoggedIn} = useAuth();
 
     const [solutions,setSolutions]=useState(null);
 
     const fetchSolutions=async()=>{
       if(!token || !isLoggedIn){
         setSolutions(null);
-        return;
+        return null;
       }
 
       try {
@@ -28,12 +28,18 @@ export const SolutionContextProvider=({children})=>{
         if (!response.ok) {
           console.log("Error in fetching the solutions", data.message);
           setSolutions(null);
+          return null;
         } else {
-          setSolutions(data.solutions);
+          const sortedSolutions = [...(data.solutions || [])].sort(
+            (a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)
+          );
+          setSolutions(sortedSolutions);
+          return sortedSolutions;
         }
       } catch (err) {
         console.log("Error in fetching the solutions", err);
         setSolutions(null);
+        return null;
       }
     }
     useEffect(()=>{
