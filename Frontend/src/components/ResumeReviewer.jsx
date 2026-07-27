@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Circles } from "react-loader-spinner";
 import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
@@ -12,6 +13,7 @@ import {
 } from "react-icons/fi";
 
 const ResumeReviewer = () => {
+  const navigate = useNavigate();
   const [resumeFile, setResumeFile] = useState(null);
   const [review, setReview] = useState({});
   const [loading] = useState(false);
@@ -180,7 +182,10 @@ const ResumeReviewer = () => {
               </button>
               <button
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-vibe-text hover:bg-vibe-primary/90"
-                onClick={() => setShowResumePaywall(false)}
+                onClick={() => {
+                  setShowResumePaywall(false);
+                  navigate("/subscriptions");
+                }}
                 type="button"
               >
                 <FiLock size={16} />

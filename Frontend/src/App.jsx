@@ -30,6 +30,7 @@ const ContestSubmissions = lazy(() =>
 const ContestLeaderboard = lazy(() =>
   import("./components/ContestLeaderboard")
 );
+const Subscriptions = lazy(() => import("./components/Subscriptions"));
 
 function App() {
   return (
@@ -117,6 +118,14 @@ function App() {
                       element={
                         <Suspense fallback={<LoadingState />}>
                           <ResumeReviewer />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="subscriptions"
+                      element={
+                        <Suspense fallback={<LoadingState />}>
+                          <Subscriptions />
                         </Suspense>
                       }
                     />
