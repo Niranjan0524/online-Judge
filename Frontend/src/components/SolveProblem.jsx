@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
@@ -97,6 +97,9 @@ const SolveProblem = () => {
 
   const { problemId, contestId } = useParams();
   const [currSubmission, setCurrSubmission] = useState([]);
+  const [submissionsLoading, setSubmissionsLoading] = useState(false);
+  const latestProblemIdRef = useRef(problemId);
+  latestProblemIdRef.current = problemId;
   const { problems } = useProblems();
   const navigate = useNavigate();
 
@@ -109,12 +112,15 @@ const SolveProblem = () => {
   const fetchProblemSubmissions = useCallback(async () => {
     if (!token || !problemId) {
       setCurrSubmission([]);
+      setSubmissionsLoading(false);
       return [];
     }
 
+    const requestedProblemId = problemId;
+    setSubmissionsLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/problem/${problemId}/submissions`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/problem/${requestedProblemId}/submissions`,
         {
           method: "GET",
           headers: {
@@ -125,6 +131,10 @@ const SolveProblem = () => {
       );
 
       const data = await response.json();
+      if (latestProblemIdRef.current !== requestedProblemId) {
+        return [];
+      }
+
       if (!response.ok) {
         console.log("Error in fetching problem submissions", data.message);
         setCurrSubmission([]);
@@ -135,9 +145,17 @@ const SolveProblem = () => {
       setCurrSubmission(submissions);
       return submissions;
     } catch (err) {
+      if (latestProblemIdRef.current !== requestedProblemId) {
+        return [];
+      }
+
       console.log("Error in fetching problem submissions", err);
       setCurrSubmission([]);
       return [];
+    } finally {
+      if (latestProblemIdRef.current === requestedProblemId) {
+        setSubmissionsLoading(false);
+      }
     }
   }, [problemId, token]);
 
@@ -387,6 +405,9 @@ const SolveProblem = () => {
     setActiveTab("Description");
     setViewSubmission(false);
     setCurrSolution(null);
+    setCurrSubmission([]);
+    setCorrectness({ correct: 0, total: 0 });
+    setStatus("Not Attempted");
     if (problems.length > 0 && !problem) {
       toast.error("Problem not found");
       navigate("/");
@@ -398,9 +419,14 @@ const SolveProblem = () => {
   }, [fetchProblemSubmissions]);
 
   useEffect(() => {
+    if (submissionsLoading) {
+      return;
+    }
+
     if (!currSubmission || currSubmission.length === 0) {
       setStatus("Not Attempted");
       setCurrSolution(null);
+      setCorrectness({ correct: 0, total: currTestCases.length });
       return;
     }
 
@@ -421,7 +447,7 @@ const SolveProblem = () => {
         total: currTestCases.length,
       });
     }
-  }, [currSubmission, currTestCases.length]);
+  }, [currSubmission, currTestCases.length, submissionsLoading]);
 
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-6 text-vibe-text sm:px-6 lg:px-8">
@@ -641,7 +667,11 @@ const SolveProblem = () => {
               <div className="space-y-3">
                 {!viewSubmission && (
                   <>
-                    {currSubmission && currSubmission.length > 0 ? (
+                    {submissionsLoading ? (
+                      <div className="rounded-2xl border border-dashed border-vibe-border bg-vibe-background p-8 text-center text-sm text-vibe-subtext">
+                        Loading submissions...
+                      </div>
+                    ) : currSubmission && currSubmission.length > 0 ? (
                       currSubmission.map((sol) => (
                         <button
                           key={sol._id}
