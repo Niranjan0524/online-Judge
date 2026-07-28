@@ -43,17 +43,27 @@ const statusStyles = {
 const renderCaseValue = (value) => {
   if (value && typeof value === "object") {
     return Object.entries(value).map(([key, item]) => (
-      <div key={key} className="flex gap-2">
-        <span className="text-vibe-muted">{key}:</span>
-        <span className="text-vibe-text">
+      <div key={key} className="flex min-w-0 flex-wrap gap-x-2 gap-y-1">
+        <span className="shrink-0 text-vibe-muted">{key}:</span>
+        <span className="min-w-0 break-words text-vibe-text">
           {Array.isArray(item) ? JSON.stringify(item) : String(item)}
         </span>
       </div>
     ));
   }
 
-  return <div className="whitespace-pre-wrap text-vibe-text">{String(value)}</div>;
+  return (
+    <div className="whitespace-pre-wrap break-words text-vibe-text">
+      {String(value)}
+    </div>
+  );
 };
+
+const renderTestCaseBox = (children) => (
+  <div className="max-h-72 min-h-12 min-w-0 overflow-auto rounded-xl border border-vibe-border bg-vibe-surface p-3 font-mono text-sm leading-6 text-vibe-text">
+    <div className="min-w-0 break-words">{children}</div>
+  </div>
+);
 
 const getProblemSubmissions = (solutions, problemId) =>
   (solutions || [])
@@ -509,22 +519,18 @@ const SolveProblem = () => {
                         <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-vibe-muted">
                           Sample {index + 1}
                         </p>
-                        <div className="grid gap-4 lg:grid-cols-2">
-                          <div>
+                        <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+                          <div className="min-w-0">
                             <p className="mb-2 text-sm font-semibold text-vibe-secondary">
                               Input
                             </p>
-                            <div className="rounded-xl border border-vibe-border bg-vibe-surface p-3 font-mono text-sm">
-                              {renderCaseValue(tc.input)}
-                            </div>
+                            {renderTestCaseBox(renderCaseValue(tc.input))}
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <p className="mb-2 text-sm font-semibold text-vibe-success">
                               Expected Output
                             </p>
-                            <div className="rounded-xl border border-vibe-border bg-vibe-surface p-3 font-mono text-sm text-vibe-text">
-                              {String(tc.output)}
-                            </div>
+                            {renderTestCaseBox(String(tc.output))}
                           </div>
                         </div>
                       </div>
