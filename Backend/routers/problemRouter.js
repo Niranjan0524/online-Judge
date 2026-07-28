@@ -1,6 +1,7 @@
 const express=require("express");
 
 const problemRouter=express.Router();
+const {verifyUser}=require("../controllers/verifyUser");
 
 const {getProblems}=require("../controllers/problemController");
 const {addTestCases}=require("../controllers/problemController");
@@ -10,11 +11,13 @@ const { addProblems } = require("../controllers/problemController");
 const {addSingleProblem} = require("../controllers/problemController");
 const {deleteAllTestCases} = require("../controllers/problemController");
 const {deleteAllProblems} = require("../controllers/problemController");
+const {getProblemSubmissions} = require("../controllers/problemController");
 
 problemRouter.get("/getAllProblems",getProblems);
 problemRouter.post("/addTestCases",addTestCases);
 problemRouter.post("/addProblems",addProblems);
 problemRouter.get("/getAllTestCases",getTestCases);
+problemRouter.get("/:problemId/submissions", verifyUser, getProblemSubmissions);
 problemRouter.delete("/removeTestCases/:id", removeTestCase);
 problemRouter.delete("/removeAllTestCases", deleteAllTestCases);
 problemRouter.delete("/removeAllProblems", deleteAllProblems);

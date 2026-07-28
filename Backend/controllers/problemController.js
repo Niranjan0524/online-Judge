@@ -1,5 +1,6 @@
 const Problem=require('../models/problems');
 const TestCase=require('../models/testCases');
+const Solution=require('../models/solution');
 const fs=require('fs');
 const path=require('path');
 
@@ -67,6 +68,38 @@ exports.getTestCases=async(req,res)=>{
     message:"Test cases fetched successfully",
     testCases:testCases
   })
+}
+
+exports.getProblemSubmissions=async(req,res)=>{
+  const { problemId } = req.params;
+  const userId = req.userId;
+
+  if(!userId){
+    return res.status(401).json({
+      message:"Unauthorized"
+    });
+  }
+
+  if(!problemId){
+    return res.status(400).json({
+      message:"Problem id is required"
+    });
+  }
+
+  try{
+    const submissions=await Solution.find({ userId, problemId }).sort({ submittedAt: -1 });
+
+    res.status(200).json({
+      message:"Problem submissions fetched successfully",
+      submissions
+    });
+  }
+  catch(err){
+    res.status(500).json({
+      message:"Failed to fetch problem submissions",
+      error:err.message
+    });
+  }
 }
 
 
@@ -138,6 +171,7 @@ exports.addSingleProblem=async(req,res)=>{
     });
   }
 }
+
 
 
 

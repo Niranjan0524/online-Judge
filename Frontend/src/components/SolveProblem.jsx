@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
 import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
@@ -20,7 +20,6 @@ import {
 import { useAuth } from "../store/AuthContext";
 import { useProblems } from "../store/ProblemsContext";
 import { useTestCases } from "../store/TestCases";
-import { useSolutions } from "../store/SolutionContext";
 import { useLeaderBoard } from "../store/LeaderBoardContext";
 import CodeBlock from "./CodeBlock";
 import Discussion from "./Discussion";
@@ -65,11 +64,6 @@ const renderTestCaseBox = (children) => (
   </div>
 );
 
-const getProblemSubmissions = (solutions, problemId) =>
-  (solutions || [])
-    .filter((sol) => String(sol.problemId?._id || sol.problemId) === String(problemId))
-    .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
-
 const LoadingIcon = () => (
   <Circles
     height="18"
@@ -101,8 +95,6 @@ const SolveProblem = () => {
   const [currSolution, setCurrSolution] = useState();
   const [viewSubmission, setViewSubmission] = useState(false);
 
-  const { solutions, fetchSolutions } = useSolutions();
-
   const { problemId, contestId } = useParams();
   const [currSubmission, setCurrSubmission] = useState([]);
   const { problems } = useProblems();
@@ -113,6 +105,41 @@ const SolveProblem = () => {
   const { fetchLeaderBoardData } = useLeaderBoard();
 
   const { token } = useAuth();
+
+  const fetchProblemSubmissions = useCallback(async () => {
+    if (!token || !problemId) {
+      setCurrSubmission([]);
+      return [];
+    }
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/problem/${problemId}/submissions`,
+        {
+          method: "GET",
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.log("Error in fetching problem submissions", data.message);
+        setCurrSubmission([]);
+        return [];
+      }
+
+      const submissions = data.submissions || [];
+      setCurrSubmission(submissions);
+      return submissions;
+    } catch (err) {
+      console.log("Error in fetching problem submissions", err);
+      setCurrSubmission([]);
+      return [];
+    }
+  }, [problemId, token]);
 
   const handleLangChange = (value) => {
     setLang(value);
@@ -316,7 +343,7 @@ const SolveProblem = () => {
 
         toast.success("Code submitted Successfully");
         setActiveTab("Result");
-        await fetchSolutions();
+        await fetchProblemSubmissions();
         fetchLeaderBoardData();
       })
       .catch((err) => {
@@ -338,9 +365,7 @@ const SolveProblem = () => {
 
   const handleSolutionView = (solutionId) => {
     setViewSubmission(true);
-    const code =
-      currSubmission.find((sol) => sol._id === solutionId)?.code ||
-      solutions?.find((sol) => sol._id === solutionId)?.code;
+    const code = currSubmission.find((sol) => sol._id === solutionId)?.code;
     setCurrSolution(code);
   };
 
@@ -350,10 +375,7 @@ const SolveProblem = () => {
 
   const handleTabChange = async (newTab) => {
     if (newTab === "Submissions") {
-      const latestSolutions = await fetchSolutions();
-      if (Array.isArray(latestSolutions)) {
-        setCurrSubmission(getProblemSubmissions(latestSolutions, problemId));
-      }
+      await fetchProblemSubmissions();
       setViewSubmission(false);
     }
 
@@ -363,6 +385,8 @@ const SolveProblem = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     setActiveTab("Description");
+    setViewSubmission(false);
+    setCurrSolution(null);
     if (problems.length > 0 && !problem) {
       toast.error("Problem not found");
       navigate("/");
@@ -370,18 +394,18 @@ const SolveProblem = () => {
   }, [problemId, problem, problems.length, navigate]);
 
   useEffect(() => {
-    const sub = getProblemSubmissions(solutions, problemId);
+    fetchProblemSubmissions();
+  }, [fetchProblemSubmissions]);
 
-    if (!sub || sub.length === 0) {
+  useEffect(() => {
+    if (!currSubmission || currSubmission.length === 0) {
       setStatus("Not Attempted");
       setCurrSolution(null);
-      setCurrSubmission([]);
       return;
     }
-    setCurrSubmission(sub);
 
-    if (sub && sub.length > 0) {
-      for (const sol of sub) {
+    if (currSubmission && currSubmission.length > 0) {
+      for (const sol of currSubmission) {
         if (sol.status === "Accepted") {
           setStatus("Accepted");
           setCorrectness({
@@ -393,11 +417,11 @@ const SolveProblem = () => {
       }
       setStatus("Wrong Answer");
       setCorrectness({
-        correct: sub[0].testCasesPassed,
+        correct: currSubmission[0].testCasesPassed,
         total: currTestCases.length,
       });
     }
-  }, [problemId, solutions, currTestCases.length]);
+  }, [currSubmission, currTestCases.length]);
 
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-6 text-vibe-text sm:px-6 lg:px-8">
@@ -615,7 +639,7 @@ const SolveProblem = () => {
 
             {activeTab === "Submissions" && (
               <div className="space-y-3">
-                {!viewSubmission && solutions && (
+                {!viewSubmission && (
                   <>
                     {currSubmission && currSubmission.length > 0 ? (
                       currSubmission.map((sol) => (
@@ -673,11 +697,6 @@ const SolveProblem = () => {
                   </div>
                 )}
 
-                {!solutions && !currSolution && (
-                  <div className="rounded-2xl border border-dashed border-vibe-border bg-vibe-background p-8 text-center text-sm text-vibe-subtext">
-                    No submissions available for this problem.
-                  </div>
-                )}
               </div>
             )}
 
