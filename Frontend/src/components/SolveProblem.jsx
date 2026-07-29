@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   FiCheckCircle,
+  FiChevronLeft,
+  FiChevronRight,
   FiClock,
   FiCpu,
   FiFileText,
@@ -108,6 +110,37 @@ const SolveProblem = () => {
   const { fetchLeaderBoardData } = useLeaderBoard();
 
   const { token } = useAuth();
+
+  const orderedProblems = useMemo(
+    () => [...problems].sort((a, b) => a.title.localeCompare(b.title)),
+    [problems]
+  );
+  const currentProblemIndex = orderedProblems.findIndex(
+    (item) => item._id === problemId
+  );
+  const hasPrevProblem = currentProblemIndex > 0;
+  const hasNextProblem =
+    currentProblemIndex >= 0 && currentProblemIndex < orderedProblems.length - 1;
+
+  const navigateToProblem = (targetProblem) => {
+    if (!targetProblem || contestId) {
+      return;
+    }
+
+    navigate(`/problem/solve/${targetProblem._id}`);
+  };
+
+  const handlePrevProblem = () => {
+    if (hasPrevProblem) {
+      navigateToProblem(orderedProblems[currentProblemIndex - 1]);
+    }
+  };
+
+  const handleNextProblem = () => {
+    if (hasNextProblem) {
+      navigateToProblem(orderedProblems[currentProblemIndex + 1]);
+    }
+  };
 
   const fetchProblemSubmissions = useCallback(async () => {
     if (!token || !problemId) {
@@ -486,6 +519,36 @@ const SolveProblem = () => {
                   </span>
                 </div>
               </div>
+
+              {!contestId && orderedProblems.length > 0 && (
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    onClick={handlePrevProblem}
+                    disabled={!hasPrevProblem}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-text hover:border-vibe-primary/60 disabled:cursor-not-allowed disabled:opacity-40"
+                    type="button"
+                    aria-label="Previous problem"
+                    title="Previous problem"
+                  >
+                    <FiChevronLeft size={18} />
+                  </button>
+                  <div className="rounded-xl border border-vibe-border bg-vibe-background px-3 py-2 text-sm font-medium text-vibe-subtext">
+                    {currentProblemIndex >= 0
+                      ? `${currentProblemIndex + 1} / ${orderedProblems.length}`
+                      : `- / ${orderedProblems.length}`}
+                  </div>
+                  <button
+                    onClick={handleNextProblem}
+                    disabled={!hasNextProblem}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-text hover:border-vibe-primary/60 disabled:cursor-not-allowed disabled:opacity-40"
+                    type="button"
+                    aria-label="Next problem"
+                    title="Next problem"
+                  >
+                    <FiChevronRight size={18} />
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="mt-5 flex gap-2 overflow-x-auto">
