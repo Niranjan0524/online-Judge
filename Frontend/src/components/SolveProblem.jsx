@@ -509,19 +509,13 @@ const SolveProblem = () => {
                     <FiClock size={13} />
                     {problem?.timeLimit || 1000} ms
                   </span>
-                  <span
-                    className={`ml-auto rounded-full border px-3 py-1 text-xs font-semibold ${
-                      statusStyles[status] ||
-                      "border-vibe-border bg-vibe-background text-vibe-subtext"
-                    }`}
-                  >
-                    {status==="Accepted" ? "Solved":status}
-                  </span>
+                  
                 </div>
               </div>
 
               {!contestId && orderedProblems.length > 0 && (
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex flex-col shrink-0 items-center gap-2">              
+                <div className="flex items-center gap-2">
                   <button
                     onClick={handlePrevProblem}
                     disabled={!hasPrevProblem}
@@ -547,8 +541,20 @@ const SolveProblem = () => {
                   >
                     <FiChevronRight size={18} />
                   </button>
+                  </div>
+                  <div>
+                  <span
+                    className={`ml-auto rounded-full border px-3 py-1 text-xs font-semibold ${
+                      statusStyles[status] ||
+                      "border-vibe-border bg-vibe-background text-vibe-subtext"
+                    }`}
+                  >
+                    {status==="Accepted" ? "Solved":status}
+                  </span>
+                  </div>
                 </div>
               )}
+              
             </div>
 
             <div className="mt-5 flex gap-2 overflow-x-auto">
