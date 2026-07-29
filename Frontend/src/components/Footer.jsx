@@ -9,7 +9,7 @@ const Footer = () => {
             CodeVibe
           </p>
           <p className="mt-2 text-sm text-vibe-subtext">
-            Built by Niranjan Alase in Karnataka, India.
+            Built by Niranjan.
           </p>
         </div>
 

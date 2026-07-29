@@ -19,6 +19,8 @@ const Problems = () => {
   const navigate = useNavigate();
 
   const filteredProblems = problems.filter((problem) => {
+    if (!problem?.title) return false;
+
     const searchText = `${problem.title} ${problem.difficulty} ${
       problem.tags?.join(" ") || ""
     }`.toLowerCase();

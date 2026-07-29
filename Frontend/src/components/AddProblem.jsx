@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { FiPlus, FiTrash2, FiX } from "react-icons/fi";
-
+import { useProblems } from "../store/ProblemsContext";
 const AddProblem = () => {
   const navigate = useNavigate();
   const tags = [
@@ -47,6 +47,7 @@ const AddProblem = () => {
   const [testCases, setTestCases] = useState([
     { inputs: [{ name: "", value: "" }], output: "" },
   ]);
+  const { setProblems } = useProblems();
 
   useEffect(() => {
     scrollTo(0, 0);
@@ -111,7 +112,7 @@ const AddProblem = () => {
       tags: selectedTags,
     };
     const testCasesData = testCases.map((tc) => ({
-      inputs: tc.inputs.map((inp) => ({
+      input: tc.inputs.map((inp) => ({
         name: inp.name,
         value: inp.value,
       })),
@@ -126,12 +127,17 @@ const AddProblem = () => {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     })
-      .then((response) => {
+      .then(async (response) => {
+        const data = await response.json();
+
         if (response.ok) {
-          toast.success("Problem added successfully");
+          setProblems((prev = []) =>
+            data.problem ? [...prev, data.problem] : prev
+          );
+          toast.success(data.message || "Problem added successfully");
           navigate("/");
         } else {
-          toast.error("Error adding problem");
+          toast.error(data.message || "Error adding problem");
         }
       })
       .catch((error) => {
