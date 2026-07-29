@@ -14,7 +14,7 @@ const difficultyStyles = {
 const Problems = () => {
   const { problems = [], problemLoading } = useProblems();
   const { user } = useAuth();
-  const [sortBy, setSortBy] = useState("title");
+  const [sortBy, setSortBy] = useState("difficulty");
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
 

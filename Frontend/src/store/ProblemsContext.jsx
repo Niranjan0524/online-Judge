@@ -23,6 +23,7 @@ export const ProblemsProvider=({children})=>{
           console.log("error in fetching the problems", data);
         } else {
           setProblems(data.problems);
+          console.log(data.problems);
         }
       })
       .catch((err) => {
