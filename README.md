@@ -30,10 +30,13 @@ It allows users to solve coding problems, run and submit code in multiple langua
 ## 🖼️ Screenshots
 
 <p align="center">
-  <img src="assets/HomePage.png" width="700" alt="Home Page"/>
-  <img src="assets/SolveProblem.png" width="700" alt="Problem Page"/>
-  <img src="assets/Dashboard.png" width="700" alt="Code Editor"/>
-  <img src="assets/Leaderboard.png" width="700" alt="Code Editor"/>
+  <img src="assets/homePage.png" width="700" alt="Home Page"/>
+  <img src="assets/solveProblem.png" width="700" alt="Problem Page"/>
+  <img src="assets/dashboard.png" width="700" alt="Code Editor"/>
+  <img src="assets/dashboard2.png" width="700" alt="Code Editor"/>
+  <img src="assets/pricing.png" width="700" alt="Code Editor"/>
+  <img src="assets/problemSet.png" width="700" alt="Code Editor"/>
+  <img src="assets/profile.png" width="700" alt="Code Editor"/>
 </p>
 
 ---
