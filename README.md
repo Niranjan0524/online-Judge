@@ -51,6 +51,63 @@ It allows users to solve coding problems, run and submit code in multiple langua
 
 ---
 
+## API Overview
+
+### Authentication
+- `POST /api/auth/signup` - Create a new user account.
+- `POST /api/auth/login` - Sign in and receive an auth token.
+- `GET /api/auth/google` - Start Google OAuth login.
+- `GET /api/auth/google/callback` - Handle the Google OAuth callback.
+
+### Users
+- `GET /api/users/me` - Get the authenticated user's profile.
+- `GET /api/users/me/profile` - Get the authenticated user's OAuth profile page.
+- `GET /api/users/me/solutions` - List the authenticated user's solutions.
+
+### Problems
+- `GET /api/problems` - List all problems.
+- `POST /api/problems` - Create a problem.
+- `POST /api/problems/bulk` - Create multiple problems.
+- `DELETE /api/problems` - Delete all problems.
+- `GET /api/problems/:problemId/submissions` - List submissions for a problem.
+
+### Test Cases
+- `GET /api/test-cases` - List all test cases.
+- `POST /api/test-cases` - Create test cases.
+- `DELETE /api/test-cases` - Delete all test cases.
+- `DELETE /api/test-cases/:id` - Delete a test case.
+
+### Submissions & Code
+- `POST /api/code-runs` - Run code against a problem.
+- `POST /api/submissions` - Submit code for judging.
+- `POST /api/code-reviews` - Request an AI code review.
+
+### Contests
+- `GET /api/contests` - List all contests.
+- `POST /api/contests` - Create a contest.
+- `GET /api/contests/:id` - Get contest details.
+- `POST /api/contests/:id/registrations` - Register for a contest.
+- `POST /api/contests/:id/registration-cancellations` - Cancel contest registration.
+- `POST /api/contests/:contestId/submissions` - Submit a contest solution.
+- `GET /api/contests/:contestId/submissions` - List contest submissions.
+- `GET /api/contests/:contestId/solved-problems/count` - Get solved problem count.
+- `GET /api/contests/:contestId/code-runs` - Run code in a contest.
+
+### Discussions & Messages
+- `GET /api/problems/:problemId/discussions` - List discussions for a problem.
+- `POST /api/problems/:problemId/discussions` - Create a problem discussion.
+- `GET /api/discussions/:discussionId/messages` - List messages in a discussion.
+- `POST /api/discussions/:discussionId/messages` - Add a message to a discussion.
+- `DELETE /api/messages/:messageId` - Delete a message.
+- `POST /api/messages/:messageId/likes` - Like a message.
+- `POST /api/messages/:messageId/dislikes` - Dislike a message.
+
+### Leaderboard & Reviews
+- `GET /api/leaderboard` - Get leaderboard data.
+- `POST /api/resume-reviews` - Request an AI resume review.
+
+---
+
 ## 🚀 Getting Started
 
 ### 1. **Clone the repository**
