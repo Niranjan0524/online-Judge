@@ -14,6 +14,6 @@ const upload = multer({ dest: uploadDir });
 const { getResumeReview } = require("../controllers/resumeController");
 
 
-resumeRouter.post('/getReview', upload.single('resume'), getResumeReview);
+resumeRouter.post('/resume-reviews', upload.single('resume'), getResumeReview);
 
 module.exports = resumeRouter;

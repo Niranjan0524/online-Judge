@@ -13,14 +13,14 @@ const {deleteAllTestCases} = require("../controllers/problemController");
 const {deleteAllProblems} = require("../controllers/problemController");
 const {getProblemSubmissions} = require("../controllers/problemController");
 
-problemRouter.get("/getAllProblems",getProblems);
-problemRouter.post("/addTestCases",addTestCases);
-problemRouter.post("/addProblems",addProblems);
-problemRouter.get("/getAllTestCases",getTestCases);
-problemRouter.get("/:problemId/submissions", verifyUser, getProblemSubmissions);
-problemRouter.delete("/removeTestCases/:id", removeTestCase);
-problemRouter.delete("/removeAllTestCases", deleteAllTestCases);
-problemRouter.delete("/removeAllProblems", deleteAllProblems);
-problemRouter.post("/add", addSingleProblem);
+problemRouter.get("/problems",getProblems);
+problemRouter.post("/test-cases",addTestCases);
+problemRouter.post("/problems/bulk",addProblems);
+problemRouter.get("/test-cases",getTestCases);
+problemRouter.get("/problems/:problemId/submissions", verifyUser, getProblemSubmissions);
+problemRouter.delete("/test-cases/:id", removeTestCase);
+problemRouter.delete("/test-cases", deleteAllTestCases);
+problemRouter.delete("/problems", deleteAllProblems);
+problemRouter.post("/problems", addSingleProblem);
 
 module.exports=problemRouter;

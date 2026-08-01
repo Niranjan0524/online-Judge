@@ -92,13 +92,13 @@ initializeSocket(io); // Initialize socket.io with the server
 app.use("/health",(req,res)=>{
   res.status(200).json({message:"OK"});
 })
-app.use("/api/auth", authRouter);
-app.use("/api/problem", problemRouter);
-app.use("/api/code", verifyUser, codeRouter);
-app.use("/api/alldata", verifyUser, leaderboardRouter);
-app.use("/api/resume", verifyUser, resumeRouter);
-app.use("/api/discussion", verifyUser, discussionRouter);
-app.use("/api/contest", verifyUser, contestRouter);
+app.use("/api", authRouter);
+app.use("/api", problemRouter);
+app.use("/api", verifyUser, codeRouter);
+app.use("/api", verifyUser, leaderboardRouter);
+app.use("/api", verifyUser, resumeRouter);
+app.use("/api", verifyUser, discussionRouter);
+app.use("/api", verifyUser, contestRouter);
 
 
 

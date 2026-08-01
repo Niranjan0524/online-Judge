@@ -3,7 +3,7 @@ const express=require("express");
 const codeRouter=express.Router();
 const { aiReviewCode} = require("../controllers/codeController");
 
-codeRouter.post("/run",async(req,res)=>{
+codeRouter.post("/code-runs",async(req,res)=>{
   const { code, lang = "c++", problemId, input } = req.body;
   
   console.log("got it");
@@ -40,7 +40,7 @@ codeRouter.post("/run",async(req,res)=>{
     })
   }
 });
-codeRouter.post("/submit",async(req,res)=>{
+codeRouter.post("/submissions",async(req,res)=>{
   const { code, lang = "c++", problemId } = req.body;
   const id = req.userId;
   try{
@@ -78,6 +78,6 @@ codeRouter.post("/submit",async(req,res)=>{
   } 
 
 });
-codeRouter.post("/aiReview",aiReviewCode);
+codeRouter.post("/code-reviews",aiReviewCode);
 
 module.exports=codeRouter;

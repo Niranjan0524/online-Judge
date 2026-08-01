@@ -4,12 +4,12 @@ const authRouter=express.Router();
 const passport=require('passport');
 const {preSignup,signup,login,getUser,getSolutions}=require('../controllers/authController');
 
-authRouter.post('/signup',preSignup,signup);
-authRouter.post('/login',login);
-authRouter.get('/getuser',getUser);
-authRouter.get('/getSolutions',getSolutions);
+authRouter.post('/auth/signup',preSignup,signup);
+authRouter.post('/auth/login',login);
+authRouter.get('/users/me',getUser);
+authRouter.get('/users/me/solutions',getSolutions);
 
-authRouter.get("/profile", ensureAuthenticated, (req, res) => {
+authRouter.get("/users/me/profile", ensureAuthenticated, (req, res) => {
   res.send("This is your profile page.");
 });
 function ensureAuthenticated(req, res, next) {
@@ -19,12 +19,12 @@ function ensureAuthenticated(req, res, next) {
   res.redirect("/login");
 }
 authRouter.get(
-  "/google",
+  "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 authRouter.get(
-  "/google/callback",
+  "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
     // Successful authentication, redirect home.
