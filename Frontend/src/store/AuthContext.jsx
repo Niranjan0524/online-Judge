@@ -36,7 +36,7 @@ export const AuthProvider=({children})=>{
     else{
       setToken(token);
       
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/getUser`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/me`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,

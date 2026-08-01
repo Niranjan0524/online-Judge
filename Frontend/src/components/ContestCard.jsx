@@ -54,7 +54,7 @@ const ContestCard = ({ contest, onRegister, onUnregister, userId }) => {
     const fetchContestData = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/contest/getContestById/${
+          `${import.meta.env.VITE_BACKEND_URL}/api/contests/${
             contest._id
           }`,
           {

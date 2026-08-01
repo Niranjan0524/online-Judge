@@ -153,7 +153,7 @@ const SolveProblem = () => {
     setSubmissionsLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/problem/${requestedProblemId}/submissions`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/problems/${requestedProblemId}/submissions`,
         {
           method: "GET",
           headers: {
@@ -251,7 +251,7 @@ const SolveProblem = () => {
     }
 
     setRunning(true);
-    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code/run`, {
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/code-runs`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -300,8 +300,8 @@ const SolveProblem = () => {
 
   const handleSubmit = async () => {
     const url = contestId
-      ? `${import.meta.env.VITE_BACKEND_URL}/api/contest/${contestId}/submit`
-      : `${import.meta.env.VITE_BACKEND_URL}/api/code/submit`;
+      ? `${import.meta.env.VITE_BACKEND_URL}/api/contests/${contestId}/submissions`
+      : `${import.meta.env.VITE_BACKEND_URL}/api/submissions`;
 
     if (!token) {
       toast.error("Unauthorized,Please Login");

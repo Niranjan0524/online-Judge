@@ -38,7 +38,7 @@ const Contest = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/contest/registerUser/${id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/contests/${id}/registrations`,
         {
           method: "POST",
           headers: {
@@ -76,7 +76,7 @@ const Contest = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/contest/unregisterUser/${id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/contests/${id}/registration-cancellations`,
         {
           method: "POST",
           headers: {
@@ -115,7 +115,7 @@ const Contest = () => {
     const fetchContests = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/contest/getAllContests`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/contests`,
           {
             method: "GET",
             headers: {

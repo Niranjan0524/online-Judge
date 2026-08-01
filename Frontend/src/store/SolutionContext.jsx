@@ -16,7 +16,7 @@ export const SolutionContextProvider=({children})=>{
       }
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/getSolutions`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/me/solutions`, {
           method: "GET",
           headers: {
             "content-type": "application/json",

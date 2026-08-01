@@ -30,7 +30,7 @@ const ContestNavigation = () => {
     const fetchContestData = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/contest/getContestById/${contestId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/contests/${contestId}`,
           {
             headers: {
               authorization: `Bearer ${token}`,
@@ -62,7 +62,7 @@ const ContestNavigation = () => {
       try {
         setSolvedProblemsLoading(true);
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/contest/${contestId}/getTotalSolvedProblems`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/contests/${contestId}/solved-problems/count`,
           {
             headers: {
               authorization: `Bearer ${token}`,

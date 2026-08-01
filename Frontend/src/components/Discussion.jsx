@@ -23,7 +23,7 @@ const Discussion = ({ problemId }) => {
 
   const fetchDiscussions = async () => {
     fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/discussion/getAllDiscussions/${problemId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/problems/${problemId}/discussions`,
       {
         method: "GET",
         headers: {
@@ -49,7 +49,7 @@ const Discussion = ({ problemId }) => {
 
   const fetchMessages = async (discussionId) => {
     fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/discussion/getAllMessages/${discussionId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/discussions/${discussionId}/messages`,
       {
         method: "GET",
         headers: {
@@ -90,7 +90,7 @@ const Discussion = ({ problemId }) => {
       return;
     }
     setLoading(true);
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/newDiscussion`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problems/${problemId}/discussions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -135,7 +135,7 @@ const Discussion = ({ problemId }) => {
     }
     setMsgLoading(true);
 
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/newMessage`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussions/${selectedDiscussion._id}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -174,7 +174,7 @@ const Discussion = ({ problemId }) => {
       toast.error("Message ID is required to like a message");
       return;
     }
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/likeMessage/${messageId}`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/messages/${messageId}/likes`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -208,7 +208,7 @@ const Discussion = ({ problemId }) => {
       return;
     }
 
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/dislikeMessage/${messageId}`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/messages/${messageId}/dislikes`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -243,7 +243,7 @@ const Discussion = ({ problemId }) => {
     }
 
     const deleteLoader = toast.loading("Deleting message...");
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/discussion/deleteMessage/${messageId}`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/messages/${messageId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

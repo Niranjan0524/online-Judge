@@ -49,7 +49,7 @@ const ViewContest = () => {
     const fetchContestDetails = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/contest/getContestById/${contestId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/contests/${contestId}`,
           {
             headers: token ? { authorization: `Bearer ${token}` } : {},
           }

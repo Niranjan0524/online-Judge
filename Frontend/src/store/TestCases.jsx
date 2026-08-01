@@ -9,7 +9,7 @@ export const TestCaseProvider=({children})=>{
 
   useEffect(()=>{
     const fetchTestCases=async()=>{
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problem/getAllTestCases`,{
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/test-cases`,{
       method:'GET'
     })
     .then(async (res)=>{

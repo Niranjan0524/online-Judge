@@ -9,7 +9,7 @@ export const LeaderBoardProvider=({children})=>{
   const [leaderBoardData, setLeaderBoardData] = useState([]);
 
   const fetchLeaderBoardData = async () => {
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/alldata/getleaderboard`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/leaderboard`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -119,7 +119,7 @@ const AddProblem = () => {
       output: tc.output,
     }));
 
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problem/add`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problems`, {
       method: "POST",
       body: JSON.stringify({ ...problemData, testCases: testCasesData }),
       headers: {

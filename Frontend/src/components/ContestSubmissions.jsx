@@ -19,7 +19,7 @@ const ContestSubmissions = () => {
     const fetchContest = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/contest/getContestById/${contestId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/contests/${contestId}`,
           {
             headers: { authorization: `Bearer ${token}` },
           }
@@ -37,7 +37,7 @@ const ContestSubmissions = () => {
     const fetchSubmissions = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/contest/${contestId}/getSubmissions`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/contests/${contestId}/submissions`,
           {
             headers: { authorization: `Bearer ${token}` },
           }

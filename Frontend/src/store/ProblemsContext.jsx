@@ -11,7 +11,7 @@ export const ProblemsProvider=({children})=>{
 
   useEffect(()=>{
     setProblemLoading(true);
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problem/getAllProblems`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/problems`, {
       method: "GET"
     })
       .then(async (res) => {

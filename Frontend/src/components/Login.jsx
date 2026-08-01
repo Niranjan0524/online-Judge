@@ -79,7 +79,7 @@ const Login = () => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
     if (token) {
-      fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/getUser`, {
+      fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/me`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
