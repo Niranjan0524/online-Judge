@@ -260,6 +260,67 @@ HTTP Status Codes
 | 401 | Authorization header missing, token missing, or token invalid |
 | 404 | User not found |
 
+## GET /api/users/profile/:username
+
+Authentication: No
+
+Request Body
+
+Not applicable.
+
+Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| username | string | Yes | Public profile handle. The current user model does not have a separate username field, so this matches the existing user `name` value. |
+
+Query Parameters
+
+None.
+
+Success Response
+
+```json
+{
+  "message": "Public profile fetched successfully",
+  "user": {
+    "name": "John Doe",
+    "username": "John Doe",
+    "type": "user"
+  }
+}
+```
+
+Error Responses
+
+```json
+{
+  "message": "Username is required"
+}
+```
+
+```json
+{
+  "message": "User profile not found"
+}
+```
+
+```json
+{
+  "message": "Error fetching public profile",
+  "error": {}
+}
+```
+
+HTTP Status Codes
+
+| Status Code | Description |
+|-------------|-------------|
+| 200 | Public profile fetched successfully |
+| 400 | Username is missing |
+| 404 | User profile does not exist |
+| 500 | Error fetching public profile |
+
 ## GET /api/auth/profile
 
 Authentication: Yes

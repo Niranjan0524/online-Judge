@@ -17,6 +17,7 @@ const Login = lazy(() => import("./components/Login"));
 const Home = lazy(() => import("./components/Home"));
 const SolveProblem = lazy(() => import("./components/SolveProblem"));
 const Profile = lazy(() => import("./components/Profile"));
+const PublicProfile = lazy(() => import("./components/PublicProfile"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
 const PageNotFound = lazy(() => import("./components/PageNotFound"));
 const ResumeReviewer = lazy(() => import("./components/ResumeReviewer"));
@@ -102,6 +103,14 @@ function App() {
                       element={
                         <Suspense fallback={<LoadingState />}>
                           <Profile />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="profile/:username"
+                      element={
+                        <Suspense fallback={<LoadingState />}>
+                          <PublicProfile />
                         </Suspense>
                       }
                     />

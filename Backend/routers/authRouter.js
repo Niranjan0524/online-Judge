@@ -2,12 +2,13 @@ const express=require('express');
 const jwt=require('jsonwebtoken');
 const authRouter=express.Router();
 const passport=require('passport');
-const {preSignup,signup,login,getUser,getSolutions}=require('../controllers/authController');
+const {preSignup,signup,login,getUser,getSolutions,getPublicProfile}=require('../controllers/authController');
 
 authRouter.post('/auth/signup',preSignup,signup);
 authRouter.post('/auth/login',login);
 authRouter.get('/users/me',getUser);
 authRouter.get('/users/me/solutions',getSolutions);
+authRouter.get('/users/profile/:username',getPublicProfile);
 
 authRouter.get("/users/me/profile", ensureAuthenticated, (req, res) => {
   res.send("This is your profile page.");

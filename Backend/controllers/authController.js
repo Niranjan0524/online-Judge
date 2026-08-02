@@ -184,6 +184,44 @@ exports.getUser=async(req,res)=>{
   })
 }
 
+exports.getPublicProfile=async(req,res)=>{
+  try {
+    const username = (req.params.username || "").trim();
+
+    if (!username) {
+      return res.status(400).json({
+        message: "Username is required"
+      });
+    }
+
+    const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const user = await User.findOne({
+      name: { $regex: `^${escapedUsername}$`, $options: "i" }
+    }).select("name type");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User profile not found"
+      });
+    }
+
+    res.status(200).json({
+      message: "Public profile fetched successfully",
+      user: {
+        name: user.name,
+        username: user.name,
+        type: user.type
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching public profile:", error);
+    res.status(500).json({
+      message: "Error fetching public profile",
+      error: error
+    });
+  }
+}
+
 exports.getSolutions=async(req,res)=>{
   const authHeader = req.headers.authorization;
   if(!authHeader){
