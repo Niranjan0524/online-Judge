@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { FiBarChart2, FiCheckCircle, FiMail, FiTarget, FiUser } from "react-icons/fi";
+import { FiBarChart2, FiCheckCircle, FiEdit2, FiMail, FiTarget, FiUser } from "react-icons/fi";
 import { useAuth } from "../store/AuthContext";
 import { useSolutions } from "../store/SolutionContext";
 import { useProblems } from "../store/ProblemsContext";
@@ -15,7 +15,6 @@ const Profile = () => {
   const submissions = solutions?.length || 0;
   const accepted =
     solutions?.filter((s) => s.status === "Accepted").length || 0;
-  const attempted = [...new Set(solutions?.map((s) => s.problemId))].length || 0;
   const noOfProblemsSolved =
     leaderBoardData?.find((u) => u.userId === user?._id)?.noOfProblemsSolved ||
     0;
@@ -85,6 +84,14 @@ const Profile = () => {
             <span className="w-fit rounded-full border border-vibe-primary/30 bg-vibe-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-vibe-primary">
               {user?.type || "Coder"}
             </span>
+            <button
+              onClick={() => navigate("/profile/edit")}
+              className="inline-flex w-fit items-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-4 py-2.5 text-sm font-semibold text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+              type="button"
+            >
+              <FiEdit2 size={16} />
+              Edit Profile
+            </button>
           </div>
         </section>
 

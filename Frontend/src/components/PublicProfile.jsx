@@ -26,9 +26,11 @@ const PublicProfile = () => {
       setError("");
 
       try {
+        const token = localStorage.getItem("token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
         const response = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/api/users/profile/${encodeURIComponent(username)}`,
-          { signal: controller.signal }
+          { headers, signal: controller.signal }
         );
         const data = await response.json();
 
@@ -38,7 +40,11 @@ const PublicProfile = () => {
           return;
         }
 
-        setProfile(data.user ? { ...data.user, stats: data.stats } : null);
+        setProfile(
+          data.user
+            ? { ...data.user, stats: data.stats, visibility: data.visibility }
+            : null
+        );
       } catch (err) {
         if (err.name !== "AbortError") {
           setProfile(null);
@@ -97,30 +103,16 @@ const PublicProfile = () => {
     );
   }
 
-  const initial = profile.name?.[0]?.toUpperCase() || "U";
+  const visibility = {
+    publicProfile: true,
+    solvedProblems: true,
+    submissionHistory: true,
+    contestHistory: true,
+    ...(profile.visibility || {}),
+  };
+  const displayName = profile.name || profile.username;
+  const initial = displayName?.[0]?.toUpperCase() || "U";
   const stats = profile.stats || {};
-  const overviewStats = [
-    {
-      label: "Problems Solved",
-      value: stats.problemsSolved || 0,
-      icon: FiCheckCircle,
-    },
-    {
-      label: "Submissions",
-      value: stats.totalSubmissions || 0,
-      icon: FiBarChart2,
-    },
-    {
-      label: "Acceptance Rate",
-      value: `${stats.acceptanceRate || 0}%`,
-      icon: FiTarget,
-    },
-    {
-      label: "Contests",
-      value: stats.totalContestsParticipated || 0,
-      icon: FiFlag,
-    },
-  ];
   const difficultyStats = [
     { label: "Easy", value: stats.easySolved || 0, color: "text-vibe-success" },
     {
@@ -130,7 +122,12 @@ const PublicProfile = () => {
     },
     { label: "Hard", value: stats.hardSolved || 0, color: "text-vibe-danger" },
   ];
-  const hasSubmissions = (stats.totalSubmissions || 0) > 0;
+  const hasSolvedProblems = (stats.problemsSolved || 0) > 0;
+  const PrivateSection = () => (
+    <div className="rounded-xl border border-dashed border-vibe-border bg-vibe-background p-6 text-center text-sm text-vibe-subtext">
+      This section is private.
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-10 text-vibe-text sm:px-6 lg:px-8">
@@ -146,51 +143,109 @@ const PublicProfile = () => {
                   Public Profile
                 </p>
                 <h1 className="mt-2 truncate font-heading text-3xl font-bold text-vibe-text">
-                  {profile.name}
+                  {displayName}
                 </h1>
-                <p className="mt-2 flex items-center gap-2 text-sm text-vibe-subtext">
-                  <FiAtSign size={15} />
-                  {profile.username}
-                </p>
+                {visibility.publicProfile ? (
+                  <p className="mt-2 flex items-center gap-2 text-sm text-vibe-subtext">
+                    <FiAtSign size={15} />
+                    {profile.username}
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm text-vibe-subtext">
+                    This section is private.
+                  </p>
+                )}
               </div>
             </div>
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-vibe-primary/30 bg-vibe-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-vibe-primary">
-              <FiShield size={14} />
-              {profile.type || "user"}
-            </span>
+            {visibility.publicProfile && (
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-vibe-primary/30 bg-vibe-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-vibe-primary">
+                <FiShield size={14} />
+                {profile.type || "user"}
+              </span>
+            )}
           </div>
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {overviewStats.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <article
-                key={item.label}
-                className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm text-vibe-subtext">{item.label}</p>
-                    <p className="mt-2 font-heading text-3xl font-bold text-vibe-text">
-                      {item.value}
-                    </p>
-                  </div>
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-primary">
-                    <Icon size={18} />
-                  </span>
+          <article className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel">
+            {visibility.solvedProblems ? (
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm text-vibe-subtext">Problems Solved</p>
+                  <p className="mt-2 font-heading text-3xl font-bold text-vibe-text">
+                    {stats.problemsSolved || 0}
+                  </p>
                 </div>
-              </article>
-            );
-          })}
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-primary">
+                  <FiCheckCircle size={18} />
+                </span>
+              </div>
+            ) : (
+              <PrivateSection />
+            )}
+          </article>
+          <article className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel">
+            {visibility.submissionHistory ? (
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm text-vibe-subtext">Submissions</p>
+                  <p className="mt-2 font-heading text-3xl font-bold text-vibe-text">
+                    {stats.totalSubmissions || 0}
+                  </p>
+                </div>
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-primary">
+                  <FiBarChart2 size={18} />
+                </span>
+              </div>
+            ) : (
+              <PrivateSection />
+            )}
+          </article>
+          <article className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel">
+            {visibility.submissionHistory ? (
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm text-vibe-subtext">Acceptance Rate</p>
+                  <p className="mt-2 font-heading text-3xl font-bold text-vibe-text">
+                    {stats.acceptanceRate || 0}%
+                  </p>
+                </div>
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-primary">
+                  <FiTarget size={18} />
+                </span>
+              </div>
+            ) : (
+              <PrivateSection />
+            )}
+          </article>
+          <article className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel">
+            {visibility.contestHistory ? (
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm text-vibe-subtext">Contests</p>
+                  <p className="mt-2 font-heading text-3xl font-bold text-vibe-text">
+                    {stats.totalContestsParticipated || 0}
+                  </p>
+                </div>
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-primary">
+                  <FiFlag size={18} />
+                </span>
+              </div>
+            ) : (
+              <PrivateSection />
+            )}
+          </article>
         </section>
 
         <section className="rounded-2xl border border-vibe-border bg-vibe-surface p-6 shadow-panel">
           <h2 className="font-heading text-xl font-semibold text-vibe-text">
             Solved by Difficulty
           </h2>
-          {hasSubmissions ? (
+          {!visibility.solvedProblems ? (
+            <div className="mt-5">
+              <PrivateSection />
+            </div>
+          ) : hasSolvedProblems ? (
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
               {difficultyStats.map((item) => (
                 <div
@@ -208,7 +263,7 @@ const PublicProfile = () => {
             </div>
           ) : (
             <div className="mt-5 rounded-xl border border-dashed border-vibe-border bg-vibe-background p-6 text-center text-sm text-vibe-subtext">
-              No submissions yet.
+              No solved problems yet.
             </div>
           )}
         </section>
@@ -217,24 +272,32 @@ const PublicProfile = () => {
           <h2 className="font-heading text-xl font-semibold text-vibe-text">
             Basic Information
           </h2>
-          <dl className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-vibe-border bg-vibe-background p-4">
-              <dt className="flex items-center gap-2 text-sm text-vibe-subtext">
-                <FiUser size={15} />
-                Full name
-              </dt>
-              <dd className="mt-2 font-medium text-vibe-text">{profile.name}</dd>
+          {visibility.publicProfile ? (
+            <dl className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-xl border border-vibe-border bg-vibe-background p-4">
+                <dt className="flex items-center gap-2 text-sm text-vibe-subtext">
+                  <FiUser size={15} />
+                  Full name
+                </dt>
+                <dd className="mt-2 font-medium text-vibe-text">
+                  {profile.name}
+                </dd>
+              </div>
+              <div className="rounded-xl border border-vibe-border bg-vibe-background p-4">
+                <dt className="flex items-center gap-2 text-sm text-vibe-subtext">
+                  <FiAtSign size={15} />
+                  Username
+                </dt>
+                <dd className="mt-2 font-medium text-vibe-text">
+                  {profile.username}
+                </dd>
+              </div>
+            </dl>
+          ) : (
+            <div className="mt-5">
+              <PrivateSection />
             </div>
-            <div className="rounded-xl border border-vibe-border bg-vibe-background p-4">
-              <dt className="flex items-center gap-2 text-sm text-vibe-subtext">
-                <FiAtSign size={15} />
-                Username
-              </dt>
-              <dd className="mt-2 font-medium text-vibe-text">
-                {profile.username}
-              </dd>
-            </div>
-          </dl>
+          )}
         </section>
       </div>
     </div>
