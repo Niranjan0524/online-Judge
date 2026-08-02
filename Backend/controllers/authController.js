@@ -4,6 +4,13 @@ const bcrypt = require("bcryptjs");
 const jwt=require("jsonwebtoken");
 const Solution = require("../models/solution");
 const Submission = require("../models/submissions");
+const {
+  normalizeProfilePrivacy,
+  validateProfilePrivacy,
+  getViewerIdFromRequest,
+  isProfileOwner,
+  canViewProfileSection,
+} = require("../service/profilePrivacy");
 
 const namevalidator=expressValidator
   .check("name")
@@ -139,7 +146,8 @@ exports.login=async(req,res)=>{
         _id:user._id,
         name:user.name,
         email:user.email,
-        type:user.type
+        type:user.type,
+        privacySettings: normalizeProfilePrivacy(user.privacySettings)
       }
     }); 
 }
@@ -179,10 +187,103 @@ exports.getUser=async(req,res)=>{
       _id:user._id,
       name:user.name,
       email:user.email,
-      type:user.type
+      type:user.type,
+      privacySettings: normalizeProfilePrivacy(user.privacySettings)
     },
     token:token
   })
+}
+
+exports.updateUserProfile=async(req,res)=>{
+  try {
+    const userId = req.userId;
+    const name = (req.body.name || "").trim();
+    const email = (req.body.email || "").trim().toLowerCase();
+    const requestedPrivacySettings = req.body.privacySettings;
+    const errors = [];
+
+    if (!name) {
+      errors.push("Name is Required");
+    }
+    if (name && name.length < 3) {
+      errors.push("Name should be at least 3 characters long");
+    }
+    if (name && !/^[a-zA-Z ]+$/.test(name)) {
+      errors.push("Name should only contain alphabets");
+    }
+    if (!email) {
+      errors.push("Email is Required");
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.push("Email is not valid");
+    }
+    if (requestedPrivacySettings) {
+      errors.push(...validateProfilePrivacy(requestedPrivacySettings));
+    }
+
+    if (errors.length > 0) {
+      return res.status(422).json({
+        errors: errors
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+
+    const existingEmail = await User.findOne({
+      email: email,
+      _id: { $ne: userId }
+    });
+    if (existingEmail) {
+      return res.status(422).json({
+        message: "Email already exists"
+      });
+    }
+
+    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const existingName = await User.findOne({
+      name: { $regex: `^${escapedName}$`, $options: "i" },
+      _id: { $ne: userId }
+    });
+    if (existingName) {
+      return res.status(422).json({
+        message: "Username already exists"
+      });
+    }
+
+    user.name = name;
+    user.email = email;
+    if (requestedPrivacySettings) {
+      const currentPrivacySettings =
+        user.privacySettings?.toObject?.() || user.privacySettings || {};
+      user.privacySettings = normalizeProfilePrivacy({
+        ...currentPrivacySettings,
+        ...requestedPrivacySettings
+      });
+    }
+    await user.save();
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        type: user.type,
+        privacySettings: normalizeProfilePrivacy(user.privacySettings)
+      }
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({
+      message: "Error updating profile",
+      error: error
+    });
+  }
 }
 
 exports.getPublicProfile=async(req,res)=>{
@@ -198,7 +299,7 @@ exports.getPublicProfile=async(req,res)=>{
     const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const user = await User.findOne({
       name: { $regex: `^${escapedUsername}$`, $options: "i" }
-    }).select("name type");
+    }).select("name type privacySettings");
 
     if (!user) {
       return res.status(404).json({
@@ -206,7 +307,19 @@ exports.getPublicProfile=async(req,res)=>{
       });
     }
 
-    const [submissionStats] = await Solution.aggregate([
+    const viewerId = getViewerIdFromRequest(req);
+    const isOwner = isProfileOwner(user._id, viewerId);
+    const privacySettings = normalizeProfilePrivacy(user.privacySettings);
+    const visibility = {
+      publicProfile: canViewProfileSection(privacySettings, "publicProfile", isOwner),
+      solvedProblems: canViewProfileSection(privacySettings, "solvedProblems", isOwner),
+      submissionHistory: canViewProfileSection(privacySettings, "submissionHistory", isOwner),
+      contestHistory: canViewProfileSection(privacySettings, "contestHistory", isOwner)
+    };
+    const stats = {};
+
+    if (visibility.solvedProblems || visibility.submissionHistory) {
+      const [submissionStats] = await Solution.aggregate([
       { $match: { userId: user._id } },
       {
         $group: {
@@ -226,94 +339,104 @@ exports.getPublicProfile=async(req,res)=>{
           acceptedSubmissions: 1
         }
       }
-    ]);
+      ]);
 
-    const [solvedStats] = await Solution.aggregate([
-      {
-        $match: {
-          userId: user._id,
-          status: "Accepted"
-        }
-      },
-      {
-        $group: {
-          _id: "$problemId"
-        }
-      },
-      {
-        $count: "problemsSolved"
+      const totalSubmissions = submissionStats?.totalSubmissions || 0;
+      const acceptedSubmissions = submissionStats?.acceptedSubmissions || 0;
+      const acceptanceRate = totalSubmissions
+        ? Math.round((acceptedSubmissions / totalSubmissions) * 10000) / 100
+        : 0;
+
+      if (visibility.submissionHistory) {
+        stats.totalSubmissions = totalSubmissions;
+        stats.acceptedSubmissions = acceptedSubmissions;
+        stats.acceptanceRate = acceptanceRate;
       }
-    ]);
+    }
 
-    const solvedByDifficulty = await Solution.aggregate([
-      {
-        $match: {
-          userId: user._id,
-          status: "Accepted"
+    if (visibility.solvedProblems) {
+      const [solvedStats] = await Solution.aggregate([
+        {
+          $match: {
+            userId: user._id,
+            status: "Accepted"
+          }
+        },
+        {
+          $group: {
+            _id: "$problemId"
+          }
+        },
+        {
+          $count: "problemsSolved"
         }
-      },
-      {
-        $group: {
-          _id: "$problemId"
-        }
-      },
-      {
-        $lookup: {
-          from: "problems",
-          localField: "_id",
-          foreignField: "_id",
-          as: "problem"
-        }
-      },
-      { $unwind: "$problem" },
-      {
-        $group: {
-          _id: "$problem.difficulty",
-          count: { $sum: 1 }
-        }
-      }
-    ]);
+      ]);
 
-    const [contestStats] = await Submission.aggregate([
-      { $match: { userId: user._id } },
-      {
-        $group: {
-          _id: "$contestId"
+      const solvedByDifficulty = await Solution.aggregate([
+        {
+          $match: {
+            userId: user._id,
+            status: "Accepted"
+          }
+        },
+        {
+          $group: {
+            _id: "$problemId"
+          }
+        },
+        {
+          $lookup: {
+            from: "problems",
+            localField: "_id",
+            foreignField: "_id",
+            as: "problem"
+          }
+        },
+        { $unwind: "$problem" },
+        {
+          $group: {
+            _id: "$problem.difficulty",
+            count: { $sum: 1 }
+          }
         }
-      },
-      {
-        $count: "totalContestsParticipated"
-      }
-    ]);
+      ]);
 
-    const difficultyCounts = solvedByDifficulty.reduce((counts, item) => {
-      counts[item._id] = item.count;
-      return counts;
-    }, { easy: 0, medium: 0, hard: 0 });
+      const difficultyCounts = solvedByDifficulty.reduce((counts, item) => {
+        counts[item._id] = item.count;
+        return counts;
+      }, { easy: 0, medium: 0, hard: 0 });
 
-    const totalSubmissions = submissionStats?.totalSubmissions || 0;
-    const acceptedSubmissions = submissionStats?.acceptedSubmissions || 0;
-    const acceptanceRate = totalSubmissions
-      ? Math.round((acceptedSubmissions / totalSubmissions) * 10000) / 100
-      : 0;
+      stats.problemsSolved = solvedStats?.problemsSolved || 0;
+      stats.easySolved = difficultyCounts.easy || 0;
+      stats.mediumSolved = difficultyCounts.medium || 0;
+      stats.hardSolved = difficultyCounts.hard || 0;
+    }
+
+    if (visibility.contestHistory) {
+      const [contestStats] = await Submission.aggregate([
+        { $match: { userId: user._id } },
+        {
+          $group: {
+            _id: "$contestId"
+          }
+        },
+        {
+          $count: "totalContestsParticipated"
+        }
+      ]);
+
+      stats.totalContestsParticipated = contestStats?.totalContestsParticipated || 0;
+    }
 
     res.status(200).json({
       message: "Public profile fetched successfully",
       user: {
-        name: user.name,
+        name: visibility.publicProfile ? user.name : undefined,
         username: user.name,
-        type: user.type
+        type: visibility.publicProfile ? user.type : undefined
       },
-      stats: {
-        problemsSolved: solvedStats?.problemsSolved || 0,
-        easySolved: difficultyCounts.easy || 0,
-        mediumSolved: difficultyCounts.medium || 0,
-        hardSolved: difficultyCounts.hard || 0,
-        totalSubmissions: totalSubmissions,
-        acceptedSubmissions: acceptedSubmissions,
-        acceptanceRate: acceptanceRate,
-        totalContestsParticipated: contestStats?.totalContestsParticipated || 0
-      }
+      stats: stats,
+      visibility: visibility
     });
   } catch (error) {
     console.error("Error fetching public profile:", error);

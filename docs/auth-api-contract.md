@@ -99,7 +99,13 @@ Success Response
     "_id": "USER_ID",
     "name": "John Doe",
     "email": "john@example.com",
-    "type": "user"
+    "type": "user",
+    "privacySettings": {
+      "publicProfile": "public",
+      "solvedProblems": "public",
+      "submissionHistory": "public",
+      "contestHistory": "public"
+    }
   }
 }
 ```
@@ -157,7 +163,13 @@ Success Response
     "_id": "USER_ID",
     "name": "John Doe",
     "email": "john@example.com",
-    "type": "user"
+    "type": "user",
+    "privacySettings": {
+      "publicProfile": "public",
+      "solvedProblems": "public",
+      "submissionHistory": "public",
+      "contestHistory": "public"
+    }
   },
   "token": "JWT_TOKEN"
 }
@@ -189,6 +201,117 @@ HTTP Status Codes
 |-------------|-------------|
 | 200 | User fetched successfully |
 | 401 | Authorization header missing, token missing, or user not found |
+
+## PUT /api/users/me
+
+Authentication: Yes
+
+Request Body
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "privacySettings": {
+    "publicProfile": "public",
+    "solvedProblems": "public",
+    "submissionHistory": "public",
+    "contestHistory": "public"
+  }
+}
+```
+
+Path Parameters
+
+None.
+
+Query Parameters
+
+None.
+
+Success Response
+
+```json
+{
+  "message": "Profile updated successfully",
+  "user": {
+    "_id": "USER_ID",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "type": "user",
+    "privacySettings": {
+      "publicProfile": "public",
+      "solvedProblems": "public",
+      "submissionHistory": "public",
+      "contestHistory": "public"
+    }
+  }
+}
+```
+
+Error Responses
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+```json
+{
+  "errors": ["VALIDATION_ERROR_MESSAGE"]
+}
+```
+
+```json
+{
+  "message": "Email already exists"
+}
+```
+
+```json
+{
+  "message": "Username already exists"
+}
+```
+
+```json
+{
+  "errors": ["publicProfile privacy must be public or private"]
+}
+```
+
+```json
+{
+  "message": "User not found"
+}
+```
+
+```json
+{
+  "message": "Error updating profile",
+  "error": {}
+}
+```
+
+HTTP Status Codes
+
+| Status Code | Description |
+|-------------|-------------|
+| 200 | Profile updated successfully |
+| 401 | Authorization failed |
+| 404 | User not found |
+| 422 | Validation failed, email already exists, or username already exists |
+| 500 | Error updating profile |
+
+New Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| privacySettings.publicProfile | string | Controls visibility of basic public profile details. Allowed values: `public`, `private`. |
+| privacySettings.solvedProblems | string | Controls visibility of solved-problem totals and difficulty counts. Allowed values: `public`, `private`. |
+| privacySettings.submissionHistory | string | Controls visibility of submission totals and acceptance rate. Allowed values: `public`, `private`. |
+| privacySettings.contestHistory | string | Controls visibility of contest participation totals. Allowed values: `public`, `private`. |
 
 ## GET /api/auth/getSolutions
 
@@ -297,9 +420,17 @@ Success Response
     "acceptedSubmissions": 18,
     "acceptanceRate": 60,
     "totalContestsParticipated": 3
+  },
+  "visibility": {
+    "publicProfile": true,
+    "solvedProblems": true,
+    "submissionHistory": true,
+    "contestHistory": true
   }
 }
 ```
+
+When a section is private for the current viewer, its related fields are omitted from `user` or `stats`, and the corresponding `visibility` value is `false`. The profile owner receives all sections when they send a valid bearer token.
 
 Error Responses
 
