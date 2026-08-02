@@ -3,6 +3,7 @@ const expressValidator = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt=require("jsonwebtoken");
 const Solution = require("../models/solution");
+const Submission = require("../models/submissions");
 
 const namevalidator=expressValidator
   .check("name")
@@ -205,12 +206,113 @@ exports.getPublicProfile=async(req,res)=>{
       });
     }
 
+    const [submissionStats] = await Solution.aggregate([
+      { $match: { userId: user._id } },
+      {
+        $group: {
+          _id: null,
+          totalSubmissions: { $sum: 1 },
+          acceptedSubmissions: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "Accepted"] }, 1, 0]
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalSubmissions: 1,
+          acceptedSubmissions: 1
+        }
+      }
+    ]);
+
+    const [solvedStats] = await Solution.aggregate([
+      {
+        $match: {
+          userId: user._id,
+          status: "Accepted"
+        }
+      },
+      {
+        $group: {
+          _id: "$problemId"
+        }
+      },
+      {
+        $count: "problemsSolved"
+      }
+    ]);
+
+    const solvedByDifficulty = await Solution.aggregate([
+      {
+        $match: {
+          userId: user._id,
+          status: "Accepted"
+        }
+      },
+      {
+        $group: {
+          _id: "$problemId"
+        }
+      },
+      {
+        $lookup: {
+          from: "problems",
+          localField: "_id",
+          foreignField: "_id",
+          as: "problem"
+        }
+      },
+      { $unwind: "$problem" },
+      {
+        $group: {
+          _id: "$problem.difficulty",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const [contestStats] = await Submission.aggregate([
+      { $match: { userId: user._id } },
+      {
+        $group: {
+          _id: "$contestId"
+        }
+      },
+      {
+        $count: "totalContestsParticipated"
+      }
+    ]);
+
+    const difficultyCounts = solvedByDifficulty.reduce((counts, item) => {
+      counts[item._id] = item.count;
+      return counts;
+    }, { easy: 0, medium: 0, hard: 0 });
+
+    const totalSubmissions = submissionStats?.totalSubmissions || 0;
+    const acceptedSubmissions = submissionStats?.acceptedSubmissions || 0;
+    const acceptanceRate = totalSubmissions
+      ? Math.round((acceptedSubmissions / totalSubmissions) * 10000) / 100
+      : 0;
+
     res.status(200).json({
       message: "Public profile fetched successfully",
       user: {
         name: user.name,
         username: user.name,
         type: user.type
+      },
+      stats: {
+        problemsSolved: solvedStats?.problemsSolved || 0,
+        easySolved: difficultyCounts.easy || 0,
+        mediumSolved: difficultyCounts.medium || 0,
+        hardSolved: difficultyCounts.hard || 0,
+        totalSubmissions: totalSubmissions,
+        acceptedSubmissions: acceptedSubmissions,
+        acceptanceRate: acceptanceRate,
+        totalContestsParticipated: contestStats?.totalContestsParticipated || 0
       }
     });
   } catch (error) {
