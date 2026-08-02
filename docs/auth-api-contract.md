@@ -287,6 +287,16 @@ Success Response
     "name": "John Doe",
     "username": "John Doe",
     "type": "user"
+  },
+  "stats": {
+    "problemsSolved": 12,
+    "easySolved": 6,
+    "mediumSolved": 4,
+    "hardSolved": 2,
+    "totalSubmissions": 30,
+    "acceptedSubmissions": 18,
+    "acceptanceRate": 60,
+    "totalContestsParticipated": 3
   }
 }
 ```

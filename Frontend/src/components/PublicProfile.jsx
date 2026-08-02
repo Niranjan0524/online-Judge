@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { FiAlertCircle, FiAtSign, FiShield, FiUser } from "react-icons/fi";
+import {
+  FiAlertCircle,
+  FiAtSign,
+  FiBarChart2,
+  FiCheckCircle,
+  FiFlag,
+  FiShield,
+  FiTarget,
+  FiUser,
+} from "react-icons/fi";
 import LoadingState from "./LoadingState";
 
 const PublicProfile = () => {
@@ -29,7 +38,7 @@ const PublicProfile = () => {
           return;
         }
 
-        setProfile(data.user || null);
+        setProfile(data.user ? { ...data.user, stats: data.stats } : null);
       } catch (err) {
         if (err.name !== "AbortError") {
           setProfile(null);
@@ -89,6 +98,39 @@ const PublicProfile = () => {
   }
 
   const initial = profile.name?.[0]?.toUpperCase() || "U";
+  const stats = profile.stats || {};
+  const overviewStats = [
+    {
+      label: "Problems Solved",
+      value: stats.problemsSolved || 0,
+      icon: FiCheckCircle,
+    },
+    {
+      label: "Submissions",
+      value: stats.totalSubmissions || 0,
+      icon: FiBarChart2,
+    },
+    {
+      label: "Acceptance Rate",
+      value: `${stats.acceptanceRate || 0}%`,
+      icon: FiTarget,
+    },
+    {
+      label: "Contests",
+      value: stats.totalContestsParticipated || 0,
+      icon: FiFlag,
+    },
+  ];
+  const difficultyStats = [
+    { label: "Easy", value: stats.easySolved || 0, color: "text-vibe-success" },
+    {
+      label: "Medium",
+      value: stats.mediumSolved || 0,
+      color: "text-vibe-warning",
+    },
+    { label: "Hard", value: stats.hardSolved || 0, color: "text-vibe-danger" },
+  ];
+  const hasSubmissions = (stats.totalSubmissions || 0) > 0;
 
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-10 text-vibe-text sm:px-6 lg:px-8">
@@ -117,6 +159,58 @@ const PublicProfile = () => {
               {profile.type || "user"}
             </span>
           </div>
+        </section>
+
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {overviewStats.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <article
+                key={item.label}
+                className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm text-vibe-subtext">{item.label}</p>
+                    <p className="mt-2 font-heading text-3xl font-bold text-vibe-text">
+                      {item.value}
+                    </p>
+                  </div>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-background text-vibe-primary">
+                    <Icon size={18} />
+                  </span>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+
+        <section className="rounded-2xl border border-vibe-border bg-vibe-surface p-6 shadow-panel">
+          <h2 className="font-heading text-xl font-semibold text-vibe-text">
+            Solved by Difficulty
+          </h2>
+          {hasSubmissions ? (
+            <div className="mt-5 grid gap-4 sm:grid-cols-3">
+              {difficultyStats.map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-xl border border-vibe-border bg-vibe-background p-4"
+                >
+                  <p className="text-sm text-vibe-subtext">{item.label}</p>
+                  <p
+                    className={`mt-2 font-heading text-3xl font-bold ${item.color}`}
+                  >
+                    {item.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-5 rounded-xl border border-dashed border-vibe-border bg-vibe-background p-6 text-center text-sm text-vibe-subtext">
+              No submissions yet.
+            </div>
+          )}
         </section>
 
         <section className="rounded-2xl border border-vibe-border bg-vibe-surface p-6 shadow-panel">
