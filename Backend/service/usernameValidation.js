@@ -15,6 +15,7 @@ const RESERVED_USERNAMES = new Set([
   "contests",
   "dashboard",
   "docs",
+  "edit",
   "explore",
   "features",
   "help",

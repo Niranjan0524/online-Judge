@@ -1,5 +1,42 @@
 const Discussion = require('../models/discussion');
 const Message = require('../models/message');
+const User = require('../models/user');
+
+const enrichMessagesWithUser = async (messages) => {
+  const messageDocs = messages.map((msg) =>
+    typeof msg.toObject === "function" ? msg.toObject() : { ...msg }
+  );
+  const userIds = [
+    ...new Set(
+      messageDocs
+        .map((msg) => msg.userId?.toString())
+        .filter(Boolean)
+    ),
+  ];
+
+  if (userIds.length === 0) {
+    return messageDocs.map((msg) => ({
+      ...msg,
+      name: undefined,
+      username: undefined,
+    }));
+  }
+
+  const users = await User.find({ _id: { $in: userIds } }).select("name username");
+  const usersById = users.reduce((acc, user) => {
+    acc[user._id.toString()] = user;
+    return acc;
+  }, {});
+
+  return messageDocs.map((msg) => {
+    const user = usersById[msg.userId?.toString()];
+    return {
+      ...msg,
+      name: user ? user.name : undefined,
+      username: user ? user.username : undefined,
+    };
+  });
+};
 
 exports.getDiscussions=async(req,res)=>{
   const problemId = req.params.problemId;
@@ -70,9 +107,11 @@ exports.addNewMessage=async(req,res)=>{
     });
     await newMessage.save();
 
+    const [enrichedMessage] = await enrichMessagesWithUser([newMessage]);
+
     res.status(201).json({
       message: "Message added successfully",
-      newMessage: newMessage,
+      newMessage: enrichedMessage,
     }); 
   }
   catch(err){
@@ -90,10 +129,11 @@ exports.getAllMessages=async(req,res)=>{
 
   try{
     const messages=await Message.find({discussionId});
+    const enrichedMessages = await enrichMessagesWithUser(messages);
 
     res.status(200).json({
       message: "Messages fetched successfully",
-      messages: messages,
+      messages: enrichedMessages,
     });
   } catch(err){
     return res.status(500).json({ message: "Error fetching messages", error: err.message });
@@ -118,10 +158,11 @@ exports.deleteMessage=async(req,res)=>{
     }
     const discussionId=deletedMessage.discussionId;
     const remainingMessages=await Message.find({discussionId});
+    const enrichedMessages = await enrichMessagesWithUser(remainingMessages);
 
     res.status(200).json({
       message: "Message deleted successfully",
-      remainingMessages: remainingMessages,
+      remainingMessages: enrichedMessages,
     });
   }
   catch(err){

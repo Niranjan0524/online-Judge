@@ -281,17 +281,6 @@ exports.updateUserProfile=async(req,res)=>{
       });
     }
 
-    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const existingName = await User.findOne({
-      name: { $regex: `^${escapedName}$`, $options: "i" },
-      _id: { $ne: userId }
-    });
-    if (existingName) {
-      return res.status(422).json({
-        message: "Username already exists"
-      });
-    }
-
     user.name = name;
     user.email = email;
     if (requestedPrivacySettings) {

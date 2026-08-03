@@ -216,7 +216,7 @@ const EditProfile = () => {
                 />
               </div>
               <p className="mt-2 text-xs text-vibe-muted">
-                This is also used as your public profile URL name.
+                This is your display name shown on profiles and leaderboards.
               </p>
             </div>
 

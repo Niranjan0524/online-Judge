@@ -6,6 +6,7 @@ const leaderboardSchema = new mongoose.Schema({
   leaderboard: [{
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     userName: { type: String, required: true },
+    username: { type: String, default: "" },
     noOfProblemsSolved: { type: Number, default: 0 },
     totalPoints: { type: Number, default: 0 },
     totalSubmissions: { type: Number, default: 0 },

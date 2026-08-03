@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import {
   FiMessageSquare,
@@ -360,7 +361,18 @@ const Discussion = ({ problemId }) => {
                       <FiUser size={16} />
                     </span>
                     <span className="font-semibold text-vibe-text">
-                      {msg.userId === user._id ? "You" : msg.username || "Anonymous"}
+                      {msg.userId === user._id ? (
+                        "You"
+                      ) : msg.username ? (
+                        <Link
+                          to={`/profile/${msg.username}`}
+                          className="hover:text-vibe-primary"
+                        >
+                          {msg.name || msg.username}
+                        </Link>
+                      ) : (
+                        msg.name || "Anonymous"
+                      )}
                     </span>
                   </div>
                   <p className="ml-10 whitespace-pre-wrap text-sm leading-6 text-vibe-subtext">
