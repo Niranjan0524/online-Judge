@@ -1,6 +1,7 @@
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route, useLocation } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { AuthProvider } from "./store/AuthContext";
+import { useAuth } from "./store/AuthContext";
 import { Toaster } from "react-hot-toast";
 import { ProblemsProvider } from "./store/ProblemsContext";
 import Header from "./components/Header";
@@ -14,6 +15,7 @@ import "./index.css";
 // Lazy load components
 const Signup = lazy(() => import("./components/Signup"));
 const Login = lazy(() => import("./components/Login"));
+const ChooseUsername = lazy(() => import("./components/ChooseUsername"));
 const Home = lazy(() => import("./components/Home"));
 const SolveProblem = lazy(() => import("./components/SolveProblem"));
 const Profile = lazy(() => import("./components/Profile"));
@@ -33,6 +35,21 @@ const ContestLeaderboard = lazy(() =>
   import("./components/ContestLeaderboard")
 );
 const Subscriptions = lazy(() => import("./components/Subscriptions"));
+
+const UsernameGate = () => {
+  const { user, token, isLoggedIn, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading || (token && !user)) {
+    return <LoadingState />;
+  }
+
+  if (isLoggedIn && user && !user.username) {
+    return <Navigate to="/choose-username" replace state={{ from: location }} />;
+  }
+
+  return <Header />;
+};
 
 function App() {
   return (
@@ -81,8 +98,16 @@ function App() {
                       </Suspense>
                     }
                   />
+                  <Route
+                    path="/choose-username"
+                    element={
+                      <Suspense fallback={<LoadingState />}>
+                        <ChooseUsername />
+                      </Suspense>
+                    }
+                  />
 
-                  <Route path="/" element={<Header />}>
+                  <Route path="/" element={<UsernameGate />}>
                     <Route
                       index
                       element={

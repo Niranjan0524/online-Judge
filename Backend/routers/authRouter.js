@@ -3,12 +3,14 @@ const jwt=require('jsonwebtoken');
 const authRouter=express.Router();
 const passport=require('passport');
 const {verifyUser}=require('../controllers/verifyUser');
-const {preSignup,signup,login,getUser,getSolutions,getPublicProfile,updateUserProfile}=require('../controllers/authController');
+const {preSignup,signup,login,getUser,getSolutions,getPublicProfile,updateUserProfile,checkUsername,chooseUsername}=require('../controllers/authController');
 
 authRouter.post('/auth/signup',preSignup,signup);
 authRouter.post('/auth/login',login);
 authRouter.get('/users/me',getUser);
 authRouter.get('/users/me/solutions',getSolutions);
+authRouter.get('/users/check-username',checkUsername);
+authRouter.put('/users/me/username',verifyUser,chooseUsername);
 authRouter.get('/users/profile/:username',getPublicProfile);
 authRouter.put('/users/me',verifyUser,updateUserProfile);
 

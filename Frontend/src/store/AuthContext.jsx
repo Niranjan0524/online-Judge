@@ -32,6 +32,7 @@ export const AuthProvider=({children})=>{
     if(isTokenExpired(token)){
       
       logout();
+      setLoading(false);
     }
     else{
       setToken(token);
@@ -46,8 +47,7 @@ export const AuthProvider=({children})=>{
         const data = await res.json();
         if (!res.ok) {
           // <-- use res.ok or res.status
-          setIsLoggedIn(false);
-          setUser(null);
+          logout();
           
         } else {
           setIsLoggedIn(true);
@@ -57,9 +57,11 @@ export const AuthProvider=({children})=>{
       })
       .catch((err) => {
         console.log("Error in fetching the user", err);
+        logout();
+      })
+      .finally(() => {
+        setLoading(false);
       });
-
-    setLoading(false);
     }
   },[token])
 
@@ -91,7 +93,7 @@ export const AuthProvider=({children})=>{
 
   }
   return (
-    <AuthContext.Provider value={{ user, token, isLoggedIn, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, token, isLoggedIn, isLoading, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )

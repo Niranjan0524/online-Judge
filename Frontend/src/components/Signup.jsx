@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { FiArrowRight, FiGithub, FiLock, FiMail, FiUser } from "react-icons/fi";
+import { FiArrowRight, FiAtSign, FiGithub, FiLock, FiMail, FiUser } from "react-icons/fi";
+import { useUsernameAvailability } from "../hooks/useUsernameAvailability";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
     name: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -16,11 +18,19 @@ export default function Signup() {
   const navigate = useNavigate();
 
   const errors = Array.isArray(error) ? error : error ? [error] : [];
+  const usernameAvailability = useUsernameAvailability(formData.username);
+  const canSubmitUsername =
+    usernameAvailability.isAvailable && !usernameAvailability.isChecking;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const { password, confirmPassword } = formData;
+
+    if (!canSubmitUsername) {
+      setError("Choose an available username before signing up");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -42,7 +52,7 @@ export default function Signup() {
         const data = await res.json();
 
         if (res.status !== 200) {
-          setError(data.errors || "Signup failed");
+          setError(data.errors || data.message || "Signup failed");
           toast.dismiss(toastId);
           toast.error("Signup failed");
         } else {
@@ -115,6 +125,42 @@ export default function Signup() {
                   className="block w-full rounded-xl border border-vibe-border bg-vibe-background py-3 pl-10 pr-3 text-sm text-vibe-text placeholder:text-vibe-muted hover:border-vibe-primary/50 focus:border-vibe-primary"
                 />
               </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-vibe-subtext"
+              >
+                Username
+              </label>
+              <div className="relative mt-2">
+                <FiAtSign
+                  size={16}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-vibe-muted"
+                />
+                <input
+                  type="text"
+                  id="username"
+                  value={formData.username}
+                  onChange={(e) =>
+                    setFormData({ ...formData, username: e.target.value })
+                  }
+                  placeholder="parth.dev"
+                  className="block w-full rounded-xl border border-vibe-border bg-vibe-background py-3 pl-10 pr-3 text-sm text-vibe-text placeholder:text-vibe-muted hover:border-vibe-primary/50 focus:border-vibe-primary"
+                />
+              </div>
+              {usernameAvailability.message && (
+                <p
+                  className={`mt-2 text-xs ${
+                    usernameAvailability.isAvailable
+                      ? "text-vibe-success"
+                      : "text-vibe-danger"
+                  }`}
+                >
+                  {usernameAvailability.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -230,7 +276,7 @@ export default function Signup() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !canSubmitUsername}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-3 text-sm font-semibold text-white shadow-panel hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Creating account..." : "Create account"}

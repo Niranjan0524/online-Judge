@@ -11,6 +11,10 @@ const {
   isProfileOwner,
   canViewProfileSection,
 } = require("../service/profilePrivacy");
+const {
+  normalizeUsername,
+  validateUsername,
+} = require("../service/usernameValidation");
 
 const namevalidator=expressValidator
   .check("name")
@@ -28,6 +32,18 @@ const emailvalidator=expressValidator
   .withMessage("Email is Required")
   .isEmail()
   .withMessage("Email is not valid");
+
+const usernamevalidator=expressValidator
+  .check("username")
+  .notEmpty()
+  .withMessage("Username is Required")
+  .custom((value) => {
+    const errors = validateUsername(value);
+    if (errors.length > 0) {
+      throw new Error(errors[0]);
+    }
+    return true;
+  });
 
   const passwordvalidator = expressValidator
     .check("password")
@@ -51,6 +67,7 @@ const emailvalidator=expressValidator
 
 exports.preSignup=[
   namevalidator,
+  usernamevalidator,
   emailvalidator,
   passwordvalidator,
   confirmPasswordValidator,
@@ -71,11 +88,18 @@ exports.preSignup=[
 exports.signup = (req, res) => {
   console.log("signup req from the client");
   console.log("req body:", req.body);
-  const { email } = req.body;
+  const email = (req.body.email || "").trim().toLowerCase();
+  const username = normalizeUsername(req.body.username);
 
-  User.findOne({ email: email })
+  User.findOne({ $or: [{ email: email }, { username: username }] })
     .then((user) => {
       if (user) {
+        if (user.username === username) {
+          return res.status(422).json({
+            message: "Username already exists"
+          });
+        }
+
         // If user exists, send response and STOP further execution
         return res.status(422).json({
           message: "Email already exists"
@@ -86,7 +110,8 @@ exports.signup = (req, res) => {
         .then((hashedPassword) => {
           const user = new User({
             name: req.body.name,
-            email: req.body.email,
+            username: username,
+            email: email,
             password: hashedPassword,
             type: req.body.type,
           });
@@ -103,6 +128,16 @@ exports.signup = (req, res) => {
     })
     .catch((error) => {
       console.error("Error creating user:", error);
+      if (error.code === 11000 && error.keyPattern?.username) {
+        return res.status(422).json({
+          message: "Username already exists"
+        });
+      }
+      if (error.code === 11000 && error.keyPattern?.email) {
+        return res.status(422).json({
+          message: "Email already exists"
+        });
+      }
       res.status(500).json({
         message: "Error creating user",
         error: error,
@@ -145,6 +180,7 @@ exports.login=async(req,res)=>{
       user:{
         _id:user._id,
         name:user.name,
+        username:user.username,
         email:user.email,
         type:user.type,
         privacySettings: normalizeProfilePrivacy(user.privacySettings)
@@ -186,6 +222,7 @@ exports.getUser=async(req,res)=>{
     user:{
       _id:user._id,
       name:user.name,
+      username:user.username,
       email:user.email,
       type:user.type,
       privacySettings: normalizeProfilePrivacy(user.privacySettings)
@@ -272,6 +309,7 @@ exports.updateUserProfile=async(req,res)=>{
       user: {
         _id: user._id,
         name: user.name,
+        username: user.username,
         email: user.email,
         type: user.type,
         privacySettings: normalizeProfilePrivacy(user.privacySettings)
@@ -281,6 +319,105 @@ exports.updateUserProfile=async(req,res)=>{
     console.error("Error updating profile:", error);
     res.status(500).json({
       message: "Error updating profile",
+      error: error
+    });
+  }
+}
+
+exports.checkUsername=async(req,res)=>{
+  try {
+    const username = normalizeUsername(req.query.username);
+    const errors = validateUsername(username);
+
+    if (!username || errors.length > 0) {
+      return res.status(422).json({
+        message: "Username is not valid",
+        available: false,
+        username: username,
+        errors: !username ? ["Username is Required"] : errors
+      });
+    }
+
+    const existingUser = await User.findOne({ username: username }).select("_id");
+
+    res.status(200).json({
+      message: existingUser ? "Username is not available" : "Username is available",
+      available: !existingUser,
+      username: username
+    });
+  } catch (error) {
+    console.error("Error checking username:", error);
+    res.status(500).json({
+      message: "Error checking username",
+      error: error
+    });
+  }
+}
+
+exports.chooseUsername=async(req,res)=>{
+  try {
+    const username = normalizeUsername(req.body.username);
+    const errors = validateUsername(username);
+
+    if (!username || errors.length > 0) {
+      return res.status(422).json({
+        errors: !username ? ["Username is Required"] : errors
+      });
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      {
+        _id: req.userId,
+        $or: [
+          { username: { $exists: false } },
+          { username: null },
+          { username: "" }
+        ]
+      },
+      { $set: { username: username } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      const user = await User.findById(req.userId);
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found"
+        });
+      }
+
+      if (user.username) {
+        return res.status(400).json({
+          message: "Username is already set"
+        });
+      }
+
+      return res.status(422).json({
+        message: "Username already exists"
+      });
+    }
+
+    res.status(200).json({
+      message: "Username selected successfully",
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        type: updatedUser.type,
+        privacySettings: normalizeProfilePrivacy(updatedUser.privacySettings)
+      }
+    });
+  } catch (error) {
+    console.error("Error choosing username:", error);
+    if (error.code === 11000 && error.keyPattern?.username) {
+      return res.status(422).json({
+        message: "Username already exists"
+      });
+    }
+
+    res.status(500).json({
+      message: "Error choosing username",
       error: error
     });
   }

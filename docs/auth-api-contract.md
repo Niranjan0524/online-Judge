@@ -9,6 +9,7 @@ Request Body
 ```json
 {
   "name": "John Doe",
+  "username": "john.doe",
   "email": "john@example.com",
   "password": "password1",
   "confirmPassword": "password1",
@@ -32,6 +33,7 @@ Success Response
   "user": {
     "_id": "USER_ID",
     "name": "John Doe",
+    "username": "john.doe",
     "email": "john@example.com",
     "password": "HASHED_PASSWORD",
     "type": "user"
@@ -68,6 +70,17 @@ HTTP Status Codes
 | 422 | Validation failed or email already exists |
 | 500 | Error creating user |
 
+Username Rules
+
+| Rule | Description |
+|------|-------------|
+| Required | Username is required during signup |
+| Length | 3 to 30 characters |
+| Characters | Lowercase letters, numbers, underscores, and periods |
+| Storage | Trimmed and stored lowercase |
+| Uniqueness | Unique database index remains the final source of truth |
+| Reserved Names | Common system names such as `admin`, `api`, `login`, `register`, `profile`, `settings`, `support`, `help`, and `about` are not allowed |
+
 ## POST /api/auth/login
 
 Authentication: No
@@ -98,6 +111,7 @@ Success Response
   "user": {
     "_id": "USER_ID",
     "name": "John Doe",
+    "username": "john.doe",
     "email": "john@example.com",
     "type": "user",
     "privacySettings": {
@@ -162,6 +176,7 @@ Success Response
   "user": {
     "_id": "USER_ID",
     "name": "John Doe",
+    "username": "john.doe",
     "email": "john@example.com",
     "type": "user",
     "privacySettings": {
@@ -202,6 +217,141 @@ HTTP Status Codes
 | 200 | User fetched successfully |
 | 401 | Authorization header missing, token missing, or user not found |
 
+## GET /api/users/check-username
+
+Authentication: No
+
+Request Body
+
+Not applicable.
+
+Path Parameters
+
+None.
+
+Query Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| username | string | Yes | Username to validate and check for availability |
+
+Success Response
+
+```json
+{
+  "message": "Username is available",
+  "available": true,
+  "username": "john.doe"
+}
+```
+
+Unavailable Response
+
+```json
+{
+  "message": "Username is not available",
+  "available": false,
+  "username": "john.doe"
+}
+```
+
+Validation Error Response
+
+```json
+{
+  "message": "Username is not valid",
+  "available": false,
+  "username": "admin",
+  "errors": ["Username is reserved"]
+}
+```
+
+HTTP Status Codes
+
+| Status Code | Description |
+|-------------|-------------|
+| 200 | Username validation completed |
+| 422 | Username is missing or invalid |
+| 500 | Error checking username |
+
+## PUT /api/users/me/username
+
+Authentication: Yes
+
+Request Body
+
+```json
+{
+  "username": "john.doe"
+}
+```
+
+Path Parameters
+
+None.
+
+Query Parameters
+
+None.
+
+Success Response
+
+```json
+{
+  "message": "Username selected successfully",
+  "user": {
+    "_id": "USER_ID",
+    "name": "John Doe",
+    "username": "john.doe",
+    "email": "john@example.com",
+    "type": "user",
+    "privacySettings": {
+      "publicProfile": "public",
+      "solvedProblems": "public",
+      "submissionHistory": "public",
+      "contestHistory": "public"
+    }
+  }
+}
+```
+
+Error Responses
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+```json
+{
+  "errors": ["Username is Required"]
+}
+```
+
+```json
+{
+  "message": "Username already exists"
+}
+```
+
+```json
+{
+  "message": "Username is already set"
+}
+```
+
+HTTP Status Codes
+
+| Status Code | Description |
+|-------------|-------------|
+| 200 | Username selected successfully |
+| 400 | User already has a username |
+| 401 | Authorization failed |
+| 404 | User not found |
+| 422 | Username is invalid or already exists |
+| 500 | Error choosing username |
+
 ## PUT /api/users/me
 
 Authentication: Yes
@@ -237,6 +387,7 @@ Success Response
   "user": {
     "_id": "USER_ID",
     "name": "John Doe",
+    "username": "john.doe",
     "email": "john@example.com",
     "type": "user",
     "privacySettings": {

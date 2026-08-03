@@ -59,7 +59,7 @@ const Login = () => {
         } else {
           login(data);
 
-          navigate("/");
+          navigate(data.user?.username ? "/" : "/choose-username");
           toast.dismiss(toastId);
           toast.success("Login successful");
         }
@@ -95,7 +95,7 @@ const Login = () => {
             window.location.pathname
           );
           toast.success("Login successful");
-          navigate("/");
+          navigate(data.user?.username ? "/" : "/choose-username");
         }
       });
     }
