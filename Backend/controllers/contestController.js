@@ -499,9 +499,11 @@ const getLeaderboardData = async (contestId) => {
 
         // ✅ Fix: Better user name fetching with error handling
         let userName = "Unknown User";
+        let username = "";
         try {
           const user = await User.findById(userId);
           userName = user ? user.name : "Unknown User";
+          username = user ? user.username : "";
         } catch (userErr) {
           console.error("Error fetching user:", userErr);
         }
@@ -515,6 +517,7 @@ const getLeaderboardData = async (contestId) => {
         const leaderboardEntry = {
           userId: userId,
           userName: userName,
+          username: username,
           noOfProblemsSolved: uniqueProblemSolved.size || 0,
           totalPoints: Math.round(totalPoints) || 0, // Ensure it's a valid number
           totalSubmissions: totalSubmissions || 0,

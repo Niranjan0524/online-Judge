@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { FiArrowLeft} from "react-icons/fi";
 import { GiTrophy } from "react-icons/gi";
 import { useSocketContext } from "../store/SocketContext";
@@ -91,7 +91,16 @@ const ContestLeaderboard = () => {
                         </span>
                       </td>
                       <td className="px-5 py-4 font-medium text-vibe-text">
-                        {row.userName}
+                        {row.username ? (
+                          <Link
+                            to={`/profile/${row.username}`}
+                            className="hover:text-vibe-primary"
+                          >
+                            {row.userName}
+                          </Link>
+                        ) : (
+                          row.userName
+                        )}
                         {row.userId === user?._id && (
                           <span className="ml-2 rounded-full border border-vibe-secondary/30 bg-vibe-secondary/10 px-2 py-0.5 text-xs text-vibe-secondary">
                             You

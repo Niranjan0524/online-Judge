@@ -11,6 +11,7 @@ exports.getLeaderboard = async (req, res) => {
       users.map(async (user) => {
         const userId = user._id;
         const userName = user.name;
+        const username = user.username;
 
         const problemsSolved = await Solution.find({ userId: userId });
 
@@ -56,6 +57,7 @@ exports.getLeaderboard = async (req, res) => {
         return {
           userId: userId,
           userName: userName,
+          username: username,
           noOfProblemsSolved: uniqueAcceptedProblems.size,
           correct: correct,
           wrong: wrong,

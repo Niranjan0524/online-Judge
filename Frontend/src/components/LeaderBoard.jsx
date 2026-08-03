@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { FiChevronDown, FiChevronUp, FiAward } from "react-icons/fi";
 import { useLeaderBoard } from "../store/LeaderBoardContext";
 
@@ -74,7 +75,16 @@ const Leaderboard = () => {
                       </span>
                     </td>
                     <td className="px-5 py-4 font-medium text-vibe-text">
-                      {user.userName}
+                      {user.username ? (
+                        <Link
+                          to={`/profile/${user.username}`}
+                          className="hover:text-vibe-primary"
+                        >
+                          {user.userName}
+                        </Link>
+                      ) : (
+                        user.userName
+                      )}
                     </td>
                     <td className="px-5 py-4 font-mono">
                       {user.noOfProblemsSolved}

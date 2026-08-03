@@ -433,10 +433,9 @@ exports.getPublicProfile=async(req,res)=>{
       });
     }
 
-    const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const user = await User.findOne({
-      name: { $regex: `^${escapedUsername}$`, $options: "i" }
-    }).select("name type privacySettings");
+      username: normalizeUsername(username)
+    }).select("name username type privacySettings");
 
     if (!user) {
       return res.status(404).json({
@@ -569,7 +568,7 @@ exports.getPublicProfile=async(req,res)=>{
       message: "Public profile fetched successfully",
       user: {
         name: visibility.publicProfile ? user.name : undefined,
-        username: user.name,
+        username: user.username,
         type: visibility.publicProfile ? user.type : undefined
       },
       stats: stats,
