@@ -8,7 +8,7 @@ import { useAuth } from "../store/AuthContext";
 
 const SolveContest = () => {
   const { contestId, problemId } = useParams();
-  const { joinContestLeaderboard } = useSocketContext();
+  const { socket, isConnected, joinContestLeaderboard } = useSocketContext();
   const { user } = useAuth();
   const fullScreen = useRef(null);
 
@@ -66,10 +66,10 @@ const SolveContest = () => {
   }, []);
 
   useEffect(() => {
-    if (contestId && problemId) {
+    if (contestId && problemId && socket && isConnected) {
       joinContestLeaderboard(contestId, user?._id);
     }
-  }, [contestId, problemId, user?._id, joinContestLeaderboard]);
+  }, [contestId, problemId, user?._id, socket, isConnected, joinContestLeaderboard]);
 
   return (
     <div ref={fullScreen} className="bg-vibe-background">
