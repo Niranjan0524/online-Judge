@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { cloneElement, useMemo, useState } from "react";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import {
@@ -49,12 +49,25 @@ const getHeatmapRange = (rangeKey) => {
   };
 };
 
+const formatHeatmapDate = (dateStr) => {
+  if (!dateStr) return "Unknown date";
+  const date = new Date(`${dateStr}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return dateStr;
+  return date.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 const Dashboard = () => {
   const { user } = useAuth() || {};
   const { solutions } = useSolutions();
   const { problems } = useProblems();
   const { leaderBoardData } = useLeaderBoard();
-  const [activityRange, setActivityRange] = useState("6m");
+  const [activityRange, setActivityRange] = useState("1y");
+  const [heatmapTooltip, setHeatmapTooltip] = useState(null);
 
   const dateCountMap = {};
   Array.isArray(solutions) &&
@@ -100,11 +113,7 @@ const Dashboard = () => {
   );
 
   const activityRangeLabel =
-    activityRange === "6m"
-      ? "Last 6 months"
-      : activityRange === "1y"
-      ? "Last 1 year"
-      : activityRange;
+     activityRange === "1y" ? "Last 1 year" : `${activityRange} years`;
 
   const tagCountMap = {};
   if (Array.isArray(solutions)) {
@@ -316,9 +325,9 @@ const Dashboard = () => {
           </article>
         </section>
 
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <article className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel sm:p-6">
-            <div className="mb-5 flex items-center justify-between gap-4">
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+          <article className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel sm:p-6 lg:col-span-1">
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between lg:flex-col">
               <div>
                 <p className="text-sm font-semibold text-vibe-text">
                   Problem tags solved
@@ -327,7 +336,7 @@ const Dashboard = () => {
                   Accepted submissions grouped by topic
                 </p>
               </div>
-              <span className="rounded-full border border-vibe-border bg-vibe-background px-3 py-1 text-xs font-semibold text-vibe-subtext">
+              <span className="w-fit rounded-full border border-vibe-border bg-vibe-background px-3 py-1 text-xs font-semibold text-vibe-subtext">
                 {tagMap.length} tags
               </span>
             </div>
@@ -337,10 +346,10 @@ const Dashboard = () => {
                 tagMap.map((t) => (
                   <span
                     key={t.tag}
-                    className="inline-flex items-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-3 py-2 text-sm font-medium text-vibe-subtext"
+                    className="inline-flex max-w-full items-center gap-2 rounded-xl border border-vibe-border bg-vibe-background px-3 py-2 text-sm font-medium text-vibe-subtext"
                   >
-                    {t.tag}
-                    <span className="rounded-lg bg-vibe-primary/10 px-2 py-0.5 font-mono text-xs text-vibe-primary">
+                    <span className="truncate">{t.tag}</span>
+                    <span className="shrink-0 rounded-lg bg-vibe-primary/10 px-2 py-0.5 font-mono text-xs text-vibe-primary">
                       {t.count}
                     </span>
                   </span>
@@ -353,7 +362,7 @@ const Dashboard = () => {
             </div>
           </article>
 
-          <article className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel sm:p-6">
+          <article className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel sm:p-6 lg:col-span-3">
             <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-vibe-text">
@@ -370,9 +379,9 @@ const Dashboard = () => {
                 <select
                   value={activityRange}
                   onChange={(e) => setActivityRange(e.target.value)}
-                  className="rounded-xl border border-vibe-border bg-vibe-background px-3 py-2 text-sm font-medium text-vibe-text hover:border-vibe-primary/50 focus:border-vibe-primary"
+                  className="w-full rounded-xl border border-vibe-border bg-vibe-background px-3 py-2 text-sm font-medium text-vibe-text hover:border-vibe-primary/50 focus:border-vibe-primary sm:min-w-40"
                 >
-                  <option value="6m">Last 6 months</option>
+                 
                   <option value="1y">Last 1 year</option>
                   {pastYearOptions.map((year) => (
                     <option key={year} value={String(year)}>
@@ -383,21 +392,41 @@ const Dashboard = () => {
               </label>
             </div>
 
-            <div className="overflow-x-auto rounded-xl border border-vibe-border bg-vibe-background p-4">
+            <div className="relative overflow-x-auto rounded-xl border border-vibe-border bg-vibe-background p-3 sm:p-4">
               <CalendarHeatmap
                 startDate={startDate}
                 endDate={endDate}
                 values={dateObj}
                 showMonthLabels={true}
                 horizontal={true}
-                titleForValue={(value) => {
-                  if (!value || !value.date) {
-                    return "No submissions";
-                  }
-                  return `${value.count} submission${
-                    value.count === 1 ? "" : "s"
-                  } on ${value.date}`;
-                }}
+                transformDayElement={(element, value) =>
+                  cloneElement(element, {
+                    style: {
+                      ...(element.props.style || {}),
+                      cursor: "pointer",
+                    },
+                    onMouseEnter: (event) => {
+                      setHeatmapTooltip({
+                        x: event.clientX,
+                        y: event.clientY,
+                        count: value?.count || 0,
+                        date: value?.date || null,
+                      });
+                    },
+                    onMouseMove: (event) => {
+                      setHeatmapTooltip((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              x: event.clientX,
+                              y: event.clientY,
+                            }
+                          : prev
+                      );
+                    },
+                    onMouseLeave: () => setHeatmapTooltip(null),
+                  })
+                }
                 classForValue={(value) => {
                   if (!value) return "color-scale-0";
                   return value.count >= 5
@@ -409,6 +438,33 @@ const Dashboard = () => {
                     : "color-scale-1";
                 }}
               />
+
+              {heatmapTooltip && (
+                <div
+                  className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-[calc(100%+12px)]"
+                  style={{
+                    left: heatmapTooltip.x,
+                    top: heatmapTooltip.y,
+                  }}
+                >
+                  <div className="min-w-[170px] rounded-xl border border-vibe-border bg-vibe-surface px-3.5 py-3 shadow-panel">
+                    <p className="font-mono text-lg font-semibold text-vibe-text">
+                      {heatmapTooltip.count}
+                      <span className="ml-1 text-sm font-medium text-vibe-subtext">
+                        {heatmapTooltip.count === 1
+                          ? "submission"
+                          : "submissions"}
+                      </span>
+                    </p>
+                    <p className="mt-1 text-xs text-vibe-muted">
+                      {heatmapTooltip.date
+                        ? formatHeatmapDate(heatmapTooltip.date)
+                        : "No activity on this day"}
+                    </p>
+                  </div>
+                  <div className="mx-auto -mt-px h-2.5 w-2.5 rotate-45 border-b border-r border-vibe-border bg-vibe-surface" />
+                </div>
+              )}
             </div>
           </article>
         </section>
@@ -432,7 +488,17 @@ const Dashboard = () => {
         {`
         .react-calendar-heatmap {
           width: 100%;
-          min-width: 320px;
+          min-width: 280px;
+        }
+        @media (min-width: 640px) {
+          .react-calendar-heatmap {
+            min-width: 420px;
+          }
+        }
+        @media (min-width: 1024px) {
+          .react-calendar-heatmap {
+            min-width: 0;
+          }
         }
         .react-calendar-heatmap text {
           fill: #71717A;
@@ -442,6 +508,11 @@ const Dashboard = () => {
           rx: 2px;
           ry: 2px;
           stroke: #09090B;
+          transition: stroke 120ms ease, filter 120ms ease;
+        }
+        .react-calendar-heatmap rect:hover {
+          stroke: #22C55E;
+          filter: brightness(1.15);
         }
         .color-scale-0 { fill: #18181B; }
         .color-scale-1 { fill: rgba(34, 197, 94, 0.28); }
