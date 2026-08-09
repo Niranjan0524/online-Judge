@@ -1,13 +1,13 @@
+import { useMemo, useState } from "react";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import {
   FiActivity,
   FiAward,
-  FiCalendar,
   FiCheckCircle,
   FiTarget,
-  FiTrendingUp,
   FiUser,
+  FiTrendingUp,
 } from "react-icons/fi";
 import { useAuth } from "../store/AuthContext";
 import { useSolutions } from "../store/SolutionContext";
@@ -20,11 +20,41 @@ const statusStyles = {
   "Wrong Answer": "border-vibe-danger/30 bg-vibe-danger/10 text-vibe-danger",
 };
 
+const startOfDay = (date) => {
+  const next = new Date(date);
+  next.setHours(0, 0, 0, 0);
+  return next;
+};
+
+const getHeatmapRange = (rangeKey) => {
+  const today = startOfDay(new Date());
+
+  if (rangeKey === "6m") {
+    const startDate = new Date(today);
+    startDate.setMonth(startDate.getMonth() - 6);
+    return { startDate, endDate: today };
+  }
+
+  if (rangeKey === "1y") {
+    const startDate = new Date(today);
+    startDate.setFullYear(startDate.getFullYear() - 1);
+    return { startDate, endDate: today };
+  }
+
+  const year = Number(rangeKey);
+  return {
+    startDate: new Date(year, 0, 1),
+    endDate:
+      year === today.getFullYear() ? today : new Date(year, 11, 31),
+  };
+};
+
 const Dashboard = () => {
   const { user } = useAuth() || {};
   const { solutions } = useSolutions();
   const { problems } = useProblems();
   const { leaderBoardData } = useLeaderBoard();
+  const [activityRange, setActivityRange] = useState("6m");
 
   const dateCountMap = {};
   Array.isArray(solutions) &&
@@ -38,6 +68,43 @@ const Dashboard = () => {
     date,
     count,
   }));
+
+  const pastYearOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    let earliestYear = currentYear - 1;
+
+    if (Array.isArray(solutions) && solutions.length > 0) {
+      solutions.forEach((item) => {
+        const year = new Date(item.submittedAt).getFullYear();
+        if (!Number.isNaN(year)) {
+          earliestYear = Math.min(earliestYear, year);
+        }
+      });
+    }
+
+    const years = [];
+    for (let year = currentYear - 1; year >= Math.min(earliestYear, currentYear - 1); year -= 1) {
+      years.push(year);
+    }
+
+    if (years.length === 0) {
+      years.push(currentYear - 1);
+    }
+
+    return years;
+  }, [solutions]);
+
+  const { startDate, endDate } = useMemo(
+    () => getHeatmapRange(activityRange),
+    [activityRange]
+  );
+
+  const activityRangeLabel =
+    activityRange === "6m"
+      ? "Last 6 months"
+      : activityRange === "1y"
+      ? "Last 1 year"
+      : activityRange;
 
   const tagCountMap = {};
   if (Array.isArray(solutions)) {
@@ -287,25 +354,50 @@ const Dashboard = () => {
           </article>
 
           <article className="rounded-2xl border border-vibe-border bg-vibe-surface p-5 shadow-panel sm:p-6">
-            <div className="mb-5 flex items-center justify-between gap-4">
+            <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-vibe-text">
                   Daily activity
                 </p>
                 <p className="mt-1 text-sm text-vibe-subtext">
-                  Submission cadence over time
+                  Submission cadence · {activityRangeLabel}
                 </p>
               </div>
-              <FiCalendar className="text-vibe-primary" size={20} />
+              <label className="flex w-full flex-col gap-1 sm:w-auto sm:items-end">
+                <span className="text-xs font-medium text-vibe-muted">
+                  Range
+                </span>
+                <select
+                  value={activityRange}
+                  onChange={(e) => setActivityRange(e.target.value)}
+                  className="rounded-xl border border-vibe-border bg-vibe-background px-3 py-2 text-sm font-medium text-vibe-text hover:border-vibe-primary/50 focus:border-vibe-primary"
+                >
+                  <option value="6m">Last 6 months</option>
+                  <option value="1y">Last 1 year</option>
+                  {pastYearOptions.map((year) => (
+                    <option key={year} value={String(year)}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
 
             <div className="overflow-x-auto rounded-xl border border-vibe-border bg-vibe-background p-4">
               <CalendarHeatmap
-                startDate={new Date("2025-01-01")}
-                endDate={new Date()}
+                startDate={startDate}
+                endDate={endDate}
                 values={dateObj}
                 showMonthLabels={true}
                 horizontal={true}
+                titleForValue={(value) => {
+                  if (!value || !value.date) {
+                    return "No submissions";
+                  }
+                  return `${value.count} submission${
+                    value.count === 1 ? "" : "s"
+                  } on ${value.date}`;
+                }}
                 classForValue={(value) => {
                   if (!value) return "color-scale-0";
                   return value.count >= 5
@@ -340,7 +432,7 @@ const Dashboard = () => {
         {`
         .react-calendar-heatmap {
           width: 100%;
-          min-width: 560px;
+          min-width: 320px;
         }
         .react-calendar-heatmap text {
           fill: #71717A;
