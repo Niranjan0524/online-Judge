@@ -1,8 +1,8 @@
-node_modules
-codes
-outputs
-codes
-inputs
+node_modules/
+codes/
+inputs/
+outputs/
+uploads/
 .env
-.env.development
-.env.production
+.env.*
+!.env.example
