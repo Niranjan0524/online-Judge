@@ -170,7 +170,7 @@ const Contest = () => {
                   key={opt.label}
                   className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${
                     activeTab === idx
-                      ? "bg-vibe-primary text-white"
+                      ? "bg-vibe-primary text-zinc-950"
                       : "text-vibe-subtext hover:bg-vibe-elevated hover:text-vibe-text"
                   }`}
                   onClick={() => setActiveTab(idx)}

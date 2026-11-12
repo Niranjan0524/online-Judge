@@ -29,8 +29,8 @@ export default {
         "2xl": "16px",
       },
       boxShadow: {
-        subtle: "0 16px 50px rgba(0, 0, 0, 0.22)",
-        panel: "0 10px 30px rgba(0, 0, 0, 0.18)",
+        subtle: "var(--vibe-shadow-subtle)",
+        panel: "var(--vibe-shadow-panel)",
       },
     },
   },

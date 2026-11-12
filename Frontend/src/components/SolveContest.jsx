@@ -35,7 +35,7 @@ const SolveContest = () => {
                   toast.dismiss(t.id);
                   fullScreenHandler();
                 }}
-                className="rounded-lg bg-vibe-primary px-3 py-1 text-xs font-semibold text-white"
+                className="rounded-lg bg-vibe-primary px-3 py-1 text-xs font-semibold text-zinc-950"
                 type="button"
               >
                 Re-enter Fullscreen

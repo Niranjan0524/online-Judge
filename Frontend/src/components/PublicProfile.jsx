@@ -79,7 +79,7 @@ const PublicProfile = () => {
           <p className="mt-3 text-sm leading-6 text-vibe-subtext">{error}</p>
           <Link
             to="/"
-            className="mt-7 inline-flex rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+            className="mt-7 inline-flex rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90"
           >
             Go Home
           </Link>

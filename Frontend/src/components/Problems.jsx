@@ -23,7 +23,7 @@ const Problems = () => {
     if (!problem?.title) return false;
     if (difficultyFilter !== "all" && problem.difficulty !== difficultyFilter) return false;
 
-    const searchText = `${problem.title} ${problem.difficulty} ${problem.tags?.join(" ") || ""}`.toLowerCase();
+    const searchText = `${problem.title} ${problem.description || ""} ${problem.difficulty} ${problem.tags?.join(" ") || ""}`.toLowerCase();
     return searchText.includes(query.trim().toLowerCase());
   });
 
@@ -53,7 +53,7 @@ const Problems = () => {
 
           <div className="flex flex-col gap-3 sm:flex-row">
             {user?.type === "admin" && (
-              <button onClick={handleAddProblem} className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90" type="button">
+              <button onClick={handleAddProblem} className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90" type="button">
                 <FiPlus size={16} />Add Problem
               </button>
             )}
@@ -87,7 +87,7 @@ const Problems = () => {
 
         {problemLoading ? (
           <div className="flex h-64 items-center justify-center rounded-2xl border border-dashed border-vibe-border bg-vibe-background">
-            <InfinitySpin visible={true} width="180" color="#6366F1" ariaLabel="loading problems" />
+            <InfinitySpin visible={true} width="180" color="#F15B14" ariaLabel="loading problems" />
           </div>
         ) : sortedProblems.length > 0 ? (
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -100,7 +100,7 @@ const Problems = () => {
                   }
                 }}
                 role={user?.type === "user" ? "link" : undefined} tabIndex={user?.type === "user" ? 0 : undefined}
-                className="group flex min-h-44 cursor-pointer flex-col rounded-2xl border border-vibe-border bg-vibe-background p-4 transition hover:-translate-y-0.5 hover:border-vibe-primary/60 hover:bg-vibe-elevated hover:shadow-panel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vibe-primary">
+                className={`group flex min-h-44 flex-col rounded-2xl border border-vibe-border bg-vibe-background p-4 transition hover:-translate-y-0.5 hover:border-vibe-primary/60 hover:bg-vibe-elevated hover:shadow-panel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vibe-primary ${user?.type === "user" ? "cursor-pointer" : ""}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="mb-2 flex items-center gap-2">
@@ -130,7 +130,7 @@ const Problems = () => {
                     ) : <span className="text-xs text-vibe-muted">No topics</span>}
                   </div>
                   {user?.type === "user" && (
-                    <button className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-vibe-primary px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-vibe-primary/90" onClick={(event) => { event.stopPropagation(); handleProblemClick(problem._id); }} type="button">
+                    <button className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-vibe-primary px-3.5 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-vibe-primary/90" onClick={(event) => { event.stopPropagation(); handleProblemClick(problem._id); }} type="button">
                       Solve <FiArrowUpRight size={15} />
                     </button>
                   )}

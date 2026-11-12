@@ -4,7 +4,7 @@ const LoadingState = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-vibe-background">
       <div className="rounded-2xl border border-vibe-border bg-vibe-surface p-8 shadow-panel">
-        <InfinitySpin width="200" color="#6366F1" />
+        <InfinitySpin width="200" color="#F15B14" />
       </div>
     </div>
   );

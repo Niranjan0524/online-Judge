@@ -12,6 +12,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { useAuth } from "../store/AuthContext";
+import { useTheme } from "../store/ThemeContext";
 
 const navItems = [
   { label: "Home", to: "/" },
@@ -26,21 +27,10 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoggedIn, logout, user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [theme, setTheme] = useState(
-    () => document.documentElement.dataset.theme || "dark"
-  );
   const profileBtnRef = useRef();
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    document.documentElement.dataset.theme = nextTheme;
-    localStorage.setItem("codevibe-theme", nextTheme);
-    const themeColor = document.querySelector('meta[name="theme-color"]');
-    if (themeColor) themeColor.content = nextTheme === "light" ? "#EEEEEE" : "#09090B";
-  };
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -135,7 +125,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-vibe-border bg-vibe-background/95">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-vibe-border bg-vibe-background/95 shadow-subtle backdrop-blur-md">
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link
             to="/"
@@ -150,7 +140,7 @@ const Header = () => {
             </span>
           </Link>
 
-          <div className="hidden items-center gap-1 rounded-2xl border border-vibe-border bg-vibe-surface/70 p-1 md:flex">
+          <div className="hidden items-center gap-1 rounded-2xl border border-vibe-border bg-vibe-surface/80 p-1 md:flex">
             {navItems.map((item) => renderNavItem(item))}
           </div>
 
@@ -159,6 +149,7 @@ const Header = () => {
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-surface text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
               type="button"
               onClick={toggleTheme}
+              aria-pressed={theme === "light"}
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
               title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             >
@@ -223,7 +214,7 @@ const Header = () => {
             ) : (
               <Link
                 to="/login"
-                className="inline-flex items-center gap-2 rounded-xl border border-vibe-primary/50 bg-vibe-primary px-4 py-2 text-sm font-semibold text-white shadow-panel hover:bg-vibe-primary/90 focus-visible:outline-vibe-primary"
+                className="inline-flex items-center gap-2 rounded-xl border border-vibe-primary/50 bg-vibe-primary px-4 py-2 text-sm font-semibold text-zinc-950 shadow-panel hover:bg-vibe-primary/90 focus-visible:outline-vibe-primary"
               >
                 <FiLogIn size={16} />
                 Login
@@ -251,6 +242,7 @@ const Header = () => {
                 type="button"
                 onClick={toggleTheme}
                 aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                aria-pressed={theme === "light"}
               >
                 {theme === "dark" ? <FiSun size={17} /> : <FiMoon size={17} />}
                 Switch to {theme === "dark" ? "light" : "dark"} mode
@@ -279,7 +271,7 @@ const Header = () => {
               ) : (
                 <Link
                   to="/login"
-                  className="flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-3 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-3 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90"
                 >
                   <FiLogIn size={16} />
                   Login

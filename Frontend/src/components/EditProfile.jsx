@@ -147,7 +147,7 @@ const EditProfile = () => {
           </p>
           <Link
             to="/login"
-            className="mt-7 inline-flex rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+            className="mt-7 inline-flex rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90"
           >
             Login
           </Link>
@@ -294,7 +294,7 @@ const EditProfile = () => {
                             }
                             className={`rounded-lg px-3 py-2 text-sm font-semibold capitalize ${
                               privacySettings[option.key] === visibility
-                                ? "bg-vibe-primary text-white"
+                                ? "bg-vibe-primary text-zinc-950"
                                 : "text-vibe-subtext hover:bg-vibe-elevated hover:text-vibe-text"
                             }`}
                           >
@@ -311,7 +311,7 @@ const EditProfile = () => {
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-3 text-sm font-semibold text-white shadow-panel hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-3 text-sm font-semibold text-zinc-950 shadow-panel hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
               <FiSave size={16} />
               {loading ? "Saving..." : "Save Changes"}

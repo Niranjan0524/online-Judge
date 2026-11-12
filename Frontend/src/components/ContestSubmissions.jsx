@@ -88,7 +88,7 @@ const ContestSubmissions = () => {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-vibe-background">
-        <InfinitySpin width="200" color="#6366F1" />
+        <InfinitySpin width="200" color="#F15B14" />
       </div>
     );
   }
@@ -139,7 +139,7 @@ const ContestSubmissions = () => {
               <p className="text-sm text-vibe-subtext">No submissions yet</p>
               <button
                 onClick={() => navigate(`/contest/${contestId}`)}
-                className="mt-4 rounded-xl bg-vibe-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+                className="mt-4 rounded-xl bg-vibe-primary px-5 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90"
                 type="button"
               >
                 Start Solving

@@ -131,7 +131,7 @@ const Profile = () => {
             </div>
             <button
               onClick={() => navigate("/dashboard")}
-              className="rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+              className="rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90"
               type="button"
             >
               Go to Dashboard

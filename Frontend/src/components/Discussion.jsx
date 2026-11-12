@@ -298,7 +298,7 @@ const Discussion = ({ problemId }) => {
           />
           <button
             type="submit"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={loading}
           >
             <FiPlus size={15} />
@@ -437,7 +437,7 @@ const Discussion = ({ problemId }) => {
             />
             <button
               type="submit"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
               disabled={msgLoading}
             >
               <FiSend size={15} />

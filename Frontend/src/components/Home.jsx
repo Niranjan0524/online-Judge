@@ -26,7 +26,7 @@ const Home = () => {
               <button
                 type="button"
                 onClick={scrollToProblems}
-                className="rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-white shadow-panel hover:bg-vibe-primary/90"
+                className="rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-zinc-950 shadow-panel hover:bg-vibe-primary/90"
               >
                 Start solving
               </button>

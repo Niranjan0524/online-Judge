@@ -293,7 +293,7 @@ const AddProblem = () => {
             </div>
             <button
               type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90"
               onClick={addTestCase}
             >
               <FiPlus size={16} />
@@ -400,7 +400,7 @@ const AddProblem = () => {
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-white shadow-panel hover:bg-vibe-primary/90"
+          className="w-full rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-zinc-950 shadow-panel hover:bg-vibe-primary/90"
         >
           Add Problem
         </button>

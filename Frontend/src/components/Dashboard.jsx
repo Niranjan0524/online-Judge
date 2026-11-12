@@ -501,20 +501,20 @@ const Dashboard = () => {
           }
         }
         .react-calendar-heatmap text {
-          fill: #71717A;
+          fill: rgb(var(--vibe-muted));
           font-size: 9px;
         }
         .react-calendar-heatmap rect {
           rx: 2px;
           ry: 2px;
-          stroke: #09090B;
+          stroke: rgb(var(--vibe-background));
           transition: stroke 120ms ease, filter 120ms ease;
         }
         .react-calendar-heatmap rect:hover {
           stroke: #22C55E;
           filter: brightness(1.15);
         }
-        .color-scale-0 { fill: #18181B; }
+        .color-scale-0 { fill: rgb(var(--vibe-surface)); }
         .color-scale-1 { fill: rgba(34, 197, 94, 0.28); }
         .color-scale-2 { fill: rgba(34, 197, 94, 0.48); }
         .color-scale-3 { fill: rgba(34, 197, 94, 0.68); }

@@ -72,7 +72,7 @@ const ResumeReviewer = () => {
               {resumeFile ? "Change Resume" : "Choose Resume"}
             </button>
             <button
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-3 text-sm font-semibold text-white hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-3 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
               onClick={handleUpload}
               disabled={hasReview || !resumeFile || loading}
               type="button"
@@ -106,7 +106,7 @@ const ResumeReviewer = () => {
           <div className="mt-5 min-h-40 rounded-2xl border border-vibe-border bg-vibe-background p-5">
             {loading ? (
               <div className="flex items-center gap-3 text-sm text-vibe-subtext">
-                <Circles height="20" width="20" color="#6366F1" visible={true} />
+                <Circles height="20" width="20" color="#F15B14" visible={true} />
                 Analyzing your resume...
               </div>
             ) : hasReview ? (

@@ -175,7 +175,7 @@ const Subscriptions = () => {
                   className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${
                     isYearly
                       ? "bg-vibe-success text-vibe-background hover:bg-vibe-success/90"
-                      : "bg-vibe-primary text-white hover:bg-vibe-primary/90"
+                      : "bg-vibe-primary text-zinc-950 hover:bg-vibe-primary/90"
                   }`}
                 >
                   Subscribe {plan.name}

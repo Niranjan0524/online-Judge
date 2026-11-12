@@ -141,7 +141,7 @@ const ContestCard = ({ contest, onRegister, onUnregister, userId }) => {
       <div className="mt-5 flex flex-wrap gap-3">
         {isRegistered && status === "ongoing" && (
           <button
-            className="inline-flex items-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+            className="inline-flex items-center gap-2 rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90"
             onClick={handleParticipateClick}
             type="button"
           >
@@ -161,7 +161,7 @@ const ContestCard = ({ contest, onRegister, onUnregister, userId }) => {
             </button>
           ) : (
             <button
-              className="rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+              className="rounded-xl bg-vibe-primary px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90"
               onClick={handleRegisterClick}
               type="button"
             >

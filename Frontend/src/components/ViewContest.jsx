@@ -150,7 +150,7 @@ const ViewContest = () => {
           </p>
           <button
             onClick={handleBackToContests}
-            className="mt-6 rounded-xl bg-vibe-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+            className="mt-6 rounded-xl bg-vibe-primary px-5 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90"
             type="button"
           >
             Back to Contests
@@ -292,7 +292,7 @@ const ViewContest = () => {
               </p>
               <button
                 onClick={() => navigate("/contest")}
-                className="mt-6 rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-white hover:bg-vibe-primary/90"
+                className="mt-6 rounded-xl bg-vibe-primary px-5 py-3 text-sm font-semibold text-zinc-950 hover:bg-vibe-primary/90"
                 type="button"
               >
                 Go to Contest Registration

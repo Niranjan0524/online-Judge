@@ -9,6 +9,7 @@ import { TestCaseProvider } from "./store/TestCases";
 import { SolutionContextProvider } from "./store/SolutionContext";
 import { LeaderBoardProvider } from "./store/LeaderBoardContext";
 import { SocketContextProvider } from "./store/SocketContext";
+import { ThemeProvider } from "./store/ThemeContext";
 import LoadingState from "./components/LoadingState";
 import "./index.css";
 
@@ -53,26 +54,27 @@ const UsernameGate = () => {
 
 function App() {
   return (
-    <AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
       <SocketContextProvider>
         <Toaster
           toastOptions={{
             style: {
-              background: "#18181B",
-              border: "1px solid #27272A",
-              color: "#FAFAFA",
-              boxShadow: "0 16px 50px rgba(0, 0, 0, 0.22)",
+              background: "rgb(var(--vibe-surface))",
+              border: "1px solid rgb(var(--vibe-border))",
+              color: "rgb(var(--vibe-text))",
+              boxShadow: "var(--vibe-shadow-subtle)",
             },
             success: {
               iconTheme: {
                 primary: "#22C55E",
-                secondary: "#09090B",
+                secondary: "rgb(var(--vibe-background))",
               },
             },
             error: {
               iconTheme: {
                 primary: "#EF4444",
-                secondary: "#09090B",
+                secondary: "rgb(var(--vibe-background))",
               },
             },
           }}
@@ -235,7 +237,8 @@ function App() {
           </TestCaseProvider>
         </ProblemsProvider>
       </SocketContextProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

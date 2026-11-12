@@ -155,7 +155,7 @@ const ChooseUsername = () => {
             <button
               type="submit"
               disabled={loading || !canSubmit}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-3 text-sm font-semibold text-white shadow-panel hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-vibe-primary px-4 py-3 text-sm font-semibold text-zinc-950 shadow-panel hover:bg-vibe-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Saving..." : "Continue"}
               {!loading && <FiArrowRight size={16} />}

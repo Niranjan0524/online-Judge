@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { atomDark, oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { IoCopy, IoCopyOutline } from "react-icons/io5";
+import { useTheme } from "../store/ThemeContext";
 
 const CodeBlock = ({ code, language }) => {
   const [copied, setCopy] = useState(false);
+  const { theme } = useTheme();
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(code);
@@ -26,9 +28,9 @@ const CodeBlock = ({ code, language }) => {
       </button>
       <SyntaxHighlighter
         language={language}
-        style={atomDark}
+        style={theme === "dark" ? atomDark : oneLight}
         customStyle={{
-          background: "#09090B",
+          background: "var(--vibe-code-background)",
           padding: "18px",
           paddingTop: "48px",
           fontFamily: "JetBrains Mono",

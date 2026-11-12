@@ -23,6 +23,7 @@ import { useAuth } from "../store/AuthContext";
 import { useProblems } from "../store/ProblemsContext";
 import { useTestCases } from "../store/TestCases";
 import { useLeaderBoard } from "../store/LeaderBoardContext";
+import { useTheme } from "../store/ThemeContext";
 import CodeBlock from "./CodeBlock";
 import Discussion from "./Discussion";
 
@@ -110,6 +111,7 @@ const SolveProblem = () => {
   const { fetchLeaderBoardData } = useLeaderBoard();
 
   const { token } = useAuth();
+  const { theme } = useTheme();
 
   const orderedProblems = useMemo(
     () => [...problems].sort((a, b) => a.title.localeCompare(b.title)),
@@ -570,7 +572,7 @@ const SolveProblem = () => {
                   type="button"
                   className={`shrink-0 rounded-xl px-3 py-2 text-sm font-semibold ${
                     activeTab === tab
-                      ? "bg-vibe-primary text-white"
+                      ? "bg-vibe-primary text-zinc-950"
                       : "border border-vibe-border bg-vibe-background text-vibe-subtext hover:border-vibe-primary/60 hover:text-vibe-text"
                   }`}
                   onClick={() => handleTabChange(tab)}
@@ -844,7 +846,7 @@ const SolveProblem = () => {
               <Editor
                 height="100%"
                 defaultLanguage={lang}
-                theme="vs-dark"
+                theme={theme === "dark" ? "vs-dark" : "vs"}
                 value={code}
                 onChange={(value) => setCode(value)}
                 options={{

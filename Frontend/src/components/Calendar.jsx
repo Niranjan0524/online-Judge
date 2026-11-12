@@ -82,7 +82,7 @@ const Calendar = () => {
               key={day}
               className={`rounded-xl p-2 ${
                 isToday
-                  ? "bg-vibe-primary text-white"
+                  ? "bg-vibe-primary text-zinc-950"
                   : "hover:bg-vibe-elevated hover:text-vibe-text"
               }`}
             >
