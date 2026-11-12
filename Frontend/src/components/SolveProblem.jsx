@@ -435,6 +435,12 @@ const SolveProblem = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    setCode("");
+    setInput("");
+    setOutput("");
+    setTestcase("");
+    setRunning(false);
+    setSubmitting(false);
     setActiveTab("Description");
     setViewSubmission(false);
     setCurrSolution(null);
