@@ -5,18 +5,18 @@ export default {
     extend: {
       colors: {
         vibe: {
-          background: "#09090B",
-          surface: "#18181B",
-          elevated: "#202024",
-          border: "#27272A",
-          primary: "#6366F1",
-          secondary: "#06B6D4",
+          background: "rgb(var(--vibe-background) / <alpha-value>)",
+          surface: "rgb(var(--vibe-surface) / <alpha-value>)",
+          elevated: "rgb(var(--vibe-elevated) / <alpha-value>)",
+          border: "rgb(var(--vibe-border) / <alpha-value>)",
+          primary: "rgb(var(--vibe-primary) / <alpha-value>)",
+          secondary: "rgb(var(--vibe-secondary) / <alpha-value>)",
           success: "#22C55E",
           warning: "#F59E0B",
           danger: "#EF4444",
-          text: "#FAFAFA",
-          subtext: "#A1A1AA",
-          muted: "#71717A",
+          text: "rgb(var(--vibe-text) / <alpha-value>)",
+          subtext: "rgb(var(--vibe-subtext) / <alpha-value>)",
+          muted: "rgb(var(--vibe-muted) / <alpha-value>)",
         },
       },
       fontFamily: {

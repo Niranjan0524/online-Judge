@@ -4,17 +4,44 @@
 @tailwind components;
 @tailwind utilities;
 
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --vibe-background: 9 9 11;
+  --vibe-surface: 24 24 27;
+  --vibe-elevated: 32 32 36;
+  --vibe-border: 63 63 70;
+  --vibe-primary: 255 107 26;
+  --vibe-secondary: 255 133 62;
+  --vibe-text: 250 250 250;
+  --vibe-subtext: 212 212 216;
+  --vibe-muted: 161 161 170;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --vibe-background: 238 238 238;
+  --vibe-surface: 250 250 250;
+  --vibe-elevated: 255 255 255;
+  --vibe-border: 203 203 203;
+  --vibe-primary: 241 91 20;
+  --vibe-secondary: 204 73 14;
+  --vibe-text: 28 28 30;
+  --vibe-subtext: 82 82 86;
+  --vibe-muted: 112 112 116;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
-    background: #09090b;
+    background: rgb(var(--vibe-background));
   }
 
   body {
     min-height: 100vh;
     margin: 0;
-    background: #09090b;
-    color: #fafafa;
+    background: rgb(var(--vibe-background));
+    color: rgb(var(--vibe-text));
     font-family: "Inter", system-ui, sans-serif;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -38,12 +65,12 @@
   }
 
   ::selection {
-    background: rgba(99, 102, 241, 0.35);
-    color: #fafafa;
+    background: rgba(255, 107, 26, 0.28);
+    color: rgb(var(--vibe-text));
   }
 
   * {
-    scrollbar-color: #27272a #09090b;
+    scrollbar-color: rgb(var(--vibe-border)) rgb(var(--vibe-background));
   }
 
   *::-webkit-scrollbar {
@@ -52,17 +79,17 @@
   }
 
   *::-webkit-scrollbar-track {
-    background: #09090b;
+    background: rgb(var(--vibe-background));
   }
 
   *::-webkit-scrollbar-thumb {
-    background: #27272a;
-    border: 2px solid #09090b;
+    background: rgb(var(--vibe-border));
+    border: 2px solid rgb(var(--vibe-background));
     border-radius: 999px;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background: #3f3f46;
+    background: rgb(var(--vibe-muted));
   }
 
   button,
@@ -80,7 +107,7 @@
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid #6366f1;
+    outline: 2px solid rgb(var(--vibe-primary));
     outline-offset: 2px;
   }
 }

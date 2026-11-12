@@ -6,6 +6,8 @@ import {
   FiLogIn,
   FiLogOut,
   FiMenu,
+  FiMoon,
+  FiSun,
   FiUser,
   FiX,
 } from "react-icons/fi";
@@ -26,7 +28,19 @@ const Header = () => {
   const { isLoggedIn, logout, user } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [theme, setTheme] = useState(
+    () => document.documentElement.dataset.theme || "dark"
+  );
   const profileBtnRef = useRef();
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    document.documentElement.dataset.theme = nextTheme;
+    localStorage.setItem("codevibe-theme", nextTheme);
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) themeColor.content = nextTheme === "light" ? "#EEEEEE" : "#09090B";
+  };
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -141,6 +155,15 @@ const Header = () => {
           </div>
 
           <div className="hidden items-center gap-3 md:flex">
+            <button
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-vibe-border bg-vibe-surface text-vibe-text hover:border-vibe-primary/60 hover:bg-vibe-elevated"
+              type="button"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            >
+              {theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
+            </button>
             {isLoggedIn ? (
               <div className="relative" ref={profileBtnRef}>
                 <button
@@ -223,6 +246,15 @@ const Header = () => {
           <div className="border-t border-vibe-border bg-vibe-background px-4 py-4 md:hidden">
             <div className="flex flex-col gap-1 rounded-2xl border border-vibe-border bg-vibe-surface p-2">
               {navItems.map((item) => renderNavItem(item, true))}
+              <button
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-vibe-text hover:bg-vibe-elevated"
+                type="button"
+                onClick={toggleTheme}
+                aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              >
+                {theme === "dark" ? <FiSun size={17} /> : <FiMoon size={17} />}
+                Switch to {theme === "dark" ? "light" : "dark"} mode
+              </button>
               <div className="my-2 h-px bg-vibe-border" />
               {isLoggedIn ? (
                 <>
