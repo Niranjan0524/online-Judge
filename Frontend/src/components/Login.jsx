@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { FiArrowRight, FiGithub, FiLock, FiMail } from "react-icons/fi";
 import { useAuth } from "../store/AuthContext";
+import ThemeToggle from "./ThemeToggle";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -103,6 +104,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-10 text-vibe-text sm:px-6 lg:px-8">
+      <ThemeToggle />
       <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl items-center gap-10 lg:grid-cols-[1fr_0.9fr]">
         <section className="hidden lg:block">
           <p className="text-sm font-semibold uppercase tracking-wide text-vibe-secondary">

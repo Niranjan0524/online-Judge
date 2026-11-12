@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { FiArrowRight, FiAtSign, FiGithub, FiLock, FiMail, FiUser } from "react-icons/fi";
 import { useUsernameAvailability } from "../hooks/useUsernameAvailability";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -80,6 +81,7 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-10 text-vibe-text sm:px-6 lg:px-8">
+      <ThemeToggle />
       <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl items-center gap-10 lg:grid-cols-[0.9fr_1fr]">
         <section className="mx-auto w-full max-w-xl rounded-2xl border border-vibe-border bg-vibe-surface p-6 shadow-subtle sm:p-8">
           <div>

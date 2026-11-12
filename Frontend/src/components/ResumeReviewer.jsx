@@ -79,7 +79,7 @@ const ResumeReviewer = () => {
             >
               {loading ? (
                 <>
-                  <Circles height="18" width="18" color="#fff" visible={true} />
+                  <Circles height="18" width="18" color="#18181B" visible={true} />
                   Uploading...
                 </>
               ) : (

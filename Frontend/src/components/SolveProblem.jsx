@@ -71,7 +71,7 @@ const LoadingIcon = () => (
   <Circles
     height="18"
     width="18"
-    color="#FAFAFA"
+    color="#18181B"
     ariaLabel="loading"
     wrapperStyle={{}}
     wrapperClass=""

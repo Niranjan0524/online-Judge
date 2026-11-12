@@ -5,6 +5,7 @@ import { FiArrowRight, FiAtSign, FiLogOut } from "react-icons/fi";
 import { useAuth } from "../store/AuthContext";
 import { useUsernameAvailability } from "../hooks/useUsernameAvailability";
 import LoadingState from "./LoadingState";
+import ThemeToggle from "./ThemeToggle";
 
 const ChooseUsername = () => {
   const { user, token, isLoggedIn, logout, updateUser } = useAuth();
@@ -82,6 +83,7 @@ const ChooseUsername = () => {
 
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-10 text-vibe-text sm:px-6 lg:px-8">
+      <ThemeToggle />
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-xl items-center">
         <section className="w-full rounded-2xl border border-vibe-border bg-vibe-surface p-6 shadow-subtle sm:p-8">
           <div className="flex items-start justify-between gap-4">

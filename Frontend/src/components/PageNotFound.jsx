@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 
 const PageNotFound = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-vibe-background px-4 text-vibe-text">
+      <ThemeToggle />
       <section className="max-w-lg rounded-2xl border border-vibe-border bg-vibe-surface p-8 text-center shadow-subtle">
         <p className="font-heading text-7xl font-bold text-vibe-primary">404</p>
         <h1 className="mt-4 font-heading text-3xl font-bold text-vibe-text">
