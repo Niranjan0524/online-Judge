@@ -108,6 +108,7 @@ const SolveProblem = () => {
 
   const problem = problems.find((p) => p._id === problemId);
   const currTestCases = testCases.filter((tc) => tc.problemId === problemId);
+  const totalTestCases = currTestCases[0]?.totalTestCases || 0;
   const { fetchLeaderBoardData } = useLeaderBoard();
 
   const { token } = useAuth();
@@ -467,7 +468,7 @@ const SolveProblem = () => {
     if (!currSubmission || currSubmission.length === 0) {
       setStatus("Not Attempted");
       setCurrSolution(null);
-      setCorrectness({ correct: 0, total: currTestCases.length });
+      setCorrectness({ correct: 0, total: totalTestCases });
       return;
     }
 
@@ -477,7 +478,7 @@ const SolveProblem = () => {
           setStatus("Accepted");
           setCorrectness({
             correct: sol.testCasesPassed,
-            total: currTestCases.length,
+            total: totalTestCases,
           });
           return;
         }
@@ -485,10 +486,10 @@ const SolveProblem = () => {
       setStatus("Wrong Answer");
       setCorrectness({
         correct: currSubmission[0].testCasesPassed,
-        total: currTestCases.length,
+        total: totalTestCases,
       });
     }
-  }, [currSubmission, currTestCases.length, submissionsLoading]);
+  }, [currSubmission, totalTestCases, submissionsLoading]);
 
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-6 text-vibe-text sm:px-6 lg:px-8">
@@ -769,7 +770,7 @@ const SolveProblem = () => {
                           <span className="flex items-center gap-3">
                             <span className="font-mono text-xs text-vibe-subtext">
                               {sol.testCasesPassed ?? 0} /{" "}
-                              {currTestCases.length ?? "-"} tests
+                              {totalTestCases || "-"} tests
                             </span>
                             <span
                               className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${

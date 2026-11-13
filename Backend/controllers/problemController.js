@@ -53,21 +53,40 @@ exports.addTestCases=async(req,res)=>{
 
 
 exports.getTestCases=async(req,res)=>{
+  try {
+    const testCases = await TestCase.aggregate([
+      { $sort: { problemId: 1, _id: 1 } },
+      {
+        $group: {
+          _id: "$problemId",
+          cases: { $push: "$$ROOT" },
+          totalTestCases: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          cases: { $slice: ["$cases", 2] },
+          totalTestCases: 1,
+        },
+      },
+      { $unwind: "$cases" },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: ["$cases", { totalTestCases: "$totalTestCases" }],
+          },
+        },
+      },
+    ]);
 
-
-
-  const testCases=await TestCase.find();
- 
-  if(!testCases){
-    res.status(402).json({
-      messages:"No test cases found"
-    })
+    return res.status(200).json({
+      message: "Sample test cases fetched successfully",
+      testCases,
+    });
+  } catch (error) {
+    console.error("Error fetching sample test cases:", error);
+    return res.status(500).json({ message: "Failed to fetch sample test cases" });
   }
-
-  res.status(200).json({
-    message:"Test cases fetched successfully",
-    testCases:testCases
-  })
 }
 
 exports.getProblemSubmissions=async(req,res)=>{

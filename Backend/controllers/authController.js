@@ -113,7 +113,7 @@ exports.signup = (req, res) => {
             username: username,
             email: email,
             password: hashedPassword,
-            type: req.body.type,
+            type: "user",
           });
 
           return user.save();
