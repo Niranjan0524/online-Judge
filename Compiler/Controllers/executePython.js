@@ -1,22 +1,13 @@
-const fs = require("fs");
 const path = require("path");
-const { exec } = require("child_process");
+const executeProcess = require("./executeProcess");
+const { getJobCredentials } = require("./generateFile");
 
-
-const executePython=async(filePath)=>{
-
-  return new Promise((resolve,reject)=>{
-    exec(`python "${filePath}"`, (error, stdout, stderr) => {
-      if (error) {
-        reject({ error, stderr });
-      } else if (stderr) {
-        reject(stderr);
-      } else {
-        resolve(stdout);
-      }
-    });
-  })
-
-}
+const executePython = (filePath, inputFilePath) =>
+  executeProcess("python3", [filePath], {
+    inputFilePath,
+    cwd: path.dirname(filePath),
+    timeoutMs: 5000,
+    ...getJobCredentials(filePath),
+  });
 
 module.exports={executePython};

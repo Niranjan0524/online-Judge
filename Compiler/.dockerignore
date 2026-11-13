@@ -1,5 +1,9 @@
-node_modules
-codes
-outputs
 .env
-.env.development
+.env.*
+!.env.example
+node_modules
+npm-debug.log*
+codes
+inputs
+outputs
+.git

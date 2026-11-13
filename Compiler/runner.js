@@ -4,35 +4,37 @@ require("dotenv").config({
 });
 
 const express = require("express");
-const cors = require("cors");
 const app = express();
-const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const { runCode,submitCode } = require("./Controllers/codeController");
 const morgan = require("morgan");
+const requireCompilerSecret = require("./middleware/requireCompilerSecret");
+const limitConcurrentJobs = require("./middleware/limitConcurrentJobs");
+
+if (process.platform === "linux") {
+  if (process.geteuid() !== 0) {
+    throw new Error("Compiler service must run as root to isolate job UIDs");
+  }
+  try {
+    process.setgroups([]);
+  } catch (error) {
+    console.warn("Could not clear supplementary groups; job UIDs remain isolated:", error.message);
+  }
+}
 
 
 app.use(morgan("combined")); // Logging middleware for development
 
 
-app.use(
-  cors({
-    origin: process.env.SERVER_URL || "http://localhost:4000",
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  })
-); 
-
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(express.json({ limit: "128kb" }));
 
 app.get("/", (req, res) => {
   res.send("Compiler service is running!");
 });
 
 
-app.post("/run", runCode);
-app.post("/submit", submitCode);
+app.post("/run", requireCompilerSecret, limitConcurrentJobs, runCode);
+app.post("/submit", requireCompilerSecret, limitConcurrentJobs, submitCode);
 
 const url = `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@xdb.mjwzy.mongodb.net/${process.env.MONGO_DB_DATABASE}`;
 

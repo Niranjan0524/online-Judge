@@ -194,7 +194,7 @@ exports.unregisterUser=async(req,res)=>{
 }
 
 exports.submitSolution=async(req,res)=>{
-  const { code, lang = "c++", problemId } = req.body;
+  const { code, lang = "cpp", problemId, className } = req.body;
   const {contestId} = req.params; 
   const id = req.userId;
   const userId = req.userId; // Assuming user ID is stored in req.user after authentication
@@ -203,12 +203,14 @@ exports.submitSolution=async(req,res)=>{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-compiler-secret": process.env.COMPILER_API_SECRET || "",
       },
       body: JSON.stringify({
         code,
         lang,
         problemId,
         id,
+        className,
       }),
     });
 
@@ -266,7 +268,7 @@ exports.submitSolution=async(req,res)=>{
 }
 
 exports.runCode = async (req, res) => {
-  const { code, lang = "c++", problemId, input } = req.body;
+  const { code, lang = "cpp", problemId, input, className } = req.body;
 
   console.log("got it");
   try {
@@ -274,12 +276,14 @@ exports.runCode = async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-compiler-secret": process.env.COMPILER_API_SECRET || "",
       },
       body: JSON.stringify({
         code,
         lang,
         problemId,
         input,
+        className,
       }),
     });
 

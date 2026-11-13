@@ -1,0 +1,26 @@
+services:
+  compiler:
+    build: .
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env.${NODE_ENV:-development}
+    expose:
+      - "5000"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=64m,mode=1777
+      - /app/codes:rw,nosuid,nodev,size=256m,mode=1777
+      - /app/inputs:rw,nosuid,nodev,noexec,size=64m,mode=1777
+      - /app/outputs:rw,nosuid,nodev,size=256m,mode=1777
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+      - KILL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 2g
+    cpus: 2

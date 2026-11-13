@@ -1,33 +1,28 @@
-const fs=require("fs");
-const path=require("path");
-const {exec}=require("child_process");
-const { stderr } = require("process");
+const path = require("path");
+const executeProcess = require("./executeProcess");
+const { getJobCredentials } = require("./generateFile");
 
-const outputPath=path.join(__dirname,"../","outputs");
-if(!fs.existsSync(outputPath)){
-  fs.mkdirSync(outputPath,{recursive:true});
-}
+const executeJava = async (filePath, inputFilePath) => {
+  const jobDir = path.dirname(filePath);
+  const className = path.basename(filePath, ".java");
+  const credentials = getJobCredentials(filePath);
 
+  await executeProcess("javac", [filePath, "-d", jobDir], {
+    cwd: jobDir,
+    timeoutMs: 15000,
+    cpuSeconds: 12,
+    memoryKb: 786432,
+    maxFileBlocks: 65536,
+    ...credentials,
+  });
 
-const executeJava=async(filePath)=>{
-
-  const fileName=path.basename(filePath).split(".")[0];
-  const outputFileName=path.join(outputPath,fileName+".class");
-
-  return new Promise((resolve,reject)=>{
-    exec(
-      `javac "${filePath}" -d "${outputPath}" && cd "${outputPath}" && java "${fileName}"`,
-      (error, stdout, stderr) => {
-        if (error) {
-          reject({ error, stderr });
-        } else if (stderr) {
-          reject(stderr);
-        } else {
-          resolve(stdout);
-        }
-      }
-    );
-  })
-}
+  return executeProcess("java", ["-Xms16m", "-Xmx192m", "-XX:ActiveProcessorCount=1", "-cp", jobDir, className], {
+    inputFilePath,
+    cwd: jobDir,
+    timeoutMs: 5000,
+    memoryKb: 786432,
+    ...credentials,
+  });
+};
 
 module.exports={executeJava};

@@ -4,7 +4,7 @@ const codeRouter=express.Router();
 const { aiReviewCode} = require("../controllers/codeController");
 
 codeRouter.post("/code-runs",async(req,res)=>{
-  const { code, lang = "c++", problemId, input } = req.body;
+  const { code, lang = "cpp", problemId, input, className } = req.body;
   
   console.log("got it");
   try{
@@ -12,12 +12,14 @@ codeRouter.post("/code-runs",async(req,res)=>{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-compiler-secret": process.env.COMPILER_API_SECRET || "",
       },
       body: JSON.stringify({
         code,
         lang,
         problemId,
         input,
+        className,
       }),
     });
 
@@ -41,19 +43,21 @@ codeRouter.post("/code-runs",async(req,res)=>{
   }
 });
 codeRouter.post("/submissions",async(req,res)=>{
-  const { code, lang = "c++", problemId } = req.body;
+  const { code, lang = "cpp", problemId, className } = req.body;
   const id = req.userId;
   try{
     const response = await fetch(`${process.env.COMPILER_URL}/submit`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-compiler-secret": process.env.COMPILER_API_SECRET || "",
       },
       body: JSON.stringify({
         code,
         lang,
         problemId,
         id,
+        className,
       }),
     });
 

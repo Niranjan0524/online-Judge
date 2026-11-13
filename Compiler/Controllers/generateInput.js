@@ -6,8 +6,9 @@ const dirInputs = path.join(__dirname, "../", "inputs");
 
 if (!fs.existsSync(dirInputs)) {
   console.log("Creating inputs directory...");
-  fs.mkdirSync(dirInputs, { recursive: true });
+  fs.mkdirSync(dirInputs, { recursive: true, mode: 0o700 });
 }
+if (process.platform === "linux") fs.chmodSync(dirInputs, 0o700);
 
 const formatInput = (input) => {
   if (input === null || input === undefined) return "";
@@ -51,7 +52,7 @@ const generateInput= (inputObj) => {
     // Use your formatInput function here!
     inputText = formatInput(inputObj);
   }
-  fs.writeFileSync(inputFilePath, inputText);
+  fs.writeFileSync(inputFilePath, String(inputText ?? ""), { encoding: "utf8", mode: 0o600, flag: "wx" });
 
   return inputFilePath;
 };

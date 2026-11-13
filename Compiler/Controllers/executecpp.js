@@ -1,85 +1,34 @@
-const { exec, spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const executeProcess = require("./executeProcess");
+const { getJobCredentials } = require("./generateFile");
 
-const formatInput = (inputObj) => {
-  const numsLine = Array.isArray(inputObj.nums) ? inputObj.nums.join(" ") : "";
-  const targetLine = inputObj.target !== undefined ? inputObj.target : "";
-  console.log("formatted input", `${numsLine}\n${targetLine}`);
-  return `${inputObj.n}\n${numsLine}\n${targetLine}`;
-};
+const executeCpp = async (filePath, inputFilePath, timeout = 5000) => {
+  const jobDir = path.dirname(filePath);
+  const outputPath = path.join(jobDir, "program.out");
+  const credentials = getJobCredentials(filePath);
 
-const outputPath = path.join(__dirname, "../", "outputs");
-
-if (!fs.existsSync(outputPath)) {
-  fs.mkdirSync(outputPath, { recursive: true });
-}
-const executeCpp = (filepath, inputFilePath, timeout = 5000) => {
-  const jobId = path.basename(filepath).split(".")[0];
-  const outPath = path.join(outputPath, `${jobId}.exe`);
-
-  return new Promise((resolve, reject) => {
-    exec(
-      `g++ "${filepath}" -o "${outPath}"`,
-      (compileErr, _, compileStderr) => {
-        if (compileErr) {
-          return reject({ error: compileErr, stderr: compileStderr });
-        }
-
-        const child = spawn(outPath, [], {
-          stdio: ["pipe", "pipe", "pipe"],
-        });
-
-        const inputStream = fs.createReadStream(inputFilePath);
-        inputStream.pipe(child.stdin);
-
-        let stdout = "";
-        let stderr = "";
-
-        child.stdout.on("data", (data) => {
-          stdout += data.toString();
-        });
-        child.stderr.on("data", (data) => {
-          stderr += data.toString();
-        });
-
-        let killed = false;
-        const timer = setTimeout(() => {
-          killed = true;
-          child.kill("SIGKILL");
-        }, timeout);
-
-        child.on("close", (code) => {
-          clearTimeout(timer);
-          // Clean up input file here, after process is closed
-          if (fs.existsSync(inputFilePath)) {
-            fs.unlinkSync(inputFilePath);
-          }
-          if (fs.existsSync(outPath)) {
-            fs.unlinkSync(outPath);
-          }
-          if (killed) {
-            return reject({ error: "Execution timed out" });
-          }
-          if (code !== 0 || stderr) {
-            return reject({ error: `Exited with code ${code}`, stderr });
-          }
-          resolve(stdout);
-        });
-
-        child.on("error", (err) => {
-          clearTimeout(timer);
-          if (fs.existsSync(inputFilePath)) {
-            fs.unlinkSync(inputFilePath);
-          }
-          reject({ error: err.message });
-        });
-      }
-    );
+  await executeProcess("g++", [filePath, "-o", outputPath], {
+    cwd: jobDir,
+    timeoutMs: 15000,
+    cpuSeconds: 12,
+    memoryKb: 786432,
+    maxFileBlocks: 65536,
+    ...credentials,
   });
+
+  try {
+    return await executeProcess(outputPath, [], {
+      inputFilePath,
+      cwd: jobDir,
+      timeoutMs: timeout,
+      cpuSeconds: Math.max(1, Math.ceil(timeout / 1000)),
+      memoryKb: 262144,
+      ...credentials,
+    });
+  } finally {
+    if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
+  }
 };
 
-
-module.exports = {
-  executeCpp,
-};
+module.exports = { executeCpp };

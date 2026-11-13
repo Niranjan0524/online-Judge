@@ -5,8 +5,9 @@ const {v4:uuid}=require("uuid");
 const dirInputs=path.join(__dirname,"../","inputs");
 
 if(!fs.existsSync(dirInputs)){
-  fs.mkdirSync(dirInputs,{recursive:true});
+  fs.mkdirSync(dirInputs,{recursive:true,mode:0o700});
 }
+if(process.platform === "linux") fs.chmodSync(dirInputs,0o700);
 
 function formatInput(input) {
   // Handle null or undefined
@@ -50,8 +51,7 @@ const generateInputFile=(inputObj)=>{
     // Use your formatInput function here!
     inputText = formatInput(inputObj);
   }
-  console.log("inputText",inputText);
-  fs.writeFileSync(inputFilePath,inputText);
+  fs.writeFileSync(inputFilePath,String(inputText ?? ""),{encoding:"utf8",mode:0o600,flag:"wx"});
   
   return inputFilePath;
 }
