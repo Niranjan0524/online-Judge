@@ -46,10 +46,9 @@ ${code}
 
     return result.response.text();
   } catch (err) {
-    console.error("Error generating AI response:", err);
+    console.error("Resume review generation failed.");
     return {
-      error:
-        err.message || "An error occurred while generating the AI response.",
+      error: "An error occurred while generating the resume review.",
     };
   }
 };
