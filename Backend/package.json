@@ -29,7 +29,7 @@
     "mammoth": "^1.9.1",
     "mongoose": "^8.14.2",
     "morgan": "^1.10.0",
-    "multer": "^2.0.1",
+    "multer": "^2.5.0",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-oauth2": "^1.8.0",
