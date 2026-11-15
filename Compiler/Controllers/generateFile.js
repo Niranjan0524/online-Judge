@@ -30,20 +30,26 @@ const generateFile = (code, lang, className = null) => {
   }
 
   const jobDir = path.join(dirCodes, uuid());
-  ensureJobDirectory(jobDir);
-  const fileName = lang === "java" ? `${className}${extension}` : `main${extension}`;
-  const filePath = path.join(jobDir, fileName);
-  const credentials = process.platform === "linux" && process.geteuid?.() === 0
-    ? { uid: randomInt(10000, 60000), gid: randomInt(10000, 60000) }
-    : {};
+  try {
+    ensureJobDirectory(jobDir);
+    const fileName = lang === "java" ? `${className}${extension}` : `main${extension}`;
+    const filePath = path.join(jobDir, fileName);
+    const credentials = process.platform === "linux" && process.geteuid?.() === 0
+      ? { uid: randomInt(10000, 60000), gid: randomInt(10000, 60000) }
+      : {};
 
-  fs.writeFileSync(filePath, code, { encoding: "utf8", mode: 0o600, flag: "wx" });
-  if (credentials.uid !== undefined) {
-    fs.chownSync(jobDir, credentials.uid, credentials.gid);
-    fs.chownSync(filePath, credentials.uid, credentials.gid);
+    fs.writeFileSync(filePath, code, { encoding: "utf8", mode: 0o600, flag: "wx" });
+    if (credentials.uid !== undefined) {
+      fs.chownSync(jobDir, credentials.uid, credentials.gid);
+      fs.chownSync(filePath, credentials.uid, credentials.gid);
+    }
+    jobCredentials.set(jobDir, credentials);
+    return filePath;
+  } catch (error) {
+    fs.rmSync(jobDir, { recursive: true, force: true });
+    jobCredentials.delete(jobDir);
+    throw error;
   }
-  jobCredentials.set(jobDir, credentials);
-  return filePath;
 };
 
 const getJobCredentials = (filePath) => jobCredentials.get(path.dirname(filePath)) || {};

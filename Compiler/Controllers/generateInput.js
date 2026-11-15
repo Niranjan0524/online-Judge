@@ -52,7 +52,12 @@ const generateInput= (inputObj) => {
     // Use your formatInput function here!
     inputText = formatInput(inputObj);
   }
-  fs.writeFileSync(inputFilePath, String(inputText ?? ""), { encoding: "utf8", mode: 0o600, flag: "wx" });
+  try {
+    fs.writeFileSync(inputFilePath, String(inputText ?? ""), { encoding: "utf8", mode: 0o600, flag: "wx" });
+  } catch (error) {
+    fs.rmSync(inputFilePath, { force: true });
+    throw error;
+  }
 
   return inputFilePath;
 };

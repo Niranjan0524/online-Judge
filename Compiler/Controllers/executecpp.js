@@ -3,7 +3,7 @@ const path = require("path");
 const executeProcess = require("./executeProcess");
 const { getJobCredentials } = require("./generateFile");
 
-const executeCpp = async (filePath, inputFilePath, timeout = 5000) => {
+const executeCpp = async (filePath, inputFilePath, signal, timeout = 5000) => {
   const jobDir = path.dirname(filePath);
   const outputPath = path.join(jobDir, "program.out");
   const credentials = getJobCredentials(filePath);
@@ -14,6 +14,7 @@ const executeCpp = async (filePath, inputFilePath, timeout = 5000) => {
     cpuSeconds: 12,
     memoryKb: 786432,
     maxFileBlocks: 65536,
+    signal,
     ...credentials,
   });
 
@@ -24,6 +25,7 @@ const executeCpp = async (filePath, inputFilePath, timeout = 5000) => {
       timeoutMs: timeout,
       cpuSeconds: Math.max(1, Math.ceil(timeout / 1000)),
       memoryKb: 262144,
+      signal,
       ...credentials,
     });
   } finally {

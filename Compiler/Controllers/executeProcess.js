@@ -17,13 +17,20 @@ const executeProcess = (
     cwd,
     uid,
     gid,
+    signal,
   } = {}
 ) => new Promise((resolve, reject) => {
   const isLinux = process.platform === "linux";
+  const supportsProcessGroups = process.platform !== "win32";
+  if (signal?.aborted) {
+    reject({ error: "Execution cancelled", stderr: "" });
+    return;
+  }
   if (isLinux && (uid === undefined || gid === undefined)) {
     reject({ error: "Compiler sandbox is unavailable", stderr: "" });
     return;
   }
+
   const spawnCommand = isLinux ? "/bin/sh" : command;
   const spawnArgs = isLinux
     ? [
@@ -39,7 +46,7 @@ const executeProcess = (
   try {
     child = spawn(spawnCommand, spawnArgs, {
       cwd,
-      detached: isLinux,
+      detached: supportsProcessGroups,
       env: {
         PATH: SAFE_PATH,
         HOME: cwd || "/tmp",
@@ -48,6 +55,7 @@ const executeProcess = (
       },
       stdio: ["pipe", "pipe", "pipe"],
       ...(isLinux ? { uid, gid } : {}),
+      windowsHide: true,
     });
   } catch (error) {
     reject({ error, stderr: "" });
@@ -58,34 +66,66 @@ const executeProcess = (
   let stderr = "";
   let outputBytes = 0;
   let failureReason = "";
+  let processError;
   let settled = false;
+  let inputStream;
 
-  const killProcessGroup = () => {
-    if (isLinux && child.pid) {
+  const killProcessTree = () => {
+    if (!child.pid) return;
+
+    if (supportsProcessGroups) {
       try {
         process.kill(-child.pid, "SIGKILL");
         return;
       } catch {
-        // The process may have already exited; fall back to the child handle.
+        // The process group may already have exited; try the direct child next.
       }
+    } else {
+      let taskkill;
+      try {
+        taskkill = spawn("taskkill.exe", ["/pid", String(child.pid), "/t", "/f"], {
+          stdio: "ignore",
+          windowsHide: true,
+        });
+      } catch {
+        child.kill("SIGKILL");
+        return;
+      }
+      taskkill.once("error", () => child.kill("SIGKILL"));
+      taskkill.once("close", (code) => {
+        if (code !== 0) child.kill("SIGKILL");
+      });
+      return;
     }
+
     child.kill("SIGKILL");
   };
 
-  const timer = setTimeout(() => {
-    failureReason = "Execution timed out";
-    killProcessGroup();
-  }, timeoutMs);
+  const terminate = (reason) => {
+    if (!failureReason) failureReason = reason;
+    killProcessTree();
+  };
+
+  const onAbort = () => terminate("Execution cancelled");
+  const timer = setTimeout(() => terminate("Execution timed out"), timeoutMs);
 
   const appendOutput = (target, chunk) => {
     outputBytes += chunk.length;
     if (outputBytes > OUTPUT_LIMIT_BYTES) {
-      failureReason = "Execution output exceeded the size limit";
-      killProcessGroup();
+      terminate("Execution output exceeded the size limit");
       return target;
     }
     return target + chunk.toString("utf8");
   };
+
+  const cleanupListeners = () => {
+    clearTimeout(timer);
+    signal?.removeEventListener("abort", onAbort);
+    inputStream?.destroy();
+  };
+
+  signal?.addEventListener("abort", onAbort, { once: true });
+  if (signal?.aborted) onAbort();
 
   child.stdout.on("data", (chunk) => {
     stdout = appendOutput(stdout, chunk);
@@ -96,38 +136,30 @@ const executeProcess = (
   child.stdin.on("error", () => {});
 
   child.on("error", (error) => {
-    if (settled) return;
-    settled = true;
-    clearTimeout(timer);
-    reject({ error, stderr });
+    processError = error;
+    terminate("Process failed to start");
   });
 
-  child.on("close", (code, signal) => {
+  child.on("close", (code, childSignal) => {
     if (settled) return;
     settled = true;
-    clearTimeout(timer);
+    cleanupListeners();
 
     if (failureReason) {
       reject({ error: failureReason, stderr });
+    } else if (processError) {
+      reject({ error: processError, stderr });
     } else if (code !== 0) {
-      reject({ error: `Process exited with ${signal || `code ${code}`}`, stderr });
+      reject({ error: `Process exited with ${childSignal || `code ${code}`}`, stderr });
     } else {
       resolve(stdout);
     }
   });
 
   if (inputFilePath) {
-    const input = createReadStream(inputFilePath);
-    input.on("error", (error) => {
-      failureReason = "Unable to read program input";
-      killProcessGroup();
-      if (!settled) {
-        settled = true;
-        clearTimeout(timer);
-        reject({ error, stderr });
-      }
-    });
-    input.pipe(child.stdin);
+    inputStream = createReadStream(inputFilePath);
+    inputStream.on("error", () => terminate("Unable to read program input"));
+    inputStream.pipe(child.stdin);
   } else {
     child.stdin.end();
   }

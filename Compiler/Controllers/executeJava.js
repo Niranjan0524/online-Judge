@@ -2,7 +2,7 @@ const path = require("path");
 const executeProcess = require("./executeProcess");
 const { getJobCredentials } = require("./generateFile");
 
-const executeJava = async (filePath, inputFilePath) => {
+const executeJava = async (filePath, inputFilePath, signal) => {
   const jobDir = path.dirname(filePath);
   const className = path.basename(filePath, ".java");
   const credentials = getJobCredentials(filePath);
@@ -13,6 +13,7 @@ const executeJava = async (filePath, inputFilePath) => {
     cpuSeconds: 12,
     memoryKb: 786432,
     maxFileBlocks: 65536,
+    signal,
     ...credentials,
   });
 
@@ -21,6 +22,7 @@ const executeJava = async (filePath, inputFilePath) => {
     cwd: jobDir,
     timeoutMs: 5000,
     memoryKb: 786432,
+    signal,
     ...credentials,
   });
 };
