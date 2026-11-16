@@ -4,9 +4,10 @@ const authRouter=express.Router();
 const passport=require('passport');
 const {verifyUser}=require('../controllers/verifyUser');
 const {preSignup,signup,login,getUser,getSolutions,getPublicProfile,updateUserProfile,checkUsername,chooseUsername}=require('../controllers/authController');
+const { loginLimiter, signupLimiter } = require("../middleware/rateLimits");
 
-authRouter.post('/auth/signup',preSignup,signup);
-authRouter.post('/auth/login',login);
+authRouter.post('/auth/signup',signupLimiter,preSignup,signup);
+authRouter.post('/auth/login',loginLimiter,login);
 authRouter.get('/users/me',getUser);
 authRouter.get('/users/me/solutions',getSolutions);
 authRouter.get('/users/check-username',checkUsername);

@@ -2,6 +2,7 @@ const resumeRouter=require("express").Router();
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { resumeReviewLimiter } = require("../middleware/rateLimits");
 
 const uploadDir=path.join(__dirname, '../uploads'); 
 
@@ -50,6 +51,6 @@ const handleResumeUpload = (req, res, next) => {
   });
 };
 
-resumeRouter.post("/resume-reviews", handleResumeUpload, getResumeReview);
+resumeRouter.post("/resume-reviews", resumeReviewLimiter, handleResumeUpload, getResumeReview);
 
 module.exports = resumeRouter;

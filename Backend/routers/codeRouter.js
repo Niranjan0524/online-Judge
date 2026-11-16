@@ -2,11 +2,11 @@ const express=require("express");
 
 const codeRouter=express.Router();
 const { aiReviewCode} = require("../controllers/codeController");
+const { costlyEndpointLimiter } = require("../middleware/rateLimits");
 
-codeRouter.post("/code-runs",async(req,res)=>{
+codeRouter.post("/code-runs",costlyEndpointLimiter,async(req,res)=>{
   const { code, lang = "cpp", problemId, input, className } = req.body;
   
-  console.log("got it");
   try{
     const response = await fetch(`${process.env.COMPILER_URL}/run`, {
       method: "POST",
@@ -42,7 +42,7 @@ codeRouter.post("/code-runs",async(req,res)=>{
     })
   }
 });
-codeRouter.post("/submissions",async(req,res)=>{
+codeRouter.post("/submissions",costlyEndpointLimiter,async(req,res)=>{
   const { code, lang = "cpp", problemId, className } = req.body;
   const id = req.userId;
   try{
@@ -82,6 +82,6 @@ codeRouter.post("/submissions",async(req,res)=>{
   } 
 
 });
-codeRouter.post("/code-reviews",aiReviewCode);
+codeRouter.post("/code-reviews",costlyEndpointLimiter,aiReviewCode);
 
 module.exports=codeRouter;

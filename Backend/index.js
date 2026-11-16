@@ -78,11 +78,6 @@ const url = `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  console.log("req url", req.url);
-  console.log("req body", req.body);
-  next();
-});
 
 //SOCKET:
 app.set("io",io);

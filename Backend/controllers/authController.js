@@ -86,8 +86,6 @@ exports.preSignup=[
 
 
 exports.signup = (req, res) => {
-  console.log("signup req from the client");
-  console.log("req body:", req.body);
   const email = (req.body.email || "").trim().toLowerCase();
   const username = normalizeUsername(req.body.username);
 
@@ -119,15 +117,21 @@ exports.signup = (req, res) => {
           return user.save();
         })
         .then((result) => {
-     
-          res.status(200).json({
+          return res.status(200).json({
             message: "User signed up successfully",
-            user: result,
+            user: {
+              _id: result._id,
+              name: result.name,
+              username: result.username,
+              email: result.email,
+              type: result.type,
+              privacySettings: normalizeProfilePrivacy(result.privacySettings),
+            },
           });
         });
     })
     .catch((error) => {
-      console.error("Error creating user:", error);
+      console.error("Error creating user.");
       if (error.code === 11000 && error.keyPattern?.username) {
         return res.status(422).json({
           message: "Username already exists"
@@ -140,52 +144,51 @@ exports.signup = (req, res) => {
       }
       res.status(500).json({
         message: "Error creating user",
-        error: error,
       });
     });
 };
   
 
 exports.login=async(req,res)=>{
-  console.log("inside login controller");
+  const loginFailure = () => res.status(401).json({
+    message: "Invalid email or password",
+  });
+  const email = typeof req.body?.email === "string"
+    ? req.body.email.trim().toLowerCase()
+    : "";
+  const password = req.body?.password;
 
-  const {email,password}=req.body;
+  if (!email || typeof password !== "string" || password.length === 0) {
+    return loginFailure();
+  }
 
-    const user =await  User.findOne({ email: email });
-    console.log(user,"user");
-    if(!user){
-      return res.status(422).json({
-        message:"User does not exist"
-      })
-    }
-    if (!password) {
-      return res.status(400).json({ message: "Password is required" });
-    }
-    console.log(user.password,"user password");
-    const isMatch=await bcrypt.compare(password,user.password);
+  try {
+    const user = await User.findOne({ email });
+    if (!user || !user.password) return loginFailure();
 
-    if(!isMatch){
-      return res.status(422).json({
-        message:"Invalid email or password"
-      })
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return loginFailure();
 
-    const token=jwt.sign({email,id:user._id},process.env.JWT_SECRET,{
-      expiresIn:"10d"
+    const token = jwt.sign({ email, id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "10d",
     });
 
-    res.json({
-      message:"User Logged in successfully",
-      token:token,
-      user:{
-        _id:user._id,
-        name:user.name,
-        username:user.username,
-        email:user.email,
-        type:user.type,
-        privacySettings: normalizeProfilePrivacy(user.privacySettings)
-      }
-    }); 
+    return res.json({
+      message: "User Logged in successfully",
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        type: user.type,
+        privacySettings: normalizeProfilePrivacy(user.privacySettings),
+      },
+    });
+  } catch {
+    console.error("Login request failed.");
+    return res.status(500).json({ message: "Unable to log in right now." });
+  }
 }
 
 
@@ -205,8 +208,6 @@ exports.getUser=async(req,res)=>{
     })
   }
 
-  console.log("valid token");
-
   const {id}=jwt.verify(token,process.env.JWT_SECRET);
 
   const user=await User.findById(id);
@@ -216,7 +217,6 @@ exports.getUser=async(req,res)=>{
       message:"User not found"
     })
   }
-  console.log("user in backend",user); 
   res.status(200).json({
     message:"User fetched Successfully",
     user:{
