@@ -83,7 +83,7 @@ exports.runCode = async (req, res) => {
 
   try {
     if (signal?.aborted) return;
-    filePath = generateFile(code, lang, className);
+    filePath = await generateFile(code, lang, className);
     inputFilePath = generateInputFile(input);
     const output = await runLanguage[lang](filePath, inputFilePath, signal);
     if (signal?.aborted || res.destroyed) return;
@@ -127,7 +127,7 @@ exports.submitCode = async (req, res) => {
     if (signal?.aborted) return;
     if (!problem) return res.status(404).json({ message: "Problem not found" });
 
-    filePath = generateFile(code, lang, req.body.className);
+    filePath = await generateFile(code, lang, req.body.className);
     const results = [];
     for (const testCase of testCases) {
       if (signal?.aborted) return;

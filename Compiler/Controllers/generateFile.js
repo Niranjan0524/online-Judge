@@ -12,13 +12,13 @@ const languageExtensions = {
 };
 const jobCredentials = new Map();
 
-const ensureJobDirectory = (directoryPath) => {
-  fs.mkdirSync(dirCodes, { recursive: true, mode: 0o711 });
-  if (process.platform === "linux") fs.chmodSync(dirCodes, 0o711);
-  fs.mkdirSync(directoryPath, { mode: 0o700 });
+const ensureJobDirectory = async (directoryPath) => {
+  await fs.promises.mkdir(dirCodes, { recursive: true, mode: 0o711 });
+  if (process.platform === "linux") await fs.promises.chmod(dirCodes, 0o711);
+  await fs.promises.mkdir(directoryPath, { mode: 0o700 });
 };
 
-const generateFile = (code, lang, className = null) => {
+const generateFile = async (code, lang, className = null) => {
   const extension = languageExtensions[lang];
   if (!extension) throw new Error("Unsupported programming language");
 
@@ -31,22 +31,22 @@ const generateFile = (code, lang, className = null) => {
 
   const jobDir = path.join(dirCodes, uuid());
   try {
-    ensureJobDirectory(jobDir);
+    await ensureJobDirectory(jobDir);
     const fileName = lang === "java" ? `${className}${extension}` : `main${extension}`;
     const filePath = path.join(jobDir, fileName);
     const credentials = process.platform === "linux" && process.geteuid?.() === 0
       ? { uid: randomInt(10000, 60000), gid: randomInt(10000, 60000) }
       : {};
 
-    fs.writeFileSync(filePath, code, { encoding: "utf8", mode: 0o600, flag: "wx" });
+    await fs.promises.writeFile(filePath, code, { encoding: "utf8", mode: 0o600, flag: "wx" });
     if (credentials.uid !== undefined) {
-      fs.chownSync(jobDir, credentials.uid, credentials.gid);
-      fs.chownSync(filePath, credentials.uid, credentials.gid);
+      await fs.promises.chown(jobDir, credentials.uid, credentials.gid);
+      await fs.promises.chown(filePath, credentials.uid, credentials.gid);
     }
     jobCredentials.set(jobDir, credentials);
     return filePath;
   } catch (error) {
-    fs.rmSync(jobDir, { recursive: true, force: true });
+    await fs.promises.rm(jobDir, { recursive: true, force: true });
     jobCredentials.delete(jobDir);
     throw error;
   }
