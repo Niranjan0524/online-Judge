@@ -126,6 +126,11 @@ exports.submitCode = async (req, res) => {
 
     if (signal?.aborted) return;
     if (!problem) return res.status(404).json({ message: "Problem not found" });
+    if (testCases.length === 0) {
+      return res.status(409).json({
+        message: "This problem is not configured with test cases and cannot accept submissions yet. Please contact an administrator.",
+      });
+    }
 
     filePath = await generateFile(code, lang, req.body.className);
     const results = [];
