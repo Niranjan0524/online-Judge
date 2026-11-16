@@ -1,5 +1,6 @@
 const contestRouter = require('express').Router();
 const {verifyUser}=require("../controllers/verifyUser");
+const requireAdmin = require("../controllers/requireAdmin");
 const { costlyEndpointLimiter } = require("../middleware/rateLimits");
 
 const {
@@ -14,7 +15,7 @@ const {
   getTotalSolvedProblems,
 } = require("../controllers/contestController");
 
-contestRouter.post('/contests',createContest);
+contestRouter.post('/contests',requireAdmin,createContest);
 contestRouter.get('/contests', getAllContests);
 contestRouter.get('/contests/:id',  getContestById);
 contestRouter.post('/contests/:id/registrations', registerUser);
