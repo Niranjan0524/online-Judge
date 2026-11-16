@@ -22,16 +22,23 @@ const ContestLeaderboard = () => {
 
   useEffect(() => {
     if (socket && isConnected) {
-      joinContestLeaderboard(contestId, user?._id);
+      joinContestLeaderboard(contestId);
       getContestStatus(contestId);
       setLoading(false);
     }
     return () => {
-      if (contestId && user?._id) {
+      if (contestId) {
         leaveContestLeaderboard(contestId);
       }
     };
-  }, [socket, isConnected, contestId, user?._id]);
+  }, [
+    socket,
+    isConnected,
+    contestId,
+    joinContestLeaderboard,
+    leaveContestLeaderboard,
+    getContestStatus,
+  ]);
 
   return (
     <div className="min-h-screen bg-vibe-background px-4 py-10 text-vibe-text sm:px-6 lg:px-8">

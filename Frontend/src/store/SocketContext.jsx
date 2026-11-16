@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 import toast from "react-hot-toast";
+import { useAuth } from "./AuthContext";
 
 const SocketContext = createContext();
 
@@ -10,13 +11,14 @@ const isContestRoute = (pathname) =>
 
 const SocketContextProvider = ({ children }) => {
   const location = useLocation();
+  const { token } = useAuth();
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [leaderBoardData, setLeaderBoardData] = useState([]);
   const needsSocket = isContestRoute(location.pathname);
 
   useEffect(() => {
-    if (!needsSocket) {
+    if (!needsSocket || !token) {
       setSocket(null);
       setIsConnected(false);
       setLeaderBoardData([]);
@@ -25,6 +27,7 @@ const SocketContextProvider = ({ children }) => {
 
     const newSocket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:4000", {
       transports: ["websocket", "polling"],
+      auth: { token },
       autoConnect: true,
     });
 
@@ -70,28 +73,27 @@ const SocketContextProvider = ({ children }) => {
       setIsConnected(false);
       setLeaderBoardData([]);
     };
-  }, [needsSocket]);
+  }, [needsSocket, token]);
 
-  const joinContestLeaderboard = (contestId, userId) => {
+  const joinContestLeaderboard = useCallback((contestId) => {
     if (socket && isConnected) {
       socket.emit("joinContestLeaderboard", {
         contestId,
-        userId,
       });
     }
-  };
+  }, [socket, isConnected]);
 
-  const leaveContestLeaderboard = (contestId) => {
+  const leaveContestLeaderboard = useCallback((contestId) => {
     if (socket && isConnected) {
       socket.emit("leaveContestLeaderboard", contestId);
     }
-  };
+  }, [socket, isConnected]);
 
-  const getContestStatus = (contestId) => {
+  const getContestStatus = useCallback((contestId) => {
     if (socket && isConnected) {
       socket.emit("getContestStatus", contestId);
     }
-  };
+  }, [socket, isConnected]);
 
   return (
     <SocketContext.Provider

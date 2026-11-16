@@ -4,6 +4,7 @@ const Solution = require('../models/solution');
 const Problem = require('../models/problems');
 const Leaderboard = require('../models/leaderboard');
 const User=require('../models/user');
+const { setLeaderboardCache } = require("../service/leaderboardCache");
 
 exports.createContest=async(req,res)=>{
   const contestData=req.body;
@@ -245,7 +246,7 @@ exports.submitSolution=async(req,res)=>{
       const sampleLeaderboardData =await getLeaderboardData(contestId);
       console.log("Sample Leaderboard Data:", sampleLeaderboardData);
       console.log("starting to emit leaderboard update");
-      io.to(`contest-${contestId}`).emit("leaderboardUpdate",{
+      io.to(`contest_${contestId}`).emit("leaderboardUpdate",{
         contestId:contestId,
         leaderboard:sampleLeaderboardData,        
         message: "Leaderboard updated",
@@ -569,6 +570,7 @@ const getLeaderboardData = async (contestId) => {
     } catch (dbErr) {
       console.error("Error updating leaderboard in database:", dbErr);
     }
+    setLeaderboardCache(contestId, leaderboardData);
 
     return leaderboardData;
   } catch (err) {

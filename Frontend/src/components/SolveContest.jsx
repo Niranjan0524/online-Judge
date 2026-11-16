@@ -4,12 +4,10 @@ import toast from "react-hot-toast";
 import ContestNavigation from "./ContestNavigation";
 import SolveProblem from "./SolveProblem";
 import { useSocketContext } from "../store/SocketContext";
-import { useAuth } from "../store/AuthContext";
 
 const SolveContest = () => {
   const { contestId, problemId } = useParams();
   const { socket, isConnected, joinContestLeaderboard } = useSocketContext();
-  const { user } = useAuth();
   const fullScreen = useRef(null);
 
   useEffect(() => {
@@ -67,9 +65,9 @@ const SolveContest = () => {
 
   useEffect(() => {
     if (contestId && problemId && socket && isConnected) {
-      joinContestLeaderboard(contestId, user?._id);
+      joinContestLeaderboard(contestId);
     }
-  }, [contestId, problemId, user?._id, socket, isConnected, joinContestLeaderboard]);
+  }, [contestId, problemId, socket, isConnected, joinContestLeaderboard]);
 
   return (
     <div ref={fullScreen} className="bg-vibe-background">
