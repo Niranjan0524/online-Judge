@@ -29,7 +29,7 @@ const Footer = () => {
             Contact
           </a>
           <a
-            href="http://niranjanalase.netlify.app"
+            href="https://www.niranjan5.me/"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-vibe-text"
